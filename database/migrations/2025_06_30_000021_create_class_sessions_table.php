@@ -21,8 +21,8 @@ return new class extends Migration
             $table->enum('session_day', array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'));
             $table->time('start_time');
             $table->time('end_time');
-            $table->foreign('teacher_id')->references('id')->on('teachers');
-            $table->foreign('class_room_id')->references('id')->on('class_rooms');
+            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_room_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
             // $table->foreign('subject_id')->references('id')->on('subjects');
             $table->timestamps();
         });

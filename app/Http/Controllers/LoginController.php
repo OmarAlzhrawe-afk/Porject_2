@@ -17,14 +17,14 @@ class LoginController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getLoginViewforadmin()
-    {
-        return view('auth.adminlogin');
-    }
-    public function GetLoginViewForSupervisor()
-    {
-        return view('auth.supervisorlogin');
-    }
+    // public function getLoginViewforadmin()
+    // {
+    //     return view('auth.adminlogin');
+    // }
+    // public function GetLoginViewForSupervisor()
+    // {
+    //     return view('auth.supervisorlogin');
+    // }
 
 
     public function AdminLogin(Request $request)
@@ -39,19 +39,23 @@ class LoginController extends Controller
         $user = User::where('email', $request->email)->first();
         //verify If User Exist with Same Password
         if (!$user || $request->input('password') != $user->password) {
-            return back()->withErrors([
+            return response()->json([
+                'Error' => 'Failed Login',
                 'message' => 'Invalid Email Or password'
             ]);
         }
         // Verify The Role Admin
         if ($user->role != $request->input('role')) {
-            return back()->withErrors([
-                'message' => 'you Dont have permission to Acess with this Role Select Role As ' . $user->role
+            return response()->json([
+                'Error' => 'Failed Login',
+                'message' => 'You Do Not Have Permission To Login As Admin Please Login As ' . $user->role
             ]);
         } else {
-            Auth::login($user, true);
-            $request->session()->regenerate();
-            return view('dashboard');
+            $token = $user->createToken($user->name)->plainTextToken;
+            return response()->json([
+                'Ok' => 'Successfully Login',
+                'your_new_token' => $token
+            ]);
         }
     }
     public function Supervisorcreatecode(Request $request)

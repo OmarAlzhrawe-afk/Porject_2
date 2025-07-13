@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class UsersTableSeeder extends Seeder
 {
@@ -14,13 +15,13 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        
 
-        \DB::table('users')->delete();
-        
-        \DB::table('users')->insert(array (
-            0 => 
-            array (
+
+        DB::table('users')->delete();
+
+        DB::table('users')->insert(array(
+            0 =>
+            array(
                 'id' => 1,
                 'name' => 'admin',
                 'email' => 'admin@gmail.com',
@@ -37,8 +38,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => NULL,
                 'updated_at' => NULL,
             ),
-            1 => 
-            array (
+            1 =>
+            array(
                 'id' => 4,
                 'name' => 'Ahmad',
                 'email' => 'Ahmad@gmail.com',
@@ -55,8 +56,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:13:27',
                 'updated_at' => '2025-07-08 14:13:27',
             ),
-            2 => 
-            array (
+            2 =>
+            array(
                 'id' => 6,
                 'name' => 'Ahmad',
                 'email' => 'Ahmad@gmail.com',
@@ -73,8 +74,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:20:59',
                 'updated_at' => '2025-07-08 14:20:59',
             ),
-            3 => 
-            array (
+            3 =>
+            array(
                 'id' => 7,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
@@ -91,15 +92,15 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:21:43',
                 'updated_at' => '2025-07-08 14:21:43',
             ),
-            4 => 
-            array (
+            4 =>
+            array(
                 'id' => 8,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
                 'password' => NULL,
                 'role' => 'admin',
                 'hire_date' => '2025-07-08',
-            'ID_documents' => '"{\\"father_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767__\\\\u0645\\\\u062e\\\\u0637\\\\u0637 \\\\u062f\\\\u0648\\\\u0646 \\\\u0627\\\\u0633\\\\u0645_ (3)-Page-1.png\\",\\"mother_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767_ERD.png\\",\\"family_book\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767_\\\\u0635\\\\u0648\\\\u0631\\\\u0629 \\\\u0647\\\\u0648\\\\u064a\\\\u0629.jpg\\"}"',
+                'ID_documents' => '"{\\"father_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767__\\\\u0645\\\\u062e\\\\u0637\\\\u0637 \\\\u062f\\\\u0648\\\\u0646 \\\\u0627\\\\u0633\\\\u0645_ (3)-Page-1.png\\",\\"mother_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767_ERD.png\\",\\"family_book\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751984767_\\\\u0635\\\\u0648\\\\u0631\\\\u0629 \\\\u0647\\\\u0648\\\\u064a\\\\u0629.jpg\\"}"',
                 'phone_number' => '0968339198',
                 'birth_date' => '2025-07-07',
                 'gender' => 'male',
@@ -109,8 +110,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:26:07',
                 'updated_at' => '2025-07-08 14:26:07',
             ),
-            5 => 
-            array (
+            5 =>
+            array(
                 'id' => 9,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
@@ -127,15 +128,15 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:40:39',
                 'updated_at' => '2025-07-08 14:40:39',
             ),
-            6 => 
-            array (
+            6 =>
+            array(
                 'id' => 10,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
                 'password' => NULL,
                 'role' => 'admin',
                 'hire_date' => '2025-07-08',
-            'ID_documents' => '"{\\"father_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690_\\\\u0635\\\\u0648\\\\u0631\\\\u0629 \\\\u0647\\\\u0648\\\\u064a\\\\u0629.jpg\\",\\"mother_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690_ERD.png\\",\\"family_book\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690__\\\\u0645\\\\u062e\\\\u0637\\\\u0637 \\\\u062f\\\\u0648\\\\u0646 \\\\u0627\\\\u0633\\\\u0645_ (3)-Page-1.png\\"}"',
+                'ID_documents' => '"{\\"father_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690_\\\\u0635\\\\u0648\\\\u0631\\\\u0629 \\\\u0647\\\\u0648\\\\u064a\\\\u0629.jpg\\",\\"mother_id\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690_ERD.png\\",\\"family_book\\":\\"uploads\\\\\\/users\\\\\\/IDs\\\\\\/1751985690__\\\\u0645\\\\u062e\\\\u0637\\\\u0637 \\\\u062f\\\\u0648\\\\u0646 \\\\u0627\\\\u0633\\\\u0645_ (3)-Page-1.png\\"}"',
                 'phone_number' => '0968339198',
                 'birth_date' => '2025-07-07',
                 'gender' => 'male',
@@ -145,8 +146,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:41:30',
                 'updated_at' => '2025-07-08 14:41:30',
             ),
-            7 => 
-            array (
+            7 =>
+            array(
                 'id' => 11,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
@@ -163,8 +164,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:45:45',
                 'updated_at' => '2025-07-08 14:45:45',
             ),
-            8 => 
-            array (
+            8 =>
+            array(
                 'id' => 12,
                 'name' => 'oamr',
                 'email' => 'lma@gmail.com',
@@ -181,15 +182,15 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 14:50:00',
                 'updated_at' => '2025-07-08 14:50:00',
             ),
-            9 => 
-            array (
+            9 =>
+            array(
                 'id' => 14,
                 'name' => 'ahmad',
                 'email' => 'Ahmad@gmail.com',
                 'password' => NULL,
                 'role' => 'admin',
                 'hire_date' => NULL,
-            'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/\\/17519923600_\\u0637\\u0644\\u06281 (1).pdf","mother_id":"uploads\\/users\\/IDs\\/\\/17519923601_\\u0637\\u0644\\u06281 (1).pdf","family_book":"uploads\\/users\\/IDs\\/\\/17519923602_\\u0637\\u0644\\u06281 (1).pdf"}',
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/\\/17519923600_\\u0637\\u0644\\u06281 (1).pdf","mother_id":"uploads\\/users\\/IDs\\/\\/17519923601_\\u0637\\u0644\\u06281 (1).pdf","family_book":"uploads\\/users\\/IDs\\/\\/17519923602_\\u0637\\u0644\\u06281 (1).pdf"}',
                 'phone_number' => '0968339198',
                 'birth_date' => '2025-06-28',
                 'gender' => 'male',
@@ -199,8 +200,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 16:32:40',
                 'updated_at' => '2025-07-08 16:32:40',
             ),
-            10 => 
-            array (
+            10 =>
+            array(
                 'id' => 16,
                 'name' => 'osama',
                 'email' => 'osama@gmail.com',
@@ -217,8 +218,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 21:27:05',
                 'updated_at' => '2025-07-08 21:27:05',
             ),
-            11 => 
-            array (
+            11 =>
+            array(
                 'id' => 17,
                 'name' => 'osama',
                 'email' => 'osama@gmail.com',
@@ -235,8 +236,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 21:28:05',
                 'updated_at' => '2025-07-08 21:28:05',
             ),
-            12 => 
-            array (
+            12 =>
+            array(
                 'id' => 18,
                 'name' => 'ali',
                 'email' => 'ali@gmail.com',
@@ -253,8 +254,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 21:58:43',
                 'updated_at' => '2025-07-08 21:58:43',
             ),
-            13 => 
-            array (
+            13 =>
+            array(
                 'id' => 20,
                 'name' => 'waleed',
                 'email' => 'waleed@gmail.com',
@@ -271,8 +272,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 23:26:31',
                 'updated_at' => '2025-07-08 23:26:31',
             ),
-            14 => 
-            array (
+            14 =>
+            array(
                 'id' => 21,
                 'name' => 'samer',
                 'email' => 'samer@gmail.com',
@@ -289,8 +290,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 23:28:05',
                 'updated_at' => '2025-07-08 23:28:05',
             ),
-            15 => 
-            array (
+            15 =>
+            array(
                 'id' => 22,
                 'name' => 'samer',
                 'email' => 'alali12345678@gmail.com',
@@ -307,8 +308,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-07-08 23:30:10',
                 'updated_at' => '2025-07-08 23:31:18',
             ),
-            16 => 
-            array (
+            16 =>
+            array(
                 'id' => 23,
                 'name' => 'omar',
                 'email' => 'omaralzehrawe@gmail.com',
@@ -326,7 +327,5 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => '2025-07-09 13:10:31',
             ),
         ));
-        
-        
     }
 }
