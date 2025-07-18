@@ -17,7 +17,7 @@ class EducationLevelsTableSeeder extends Seeder
     {
 
 
-        DB::table('education_levels')->delete();
+        // DB::table('education_levels')->delete();
 
         DB::table('education_levels')->insert(array(
             0 =>
@@ -26,6 +26,7 @@ class EducationLevelsTableSeeder extends Seeder
                 'created_at' => '2025-07-04 16:43:47',
                 'updated_at' => '2025-07-04 16:43:47',
                 'name' => 'first primary',
+                'supervisor_id' => '1',
                 'description' => 'this is for children',
             ),
         ));

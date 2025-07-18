@@ -10,8 +10,8 @@ class Supervisor extends Model
 
 	protected $table = 'supervisors';
 	public $timestamps = true;
-	protected $fillable = array('user_id', 'status');
-	protected $visible = array('user_id', 'status');
+	protected $fillable = array('id', 'user_id', 'status');
+	protected $visible = array('id', 'user_id', 'status');
 
 	public function user()
 	{

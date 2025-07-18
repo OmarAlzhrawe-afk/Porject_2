@@ -9,18 +9,17 @@ return new class extends Migration
 
 	public function up()
 	{
-		Schema::create('students', function (Blueprint $table) {
+		Schema::create('supervisors', function (Blueprint $table) {
 			$table->id();
 			$table->unsignedBigInteger('user_id');
-			$table->string('Student_number', 50)->unique();
-			$table->enum('status', array('active', 'suspended', 'graduated', 'left'));
-			$table->foreign('user_id')->references('id')->on('users');
+			$table->enum('status', array('active', 'on_leave', 'resigned'));
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 			$table->timestamps();
 		});
 	}
 
 	public function down()
 	{
-		Schema::drop('students');
+		Schema::drop('supervisors');
 	}
 };

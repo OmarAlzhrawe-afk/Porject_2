@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use SimpleXMLElement;
 
 use Illuminate\Support\Facades\DB;
 use App\Mail\AcceptedSchoolMail;
@@ -36,33 +37,124 @@ use Intervention\Image\Drivers\Gd\Driver;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\ApiResponse;
 use App\Helpers\HelpersFunctions;
+use App\Models\Activity;
+use App\Models\Class_teacher;
+use Sabberworm\CSS\Value\Size;
+use Spatie\Activitylog\Models\Activity as ActivityLogs;
+use Illuminate\Support\Facades\Storage;
+use function PHPUnit\Framework\at;
 
 class AdminProcessController extends Controller
 {
 
 
-    public function create_education_level(Request $request)
+    // Test 
+    public function Get_dash_data()
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255 ',
-            'description' => 'max:1024'
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'Failed' => "Error",
-                'message' => $validator->errors()
-            ]);
-        } else {
-            $el = new Education_level();
-            $el->name = $request->input('name');
-            $el->description = $request->input('description');
-            $el->save();
-            return response()->json([
-                'message' => "Created Education Level Successfully",
-                'education_level' => $el
-            ]);
+        try {
+            $students = Student::count();
+            $teachers = Teacher::count();
+            $supervisors = Supervisor::count();
+
+            $user = auth('sanctum')->user(); // 
+            if (!$user) {
+                return HelpersFunctions::error("Unauthorized", 401, "No user authenticated");
+            }
+
+            $recent_activity = ActivityLogs::where('causer_type', User::class)
+                ->where('causer_id', $user->id)
+                ->latest()
+                ->take(4)
+                ->get();
+
+            $data = [
+                'students' => $students,
+                'teachers' => $teachers,
+                'supervisors' => $supervisors,
+                'recent_activity' => $recent_activity
+            ];
+            //Enrolling Admin Log
+            return HelpersFunctions::success($data, "Getting data Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("internal Server Error ", 500, $e->getMessage());
         }
     }
+    public function get_All_education_level()
+    {
+        try {
+            $el = Education_level::all();
+            // Add Process To Recent 
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "get all education level",
+            ])->log("Get All Education Level");
+            return HelpersFunctions::success($el, "Getting Education Levels Successfully", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+
+    public function get_education_level_data($id)
+    {
+        $el = Education_level::findOrFail($id);
+        $subjects = $el->subjects;
+        $Regesterations = $el->Regesterations;
+        $classes = Class_room::where('education_level_id', $id);
+        // Get All Teachers IN Specific Education Level
+        $teachers = collect();
+        foreach ($classes as $class) {
+            $class_sessions = Class_session::where('class_id', $class->id)->get();
+            foreach ($class_sessions as $session) {
+                $teacher = Teacher::find($session->teacher_id);
+                if ($teacher && !$teachers->contains('id', $teacher->id)) {
+                    $teachers->push($teacher);
+                }
+            }
+        }
+        $data =  [
+            "education_Level" => $el,
+            'supervisor' => $el->supervisor,
+            "subjects" => $subjects,
+            "regesterations" => $Regesterations,
+            "Classes" => $classes,
+            "Teachers" => $teachers
+        ];
+        //Enrolling Admin Log
+        $admin = auth()->user('sanctum');
+        activity()->causedBy($admin)->withProperties([
+            'Process_type' => "get_education_level_data",
+        ])->log("get_education_level_data");
+        return HelpersFunctions::success($data, "Getting Education Level Data", 200);
+    }
+    public function create_education_level(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:255 ',
+                'description' => 'max:1024',
+                'supervisor_id' => 'required | exists:supervisors,id'
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            } else {
+                $el = new Education_level();
+                $el->name = $request->input('name');
+                $el->description = $request->input('description');
+                $el->supervisor_id = $request->input('supervisor_id');
+                $el->save();
+                // Add Process To Recent 
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "Send Forget Password Code",
+                ])->log("Admin Send Forget Password Code");
+                return HelpersFunctions::success($el, "Created Education Level Successfully", 200);
+            }
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+
+
     public function add_class_for_education_level(Request $request)
     {
         try {
@@ -75,12 +167,8 @@ class AdminProcessController extends Controller
                 'floor' => 'required'
             ]);
             if ($validator->fails()) {
-                return response()->json([
-                    'Failed' => "Error",
-                    'message' => $validator->errors()
-                ]);
+                return HelpersFunctions::error("Bad Request", 400, $validator->fails());
             } else {
-
                 $class = new Class_room();
                 $class->education_level_id = $request->input('level_id');
                 $class->name = $request->input('name');
@@ -88,18 +176,18 @@ class AdminProcessController extends Controller
                 $class->current_count = $request->input('current_count');
                 $class->floor = $request->input('floor');
                 $class->save();
-                return response()->json([
-                    'message' => "Created Class Successfully",
-                    'education_level' => $class
-                ]);
+                // Add Process To Recent 
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => " Add class Education Level ",
+                ])->log(" Add class Education Level ");
+                return HelpersFunctions::success($class, "Created Class Successfully", 200);
             }
         } catch (Exception $e) {
-            return response()->json([
-                'Failed' => "Error",
-                'message' => $e->getMessage()
-            ]);
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
+
     public function add_subject_for_education_level(Request $request)
     {
         try {
@@ -108,25 +196,21 @@ class AdminProcessController extends Controller
                 'level_id' => 'required | exists:education_levels,id',
             ]);
             if ($validator->fails()) {
-                return response()->json([
-                    'Failed' => "Error",
-                    'message' => $validator->errors()
-                ]);
+                return HelpersFunctions::error("Bad Request", 400, $validator->fails());
             } else {
                 $subject = new Subject();
                 $subject->name = $request->input('name');
                 $subject->save();
                 $subject->educationalLevels()->attach($request->level_id);
-                return response()->json([
-                    'message' => "Add Subject Successfully",
-                    'education_level' => $subject
-                ]);
+                // Add Process To Recent 
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => " Add class Education Level ",
+                ])->log(" Add class Education Level ");
+                return HelpersFunctions::success($subject, "Created Class Successfully", 200);
             }
         } catch (Exception $e) {
-            return response()->json([
-                'Failed' => "Error",
-                'message' => $e->getMessage()
-            ]);
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
     public function add_session_for_class_room(Request $request)
@@ -191,19 +275,26 @@ class AdminProcessController extends Controller
                     $class_session->start_time = $request->input('start_time');
                     $class_session->end_time = $request->input('end_time');
                     $class_session->save();
-                    return response()->json([
-                        'message' => "Add Session Successfully",
-                        'session_data' => $class_session,
-                        // 'teacher' => $class_session->teacher->name,
-                        // 'class' => $class_session->class->name
-                    ]);
+                    // Add Process To Recent 
+                    $user = auth('sanctum')->user();
+
+                    $teacher = Teacher::findOrFail($class_session->teacher_id);
+                    $subject = subject::findOrFail($teacher->subject_id);
+                    $class_session_data = [
+                        'session_day' => $class_session->session_day,
+                        'start_time' =>    $class_session->start_time,
+                        'end_time' =>   $class_session->end_time,
+                        'teacher' =>    $teacher,
+                        'subject' =>  $subject
+                    ];
+                    activity()->causedBy($user)->withProperties([
+                        'Process_type' => " Add Session ",
+                    ])->log("Admin Add Session ");
+                    return HelpersFunctions::success($class_session_data, "Add Session Successfully", 200);
                 }
             }
         } catch (Exception $e) {
-            return response()->json([
-                'Failed' => "Error",
-                'message' => $e->getMessage()
-            ]);
+            return HelpersFunctions::error("Internal Server Error  ", 500, $e->getMessage());
         }
     }
     // CRUD Public Content
@@ -211,6 +302,10 @@ class AdminProcessController extends Controller
     {
         try {
             $public_content = Public_content::all();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "get_public_content",
+            ])->log("Admin get_public_content");
             return HelpersFunctions::success($public_content, "Getting posts Successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -230,6 +325,10 @@ class AdminProcessController extends Controller
                 $public_content->content_type = $request->input('content_type');
                 $public_content->content = $request->input('content');
                 $public_content->save();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "add_PublicContent",
+                ])->log("Admin add_PublicContent");
                 return HelpersFunctions::success(null, 'Content Added Successfully', 201);
             }
         } catch (Exception $e) {
@@ -251,6 +350,10 @@ class AdminProcessController extends Controller
                 $public_content->content_type = $request->input('content_type');
                 $public_content->content = $request->input('content');
                 $public_content->save();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "update_PublicContent",
+                ])->log("Admin update_PublicContent");
                 return HelpersFunctions::success(null, 'Content Updated Successfully', 201);
             }
         } catch (Exception $e) {
@@ -263,6 +366,10 @@ class AdminProcessController extends Controller
             $public_content = Public_content::where('id', $public_content_id)->first();
             if ($public_content) {
                 $public_content->delete();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "delete_PublicContent",
+                ])->log("Admin delete_PublicContent");
                 return HelpersFunctions::success(null, '', 204);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "public Content that You Entered Is Not Found");
@@ -276,6 +383,10 @@ class AdminProcessController extends Controller
     {
         try {
             $posts = School_post::all();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "get_Posts",
+            ])->log("Admin get_Posts");
             return HelpersFunctions::success($posts, "Getting posts Successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error ", $e->getMessage(), 500);
@@ -310,6 +421,10 @@ class AdminProcessController extends Controller
                     $post->file_url = 'uploads/Posts/' . $file_Name;
                 }
                 $post->save();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "add_Post",
+                ])->log("Admin add_Post");
                 return HelpersFunctions::success(null, "Added Post Successfully", 200);
             }
         } catch (Exception $e) {
@@ -354,6 +469,10 @@ class AdminProcessController extends Controller
                     $post->file_url = 'uploads/Posts/' . $file_Name;
                 }
                 $post->save();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "update_Post",
+                ])->log("Admin update_Post");
                 return HelpersFunctions::success(null, "Update Post Successfully", 200);
             }
         } catch (Exception $e) {
@@ -371,6 +490,10 @@ class AdminProcessController extends Controller
                 if (File::exists($path)) {
                     File::delete($path);
                 }
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "delete_Post",
+                ])->log("Admin delete_Post");
                 return HelpersFunctions::success(null, "", 204);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "Post that you Eant Not Found ");
@@ -383,14 +506,12 @@ class AdminProcessController extends Controller
     public function get_all_users($type)
     {
         try {
-            if ($type == 'student' || $type == 'supervisor' || $type == 'teacher') {
-                $users = User::where('role', $type)
-                    ->with($type)
-                    ->get();
-            } else {
-                $users = User::where('role', $type)
-                    ->get();
-            }
+
+            $users = User::all();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "get_all_users",
+            ])->log("Admin get_all_users");
             return HelpersFunctions::success($users, "Getting Users Successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 400, $e->getMessage());
@@ -402,7 +523,7 @@ class AdminProcessController extends Controller
             $validator = Validator::make($request->all(), [
                 // User Data
                 'name' =>  'required|string',
-                'email' =>  'required|email',
+                'email' =>  'required|unique:users,email',
                 'phone_number' =>  'required',
                 'role' =>  'required',
                 'birth_date' =>  'required|date',
@@ -434,7 +555,11 @@ class AdminProcessController extends Controller
                     $docs[$key] = 'uploads/users/IDs/' . $user->id . '/' . $file_name;
                 }
                 $user->ID_documents = $docs;
-                $user->save(); // 'admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'
+                $user->save();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => "add" .  $request->role,
+                ])->log("add" .  $request->role); // 'admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'
                 if ($request->role == 'teacher') {
                     $validatorteacher = Validator::make($request->all(), [
                         //  Teacher Data
@@ -482,6 +607,7 @@ class AdminProcessController extends Controller
                     $validatorstudent = Validator::make($request->all(), [
                         //  Student Data
                         'status' =>  'required|in:active,suspended,graduated,left',
+                        'class_id' =>  'required|exists:class_rooms,id',
                     ]);
                     if ($validatorstudent->fails()) {
                         return HelpersFunctions::error("Bad Request Invalid data", 400, $validatorstudent->errors());
@@ -493,6 +619,8 @@ class AdminProcessController extends Controller
                         $student->save();
                     }
                 }
+                // Assign role based on type
+                $user->assignRole($request->role);
                 DB::commit();
                 return HelpersFunctions::success("OK", " Created " . $user->role . " Successfully ", 201);
             }
@@ -537,6 +665,10 @@ class AdminProcessController extends Controller
                 }
                 $user->ID_documents = $docs;
                 $user->save();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => "update" .  $request->role,
+                ])->log("update" .  $request->role);
                 if ($request->role == 'teacher') {
                     $validatorteacher = Validator::make($request->all(), [
                         //  Teacher Data
@@ -618,6 +750,10 @@ class AdminProcessController extends Controller
                     }
                 }
                 $user->delete();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => " delete" .  $user->role,
+                ])->log("delete" .  $user->role);
                 return HelpersFunctions::success('', "Deleted User Successfully ", 204);
             } else {
                 return HelpersFunctions::error("User that you entered Not Found", 400, "null");
@@ -631,6 +767,10 @@ class AdminProcessController extends Controller
     {
         try {
             $Registration_requests = Pre_registration::where('status', 'pending')->get();
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " get_all_pre_registeration",
+            ])->log("get_all_pre_registeration");
             return HelpersFunctions::success($Registration_requests, "Getting data Successfully ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -670,6 +810,10 @@ class AdminProcessController extends Controller
             $Registration->save();
             Mail::to($Registration->student_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
             Mail::to($Registration->parent_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " Reject_pre_registeration",
+            ])->log("Reject_pre_registeration");
             return HelpersFunctions::success('', "student Rejected successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -681,6 +825,10 @@ class AdminProcessController extends Controller
         try {
             $leaves = Staff_leaves::where('status', 'pending')->with('employee')->get();
             if ($leaves) {
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => " get_all_Leaves_order",
+                ])->log("get_all_Leaves_order");
                 return HelpersFunctions::success($leaves, "Getting Leaves Successfully", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, 'Unfound Leaves Order');
@@ -712,6 +860,10 @@ class AdminProcessController extends Controller
             $leave->save();
             // Send Notification To User 
             // $user->notify();
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " Accept_Leave",
+            ])->log("Accept_Leave");
             return HelpersFunctions::success("", "Accept Leave Successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -727,6 +879,10 @@ class AdminProcessController extends Controller
                 $leave->save();
                 // Send Notification To User 
                 // $user->notify();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => " Reject_Leave",
+                ])->log("Reject_Leave");
                 return HelpersFunctions::success("", "Reject Leave Successfully", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "Leave Not Found");
@@ -735,16 +891,12 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-    public function Generate_QR_For_Specific_Class_get_page()
-    {
-        return view('Qr_codes.Generate');
-    }
+
     public function Generate_QR_For_Specific_Class(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'class_id' => 'required|exists:class_rooms,id',
-                // 'type' => 'required|in:colored,normal,circle'
             ]);
             if ($validator->fails()) {
                 return $validator->errors();
@@ -758,35 +910,114 @@ class AdminProcessController extends Controller
                 $qr_code->user_id = auth()->user()->id;
                 $qr_code->save();
                 $class = Class_room::findOrFail($qr_code->class_id);
-                // if ($request->type == 'normal') {
-                $qr = QrCode::format('svg')->size(300)->generate($code);
-                // } else if ($request->type == 'colored') {
-                //     $qr = QrCode::format('svg')->size(300)
-                //         ->color(150, 50, 150)
-                //         ->generate("code");
-                // } else {
-                //     $qr = QrCode::format('svg')
-                //         ->size(300)
-                //         ->color(100, 0, 100)
-                //         ->backgroundColor(0, 0, 0)
-                //         ->errorCorrection('L')
-                //         ->style('dot')
-                //         ->margin(10)
-                //         ->eye('circle')->generate("code");
-                // }
 
-                $qrImage = 'data:image/png;base64,' . base64_encode($qr);
-                $pdf = Pdf::loadView('Qr_codes.QRpdf', [
-                    'image' => $qrImage,
-                    'class_name'  => $class->name,
-                ]);
-                return $pdf->download('QR_Code_Class_' . $qr_code->class_id . '.pdf');
+                $svg = QrCode::format('svg')->size(300)->generate($code);
+                return response($svg, 200)
+                    ->header('Content-Type', 'image/svg+xml');
+                // $qr = QrCode::format('svg')->size(300)->generate($code);
+                // $qrImage = 'data:image/png;base64,' . base64_encode($qr);
+                // $pdf = Pdf::loadView('Qr_codes.QRpdf', [
+                //     'image' => $qrImage,
+                //     'class_name'  => $class->name,
+                // ]);
+                // $pdfPath = 'qr_codes/QR_Code_Class_' . $qr_code->class_id . '.pdf';
+                // Storage::disk('public')->put($pdfPath, $pdf->output());
+                // $url = asset('storage/' . $pdfPath);
+                // return response()->json([
+                //     'message' => 'QR PDF generated successfully',
+                //     'url' => $url
+                // ]);
             }
         } catch (Exception $e) {
             return back()->with('error', 'Failed to save: ' . $e->getMessage());
         }
     }
-
+    public function Generate_QR_For_All_Staff()
+    {
+        try {
+            Qr_Code::where('Code_type', "employee")->delete();
+            $code = Str::uuid();
+            $qr_code = new Qr_Code();
+            $qr_code->Unique_code = $code;
+            $qr_code->expires_at = now()->addDays(7);
+            $qr_code->Code_type = 'employee';
+            $qr_code->user_id = auth()->user()->id;
+            $qr_code->save();
+            $svg = QrCode::format('svg')->size(300)->generate($code);
+            // Add Qr type name to  SVG
+            $svgObject = new SimpleXMLElement($svg);
+            $textNode = $svgObject->addChild('text', "Employee");
+            $textNode->addAttribute('x', '50%');
+            $textNode->addAttribute('y', '95%');
+            $textNode->addAttribute('text-anchor', 'middle');
+            $textNode->addAttribute('font-weight', 'bold');
+            $textNode->addAttribute('font-size', '64'); // حجم الخط
+            $textNode->addAttribute('fill', 'blue');
+            $svgWithText = $svgObject->asXML();
+            // Save SVG to file
+            $fileName = "qr_codes/Employee.svg";
+            $oldpath = 'public' . $fileName;
+            if (Storage::exists($oldpath)) {
+                Storage::delete($oldpath);
+            }
+            Storage::disk('public')->put($fileName, $svgWithText);
+            // Public URL
+            $publicUrl = asset("storage/{$fileName}");
+            return HelpersFunctions::success($publicUrl, "Creating Qr Code Done", 200);
+            return response($svg, 200)
+                ->header('Content-Type', 'image/svg+xml');
+        } catch (Exception $e) {
+            return HelpersFunctions::error("INternal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function Generate_QR_SVG_For_All_Classes()
+    {
+        try {
+            $classes = Class_room::all();
+            $qrList = [];
+            foreach ($classes as $class) {
+                // Delete The Old Records Qr Codes From DataBase
+                Qr_Code::where('class_id', $class->id)->delete();
+                $code = Str::uuid();
+                $qr_code = new Qr_Code();
+                $qr_code->class_id = $class->id;
+                $qr_code->Unique_code = $code;
+                $qr_code->expires_at = now()->addDays(7);
+                $qr_code->Code_type = 'teacher';
+                $qr_code->user_id = auth()->user()->id;
+                $qr_code->save();
+                // Generate SVG
+                $svg = QrCode::format('svg')->size(300)->generate($code);
+                // Add class name as <text> inside SVG
+                $svgObject = new SimpleXMLElement($svg);
+                $textNode = $svgObject->addChild('text', $class->name);
+                $textNode->addAttribute('x', '50%');
+                $textNode->addAttribute('y', '95%');
+                $textNode->addAttribute('text-anchor', 'middle');
+                $textNode->addAttribute('font-weight', 'bold');
+                $textNode->addAttribute('font-size', '64'); // حجم الخط
+                $textNode->addAttribute('fill', 'blue');
+                $svgWithText = $svgObject->asXML();
+                // Save SVG to file
+                $fileName = "qr_codes/class_{$class->id}.svg";
+                $oldpath = 'public' . $fileName;
+                if (Storage::exists($oldpath)) {
+                    Storage::delete($oldpath);
+                }
+                Storage::disk('public')->put($fileName, $svgWithText);
+                // Public URL
+                $publicUrl = asset("storage/{$fileName}");
+                $qrList[] = [
+                    'class_id' => $class->id,
+                    'class_name' => $class->name,
+                    'qr_svg_url' => $publicUrl,
+                ];
+            }
+            return HelpersFunctions::success($qrList, "Creating Qr_codes Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("internal server error", 500, $e->getMessage());
+        }
+    }
 
 
 

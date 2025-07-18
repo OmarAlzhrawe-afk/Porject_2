@@ -17,8 +17,8 @@ class Student extends Model
 
 	protected $table = 'students';
 	public $timestamps = true;
-	protected $fillable = array('user_id', 'Student_number', 'status');
-	protected $visible = array('user_id', 'Student_number', 'status');
+	protected $fillable = array('user_id', 'class_id', 'Student_number', 'status');
+	protected $visible = array('user_id', 'class_id', 'Student_number', 'status');
 
 
 
@@ -42,7 +42,10 @@ class Student extends Model
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
-
+	public function class()
+	{
+		return $this->belongsTo(User::class, 'class_id');
+	}
 	public function sessions()
 	{
 		return $this->hasMany(Class_session::class, 'student_id');

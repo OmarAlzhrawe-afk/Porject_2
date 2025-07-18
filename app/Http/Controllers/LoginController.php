@@ -2,48 +2,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\HelpersFunctions;
 use App\Mail\PasswordCodeMail;
 use App\Models\Login_code;
 use App\Models\User;
+use Exception;
+use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    // public function getLoginViewforadmin()
-    // {
-    //     return view('auth.adminlogin');
-    // }
-    // public function GetLoginViewForSupervisor()
-    // {
-    //     return view('auth.supervisorlogin');
-    // }
-
-
     public function AdminLogin(Request $request)
     {
         // verify Request data 
-        $request->validate([
-            'email' => 'required | email',
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required |exists:users,email',
             'password' => 'required',
             'role' => 'required | exists:users,role',
         ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request Invalid Data", 400, $validator->errors());
+        }
         // Fetch User From database 
         $user = User::where('email', $request->email)->first();
-        //verify If User Exist with Same Password
-        if (!$user || $request->input('password') != $user->password) {
-            return response()->json([
-                'Error' => 'Failed Login',
-                'message' => 'Invalid Email Or password'
-            ]);
-        }
+
         // Verify The Role Admin
         if ($user->role != $request->input('role')) {
             return response()->json([
@@ -52,33 +39,27 @@ class LoginController extends Controller
             ]);
         } else {
             $token = $user->createToken($user->name)->plainTextToken;
-            return response()->json([
-                'Ok' => 'Successfully Login',
-                'your_new_token' => $token
-            ]);
+            //Enrolling Admin Log
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Log_In",
+            ])->log("Admin Loged In");
+            return HelpersFunctions::success($token, " Login Done ", 200);
         }
     }
-    public function Supervisorcreatecode(Request $request)
+    // This 3Three Function For Admin If He Forget His Account Password
+    //1
+    public function SendForgetPasswordCodeAdmin(Request $request)
     {
         // verify Request data 
-        $request->validate([
-            'email' => 'required | email',
-            'role' => 'required | in:admin,supervisor',
+        $validator = Validator::make($request->all(), [
+            'email' => 'required |exists:users,email',
         ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+        }
         // Fetch User From database 
         $user = User::where('email', $request->email)->first();
-        //verify If User Exist with same Email
-        if (!$user) {
-            return back()->withErrors([
-                'message' => 'Invalid Email '
-            ]);
-        }
-        // Verify The Role Admin
-        if ($user->role != $request->input('role')) {
-            return back()->withErrors([
-                'message' => 'you Dont have permission to Acess with this Role Select Role As ' . $user->role
-            ]);
-        }
+
         // Delete All last Login Codes For this User 
         Login_code::where('email', $request->email)->delete();
 
@@ -90,9 +71,55 @@ class LoginController extends Controller
         $code->save();
         // Send Code To Supervisor Email
         Mail::to($request->email)->send(new PasswordCodeMail($code->code));
-        return view('auth.enter_login_code', ['email' => $code->email]);
+        activity()->causedBy($user)->withProperties([
+            'Process_type' => "Send Forget Password Code",
+        ])->log("Admin Send Forget Password Code");
+        return HelpersFunctions::success("", "Sending Password Code  Successfully ", 201);
     }
+    //2
+    public function VerifyPasswordCodeAdmin(Request $request)
+    {
 
+        $request->validate([
+            'code' => 'required',
+            'email' => 'required|exists:users,email',
+        ]);
+
+        $code = Login_code::where([
+            'code' => $request->code,
+            'email' => $request->email,
+        ])->first();
+        // verify if code Exist or not  
+        if (!$code) {
+            return HelpersFunctions::error("Bad Request", 400, "Code That you Entered Not Found");
+        }
+
+        // verify if code valid or not  
+        if (now()->diffInMinutes($code->created_at) > 5) {
+            return HelpersFunctions::error("Bad Request", 400, "Code That you Entered Expired");
+        }
+        $code->delete();
+        return HelpersFunctions::success("", "Code Verify Successfully ", 200);
+    }
+    //3
+    public function UpdatePasswordAdmin(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'password' => 'required|string|min:6|confirmed',
+                'email' => 'required|exists:users,email',
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+            $user = User::where('email', $request->email)->first();
+            $user->password = $request->password;
+            $user->save();
+            return HelpersFunctions::success("", "Update Password Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
 
     public function Supervisorentercode(Request $request)
     {

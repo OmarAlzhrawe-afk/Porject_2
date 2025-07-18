@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Supervisor;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -16,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call(UsersTableSeeder::class);
+        $this->call(SupervisorTableSeeder::class);
         $this->call(EducationLevelsTableSeeder::class);
         $this->call(ClassRoomsTableSeeder::class);
         $this->call(SubjectsTableSeeder::class);
@@ -23,5 +26,13 @@ class DatabaseSeeder extends Seeder
         $this->call(TeachersTableSeeder::class);
         $this->call(PreRegistrationsTableSeeder::class);
         $this->call(StaffLeavesTableSeeder::class);
+        $this->call(RolePermissionSeeder::class);
+
+        // Role::create(['name' => 'admin']);
+        // Role::create(['name' => 'teacher']);
+        // Role::create(['name' => 'student']);
+        // Role::create(['name' => 'supervisor']);
+        // Role::create(['name' => 'librarian']);
+        // Role::create(['name' => 'parent']);
     }
 }

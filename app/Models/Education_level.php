@@ -12,8 +12,8 @@ class Education_level extends Model
 
 	protected $table = 'education_levels';
 	public $timestamps = true;
-	protected $fillable = array('id', 'name', 'description');
-	protected $visible = array('id', 'name', 'description');
+	protected $fillable = array('id', 'supervisor_id', 'name', 'description');
+	protected $visible = array('id', 'supervisor_id', 'name', 'description');
 
 	public function students()
 	{

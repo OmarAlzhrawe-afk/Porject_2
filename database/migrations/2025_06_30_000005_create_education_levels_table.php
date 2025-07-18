@@ -14,6 +14,7 @@ return new class extends Migration
 			$table->timestamps();
 			$table->string('name', 255);
 			$table->text('description');
+			$table->foreignId('supervisor_id')->constrained('supervisors')->onDelete('cascade');
 		});
 	}
 

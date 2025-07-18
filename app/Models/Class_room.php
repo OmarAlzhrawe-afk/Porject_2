@@ -27,7 +27,10 @@ class Class_room extends Model
 	{
 		return $this->hasMany(Class_session::class);
 	}
-
+	public function education_level()
+	{
+		return $this->belongsTo(Class_session::class, "education_level_id");
+	}
 	public function education_contents()
 	{
 		return $this->hasMany(Education_content::class);
