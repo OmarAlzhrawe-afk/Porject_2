@@ -30,6 +30,10 @@ class UsersTableSeeder extends Seeder
             'remember_token' =>  Str::random(60),
         ]);
         $role = Role::firstOrCreate(['name' => 'admin']);
+        $role = Role::firstOrCreate(['name' => 'student']);
+        $role = Role::firstOrCreate(['name' => 'admin']);
+        $role = Role::firstOrCreate(['name' => 'admin']);
+        $role = Role::firstOrCreate(['name' => 'admin']);
         $user->assignRole($role);
     }
 }
