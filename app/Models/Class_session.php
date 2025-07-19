@@ -16,7 +16,7 @@ class Class_session extends Model
 	protected $fillable = array(
 		'id',
 		'treacher_id',
-		'class_id',
+		'class_room_id',
 		'subject_id',
 		'session_day',
 		'start_time',

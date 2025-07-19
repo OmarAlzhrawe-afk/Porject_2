@@ -99,11 +99,12 @@ class AdminProcessController extends Controller
         $el = Education_level::findOrFail($id);
         $subjects = $el->subjects;
         $Regesterations = $el->Regesterations;
-        $classes = Class_room::where('education_level_id', $id);
+        $classes = Class_room::where('education_level_id', $id)->get();
+        $supervisor =  Supervisor::find($el->supervisor_id);
         // Get All Teachers IN Specific Education Level
         $teachers = collect();
         foreach ($classes as $class) {
-            $class_sessions = Class_session::where('class_id', $class->id)->get();
+            $class_sessions = Class_session::where('class_room_id', $class->id)->get();
             foreach ($class_sessions as $session) {
                 $teacher = Teacher::find($session->teacher_id);
                 if ($teacher && !$teachers->contains('id', $teacher->id)) {
@@ -113,7 +114,7 @@ class AdminProcessController extends Controller
         }
         $data =  [
             "education_Level" => $el,
-            'supervisor' => $el->supervisor,
+            'supervisor' => $supervisor->user,
             "subjects" => $subjects,
             "regesterations" => $Regesterations,
             "Classes" => $classes,
@@ -167,7 +168,7 @@ class AdminProcessController extends Controller
                 'floor' => 'required'
             ]);
             if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", 400, $validator->fails());
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             } else {
                 $class = new Class_room();
                 $class->education_level_id = $request->input('level_id');

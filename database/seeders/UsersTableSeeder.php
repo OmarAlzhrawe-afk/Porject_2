@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use App\Models\User;
+use Spatie\Permission\Models\Permission;
 
 class UsersTableSeeder extends Seeder
 {
@@ -14,7 +15,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         DB::table('users')->delete();
-        $user = User::create([
+        $user =  User::create([
             'id' => 1,
             'name' => 'admin',
             'email' => 'admin@gmail.com',
@@ -29,11 +30,6 @@ class UsersTableSeeder extends Seeder
             'address' => 'adscscdasaas',
             'remember_token' =>  Str::random(60),
         ]);
-        $role = Role::firstOrCreate(['name' => 'admin']);
-        $role = Role::firstOrCreate(['name' => 'student']);
-        $role = Role::firstOrCreate(['name' => 'admin']);
-        $role = Role::firstOrCreate(['name' => 'admin']);
-        $role = Role::firstOrCreate(['name' => 'admin']);
-        $user->assignRole($role);
+        $user->assignRole('admin');
     }
 }

@@ -17,16 +17,17 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
-        $this->call(UsersTableSeeder::class);
-        $this->call(SupervisorTableSeeder::class);
-        $this->call(EducationLevelsTableSeeder::class);
-        $this->call(ClassRoomsTableSeeder::class);
-        $this->call(SubjectsTableSeeder::class);
-        $this->call(EducationLevelSubjectSeeder::class);
-        $this->call(TeachersTableSeeder::class);
-        $this->call(PreRegistrationsTableSeeder::class);
-        $this->call(StaffLeavesTableSeeder::class);
         $this->call(RolePermissionSeeder::class);
+        $this->call(UsersTableSeeder::class);
+
+        // $this->call(SupervisorTableSeeder::class);
+        // $this->call(EducationLevelsTableSeeder::class);
+        // $this->call(ClassRoomsTableSeeder::class);
+        // $this->call(SubjectsTableSeeder::class);
+        // $this->call(EducationLevelSubjectSeeder::class);
+        // $this->call(TeachersTableSeeder::class);
+        // $this->call(PreRegistrationsTableSeeder::class);
+        // $this->call(StaffLeavesTableSeeder::class);
 
         // Role::create(['name' => 'admin']);
         // Role::create(['name' => 'teacher']);

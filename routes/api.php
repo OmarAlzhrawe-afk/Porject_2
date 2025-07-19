@@ -32,7 +32,7 @@ Route::get('/test-role', function () {
 
 Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
     // Admin Login  
-    Route::post('login', [LoginController::class, 'AdminLogin'])->name('login');
+    Route::post('login', [LoginController::class, 'AdminLogin'])->name('loginpage');
     // Route To Forget  Admin Password
     // 1  Send VerifyCode email
     Route::post('SendForgetPasswordCodeAdmin', [LoginController::class, 'SendForgetPasswordCodeAdmin']);
