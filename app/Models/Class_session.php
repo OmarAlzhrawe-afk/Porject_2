@@ -22,7 +22,7 @@ class Class_session extends Model
 		'start_time',
 		'end_time'
 	);
-	protected $visible = array('treacher_id', 'class_id', 'subject_id', 'session_day', 'start_time', 'end_time');
+	// protected $visible = array('treacher_id', 'class_id', 'subject_id', 'session_day', 'start_time', 'end_time');
 
 	public function subject()
 	{

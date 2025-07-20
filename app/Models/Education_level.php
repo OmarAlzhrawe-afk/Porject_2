@@ -29,6 +29,7 @@ class Education_level extends Model
 	{
 		return $this->hasMany(Text_book::class);
 	}
+
 	public function subjects()
 	{
 		return $this->belongsToMany(Subject::class, 'educational_level_subjects');

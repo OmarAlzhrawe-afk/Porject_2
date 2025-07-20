@@ -13,7 +13,6 @@ class Subject extends Model
 	protected $table = 'subjects';
 	public $timestamps = false;
 	protected $fillable = array('name');
-	protected $visible = array('name');
 	public function teachers()
 	{
 		return $this->hasMany(Teacher::class);

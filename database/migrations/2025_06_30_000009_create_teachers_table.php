@@ -21,8 +21,8 @@ return new class extends Migration
 			$table->date('End_of_contract');
 			$table->tinyInteger('number_of_lesson_in_week');
 			$table->tinyInteger('wages_per_lesson')->nullable();
-			$table->foreign('user_id')->references('id')->on('users');
-			$table->foreign('subject_id')->references('id')->on('subjects');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
 
 
 			$table->timestamps();
