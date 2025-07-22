@@ -17,22 +17,15 @@ use App\Models\Class_room;
 class ManageUsers extends Controller
 {
     // CRUD Any User
-    public function get_all_users($type)
+    public function get_all_users()
     {
         try {
-            $relation = [];
-            if ($type === 'teacher') {
-                $relations[] = 'teacher';
-                $users = User::where('role', $type)->with($relations)->get();
-            } elseif ($type === 'student') {
-                $relations[] = 'student';
-                $users = User::where('role', $type)->with($relations)->get();
-            } elseif ($type === 'supervisor') {
-                $relations[] = 'supervisor';
-                $users = User::where('role', $type)->with($relations)->get();
-            } else {
-                $users = User::where('role', $type)->get();
-            }
+            $users = User::all()->map(function ($user) {
+                if (in_array($user->role, ['teacher', 'student', 'supervisor'])) {
+                    $user->load($user->role);
+                }
+                return $user;
+            });
             $user = auth('sanctum')->user();
             activity()->causedBy($user)->withProperties([
                 'Process_type' => "get_all_users",

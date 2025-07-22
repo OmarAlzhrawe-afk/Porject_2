@@ -16,10 +16,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
-        $this->call(RolePermissionSeeder::class);
-        $this->call(UsersTableSeeder::class);
 
+        Role::create(['name' => 'admin']);
+        Role::create(['name' => 'teacher']);
+        Role::create(['name' => 'student']);
+        Role::create(['name' => 'supervisor']);
+        Role::create(['name' => 'librarian']);
+        Role::create(['name' => 'parent']);
+        $this->call([
+            // RolesTableSeeder::class,
+            // PermissionsTableSeeder::class,
+            // RoleHasPermissionsTableSeeder::class,
+            UsersTableSeeder::class,
+            // ModelHasRolesTableSeeder::class,
+            // ModelHasPermissionsTableSeeder::class,
+            // StudentsTableSeeder::class,
+            // TeachersTableSeeder::class,
+        ]);
         // $this->call(SupervisorTableSeeder::class);
         // $this->call(EducationLevelsTableSeeder::class);
         // $this->call(ClassRoomsTableSeeder::class);
@@ -29,11 +42,12 @@ class DatabaseSeeder extends Seeder
         // $this->call(PreRegistrationsTableSeeder::class);
         // $this->call(StaffLeavesTableSeeder::class);
 
-        // Role::create(['name' => 'admin']);
-        // Role::create(['name' => 'teacher']);
-        // Role::create(['name' => 'student']);
-        // Role::create(['name' => 'supervisor']);
-        // Role::create(['name' => 'librarian']);
-        // Role::create(['name' => 'parent']);
+        // $this->call(StudentsTableSeeder::class);
+        // $this->call(StudentProfilesTableSeeder::class);
+        // $this->call(RolesTableSeeder::class);
+        // $this->call(PermissionsTableSeeder::class);
+        // $this->call(ModelHasRolesTableSeeder::class);
+        // $this->call(ModelHasPermissionsTableSeeder::class);
+        // $this->call(RoleHasPermissionsTableSeeder::class);
     }
 }

@@ -23,8 +23,8 @@ return new class extends Migration
 			$table->json('achievements')->nullable();
 			$table->text('guardian_feedback')->nullable();
 			$table->text('teacher_feedback')->nullable();
-			$table->foreign('student_id')->references('id')->on('students');
-			$table->foreign('education_level_id')->references('id')->on('education_levels');
+			$table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
 			$table->json('skills')->nullable();
 			$table->timestamps();
 		});

@@ -13,6 +13,7 @@ return new class extends Migration
 			$table->id();
 			$table->timestamps();
 			$table->string('name', 255);
+			$table->date('Acadimic_year');
 			$table->text('description');
 			$table->foreignId('supervisor_id')->constrained('supervisors')->onDelete('cascade');
 		});

@@ -15,7 +15,7 @@ class Class_session extends Model
 	public $timestamps = true;
 	protected $fillable = array(
 		'id',
-		'treacher_id',
+		'teacher_id',
 		'class_room_id',
 		'subject_id',
 		'session_day',
@@ -24,14 +24,14 @@ class Class_session extends Model
 	);
 	// protected $visible = array('treacher_id', 'class_id', 'subject_id', 'session_day', 'start_time', 'end_time');
 
-	public function subject()
-	{
-		return $this->belongsTo(Subject::class, 'subject_id');
-	}
+	// public function subject()
+	// {
+	// 	return $this->belongsTo(Subject::class, 'subject_id');
+	// }
 
 	public function class()
 	{
-		return $this->belongsTo(Class_room::class, 'class_id');
+		return $this->belongsTo(Class_room::class, 'class_room_id');
 	}
 
 	public function teacher()

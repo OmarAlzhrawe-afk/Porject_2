@@ -103,6 +103,7 @@ class ManageClassesAndEducationLevel extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:255 ',
+                'Acadimic_year' => 'required|date',
                 'description' => 'max:1024',
                 'supervisor_id' => 'required | exists:supervisors,id'
             ]);
@@ -112,6 +113,7 @@ class ManageClassesAndEducationLevel extends Controller
                 $el = new Education_level();
                 $el->name = $request->input('name');
                 $el->description = $request->input('description');
+                $el->Acadimic_year = $request->input('Acadimic_year');
                 $el->supervisor_id = $request->input('supervisor_id');
                 $el->save();
                 // Add Process To Recent 
@@ -325,10 +327,20 @@ class ManageClassesAndEducationLevel extends Controller
             return HelpersFunctions::error("Internal Server Error  ", 500, $e->getMessage());
         }
     }
-    public function get_all_sessions($class_id)
+    public function get_all_sessions()
     {
         try {
-            $sessions = Class_session::where('class_room_id', $class_id)->get();
+            $sessions = Class_session::with(['class', 'teacher.user', 'teacher.subject'])->get()->map(function ($session) {
+                return [
+                    'id' => $session->id,
+                    'day' => $session->session_day,
+                    'start' => $session->start_time,
+                    'end' => $session->end_time,
+                    'class_name' => optional($session->class)->name,
+                    'teacher_name' => optional(optional($session->teacher)->user)->name,
+                    'subject_name' => optional(optional($session->teacher)->subject)->name,
+                ];
+            });
             return HelpersFunctions::success($sessions, "Getting Sessions Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());

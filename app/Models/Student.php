@@ -18,7 +18,7 @@ class Student extends Model
 	protected $table = 'students';
 	public $timestamps = true;
 	protected $fillable = array('user_id', 'class_id', 'Student_number', 'status');
-	protected $visible = array('user_id', 'class_id', 'Student_number', 'status');
+	// protected $visible = array('user_id', 'class_id', 'Student_number', 'status');
 
 
 
@@ -28,14 +28,13 @@ class Student extends Model
 		parent::boot();
 
 		static::creating(function ($student) {
-			// احضر آخر رقم تم توليده
-			$lastStudent = self::orderBy('id', 'desc')->first();
+			do {
+				// ابدأ من آخر رقم موجود
+				$lastNumber = Student::max('student_number') ?? 1000;
+				$newNumber = $lastNumber + 1;
+			} while (Student::where('student_number', $newNumber)->exists());
 
-			// إذا لم يكن هناك أي طالب سابق
-			$lastNumber = $lastStudent ? intval($lastStudent->student_number) : 1000;
-
-			// زيادة الرقم بمقدار 1
-			$student->student_number = (string)($lastNumber + 1);
+			$student->student_number = $newNumber;
 		});
 	}
 	public function user()

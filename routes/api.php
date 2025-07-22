@@ -46,7 +46,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('delete_class/{id}', [ManageClassesAndEducationLevel::class, 'delete_class_for_education_level']);
         // Manage Sessions
         Route::post('add_session_for_class_room', [ManageClassesAndEducationLevel::class, 'add_session_for_class_room'])->name('add_session');
-        Route::get('get_all_sessions/{class_id}', [ManageClassesAndEducationLevel::class, 'get_all_sessions'])->name('add_class');
+        Route::get('get_all_sessions', [ManageClassesAndEducationLevel::class, 'get_all_sessions']);
         Route::get('delete_session/{id}', [ManageClassesAndEducationLevel::class, 'delete_session']);
         // Create Subject For Specific Education Level
         Route::post('add_subject_for_education_level', [ManageClassesAndEducationLevel::class, 'add_subject_for_education_level'])->name('add_subject');
@@ -63,7 +63,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::post('update_PublicContent', [PublicContentCrud::class, 'update_PublicContent'])->name('update_PublicContent');
         Route::delete('delete_PublicContent/{public_content_id}', [PublicContentCrud::class, 'delete_PublicContent'])->name('delete_PublicContent');
         // CRUD  User
-        Route::get('get_all_Users/{type}', [ManageUsers::class, 'get_all_users']);
+        Route::get('get_all_Users', [ManageUsers::class, 'get_all_users']);
         Route::post('add_User', [ManageUsers::class, 'add_User'])->name('add_User');
         Route::post('update_User', [ManageUsers::class, 'update_User'])->name('update_User');
         Route::get('delete_User/{id}', [ManageUsers::class, 'delete_User']);

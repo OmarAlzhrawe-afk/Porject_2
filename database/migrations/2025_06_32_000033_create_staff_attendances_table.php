@@ -15,8 +15,8 @@ return new class extends Migration
 			$table->bigInteger('user_id')->unsigned();
 			$table->enum('Attendance_status', array('present', 'absent', 'justified'));
 			$table->text('nots')->nullable();
-			$table->foreign('QR_id')->references('id')->on('qr_codes');
-			$table->foreign('user_id')->references('id')->on('users');
+			$table->foreign('QR_id')->references('id')->on('qr_codes')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
 			$table->timestamps();
 		});

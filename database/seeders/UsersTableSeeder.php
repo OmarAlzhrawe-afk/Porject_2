@@ -3,33 +3,34 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Models\User;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class UsersTableSeeder extends Seeder
 {
 
+    /**
+     * Auto generated seed file
+     *
+     * @return void
+     */
     public function run()
     {
-        DB::table('users')->delete();
-        $user =  User::create([
-            'id' => 1,
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => '123456',
+        $admin = User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@example.com',
+            'password' => 'password123',
             'role' => 'admin',
-            'hire_date' => '2025-07-03',
-            'ID_documents' => '',
-            'phone_number' => '0968339198',
-            'birth_date' => '2025-07-16',
+            'hire_date' => '2023-01-01',
+            'ID_documents' => ['id_card.pdf', 'passport.jpg'],
+            'phone_number' => '01012345678',
+            'birth_date' => '1990-05-15',
             'gender' => 'male',
-            'email_verified_at' => now(),
-            'address' => 'adscscdasaas',
-            'remember_token' =>  Str::random(60),
+            'address' => '123 Admin Street, City',
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
-        $user->assignRole('admin');
+        $admin->assignRole('admin');
     }
 }

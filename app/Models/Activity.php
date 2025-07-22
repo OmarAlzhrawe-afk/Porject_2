@@ -16,7 +16,7 @@ class Activity extends Model
 	public $timestamps = true;
 	protected $fillable = array(
 		'id',
-		'class_id',
+		'class_room_id',
 		'education_level_id',
 		'Title',
 		'Description',
@@ -32,24 +32,24 @@ class Activity extends Model
 		'required_skills',
 		'auto_filter_participants'
 	);
-	protected $visible = array(
-		'id',
-		'class_id',
-		'education_level_id',
-		'Title',
-		'Description',
-		'date',
-		'location',
-		'target_group',
-		'is_paid',
-		'cost',
-		'seats_limit',
-		'registration_deadline',
-		'is_open',
-		'gallery_urls',
-		'required_skills',
-		'auto_filter_participants'
-	);
+	// protected $visible = array(
+	// 	'id',
+	// 	'class_id',
+	// 	'education_level_id',
+	// 	'Title',
+	// 	'Description',
+	// 	'date',
+	// 	'location',
+	// 	'target_group',
+	// 	'is_paid',
+	// 	'cost',
+	// 	'seats_limit',
+	// 	'registration_deadline',
+	// 	'is_open',
+	// 	'gallery_urls',
+	// 	'required_skills',
+	// 	'auto_filter_participants'
+	// );
 
 	public function classes()
 	{

@@ -27,7 +27,7 @@ return new class extends Migration
             $table->integer('cost')->nullable();
             $table->integer('seats_limit')->nullable();
             $table->date('registration_deadline');
-            $table->boolean('is_open');
+            $table->boolean('is_open')->default(true);
             $table->json('gallery_urls')->nullable();
             $table->json('required_skills')->nullable();
             $table->boolean('auto_filter_participants');

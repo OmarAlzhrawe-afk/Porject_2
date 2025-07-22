@@ -21,7 +21,7 @@ class Class_room extends Model
 		'floor'
 	);
 	protected $guarded = [];
-	protected $visible = array('name', 'capacity', 'current_count', 'floor');
+	// protected $visible = array('name', 'capacity', 'current_count', 'floor');
 
 	public function sessions()
 	{
