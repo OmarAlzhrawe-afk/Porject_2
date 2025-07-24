@@ -43,8 +43,10 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('get_education_level_data/{education_level_id}', [ManageClassesAndEducationLevel::class, 'get_education_level_data']);
         // Create Class Room For Specific Education Levels
         Route::post('add_class_for_education_level', [ManageClassesAndEducationLevel::class, 'add_class_for_education_level'])->name('add_class');
+        Route::get('get_classes', [ManageClassesAndEducationLevel::class, 'get_classes']);
         Route::get('delete_class/{id}', [ManageClassesAndEducationLevel::class, 'delete_class_for_education_level']);
-        // Manage Sessions
+        // Manage Sessions 
+        // Add Notification To All Student And Teacher Related With Class when Add And When delete Done
         Route::post('add_session_for_class_room', [ManageClassesAndEducationLevel::class, 'add_session_for_class_room'])->name('add_session');
         Route::get('get_all_sessions', [ManageClassesAndEducationLevel::class, 'get_all_sessions']);
         Route::get('delete_session/{id}', [ManageClassesAndEducationLevel::class, 'delete_session']);
@@ -53,6 +55,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('delete_subject/{id}', [ManageClassesAndEducationLevel::class, 'delete_subject'])->name('delete_subject');
         Route::get('get_all_subjects_with_his_data', [ManageClassesAndEducationLevel::class, 'get_all_subjects_with_his_data'])->name('add_subject');
         // CRUD Post
+        //  Add notification For all users in System when Add Post Or Update  Done
         Route::get('get_all_posts', [PostCrud::class, 'get_Posts']);
         Route::post('add_Post', [PostCrud::class, 'add_Post'])->name('add_Post');
         Route::post('update_Post', [PostCrud::class, 'update_Post'])->name('update_Post');
@@ -68,17 +71,23 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::post('update_User', [ManageUsers::class, 'update_User'])->name('update_User');
         Route::get('delete_User/{id}', [ManageUsers::class, 'delete_User']);
         // Handle Pre_Registeration For Students
+        // Add Mail For one student & Parent in System when Accept_pre_registeration  Or reject
         Route::get('get_all_pre_registeration', [AdminProcessController::class, 'get_all_pre_registeration']);
         Route::get('Accept_pre_registeration/{id}', [AdminProcessController::class, 'Accept_pre_registeration']);
         Route::get('Reject_pre_registeration/{id}', [AdminProcessController::class, 'Reject_pre_registeration']);
-        // Handle Staff Leaves
+        // Handle Staff Leaves 
+        // Add Notification For one employee in System when Accept_Leave  Or Reject_Leave Done
         Route::get('get_all_Leaves_order', [AdminProcessController::class, 'get_all_Leaves_order']);
-        Route::post('Accept_Leave', [AdminProcessController::class, 'Accept_Leave'])->name('Accept_Leave');
+        Route::post('Accept_Leave', [AdminProcessController::class, 'Accept_Leave']);
         Route::get('Reject_Leave/{id}', [AdminProcessController::class, 'Reject_Leave']);
         // Generate Qr Codes 
         Route::post('Generate_QR_For_Specific_Class', [AdminProcessController::class, 'Generate_QR_For_Specific_Class']);
         Route::get('Generate_QR_For_All_Staff', [AdminProcessController::class, 'Generate_QR_For_All_Staff']);
         Route::get('Generate_QR_SVG_For_All_Classes', [AdminProcessController::class, 'Generate_QR_SVG_For_All_Classes']);
+        // Notifications Process 
+        Route::get('/notifications', [AdminProcessController::class, 'notifications']);
+        Route::get('/notifications/read/{id}', [AdminProcessController::class, 'markAsRead']);
+        // api for last activity for admin 
     });
 });
 

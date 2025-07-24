@@ -7,14 +7,23 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\StoreStudentProfileRequest;
 use App\Models\Activity;
+use App\Models\Class_room;
 use App\Models\Student_profile;
-use App\Models\Student;
 use App\Models\Education_level;
+use App\Models\Qr_Code;
+use App\Models\Staff_attendance;
+use App\Models\Student;
 use App\Models\Student_attendance;
 use App\Models\Supervisor;
+use App\Models\User;
+use App\Notifications\NewActivity;
+use App\Notifications\StudentAbsencesNotification;
+use App\Notifications\SupervisorNotification;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 
 class SupervisorProcessesController extends Controller
@@ -26,8 +35,9 @@ class SupervisorProcessesController extends Controller
             $data = $request->validated();
             DB::beginTransaction();
             //  Upload Files Of Activity
+            $gallery_urls = [];
+
             if ($request->hasFile('gallery')) {
-                $gallery_urls = [];
                 $counter = 0;
                 foreach ($request->file('gallery') as $file) {
 
@@ -60,10 +70,43 @@ class SupervisorProcessesController extends Controller
             $activity->gallery_urls = json_encode($gallery_urls);
             $activity->save();
             $activity->gallery_urls = json_decode($activity->gallery_urls);
+            // Here We Will Add Send Notifications For Class Student Users That Is New Activity Is Added
+            $requiredSkills = $activity->required_skills ? json_decode($activity->required_skills, true) : [];
+            $student = collect();
+            switch ($activity->target_group) {
+                case 'all':
+                    $student = Student_profile::with('student.user')->get();
+                    break;
+                case 'class':
+                    $student = Student_profile::whereHas('student', function ($query) use ($activity) {
+                        $query->where('class_id', $activity->class_room_id);
+                    })->with('student.user')->get();
+                    break;
+                case 'stage':
+                    $student = Student_profile::where('education_level_id', $activity->education_level_id)
+                        ->with('student.user')->get();
+                    break;
+                case 'specific':
+                    // Supervisor will send Ids For users want to notify them 
+                    break;
+            }
+            // Filter Students As There Skills
+            $filtered_students = $student->filter(function ($profile) use ($requiredSkills) {
+                if (empty($requiredSkills)) {
+                    return true;
+                }
+                $student_skills = $profile->skills ?? [];
+                return !empty(array_intersect($requiredSkills, $student_skills));
+            });
+            // 
+            $users = $filtered_students->pluck('student.user')->filter();
+            if ($users->isNotEmpty()) {
+                Notification::send($users, new NewActivity($activity));
+            }
             return HelpersFunctions::success($activity, "Activity Add Done", 200);
             DB::commit();
         } catch (Exception  $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
         }
     }
     public function Add_student_profile_data(StoreStudentProfileRequest $request)
@@ -94,7 +137,6 @@ class SupervisorProcessesController extends Controller
         } else {
             try {
                 DB::beginTransaction();
-                // dd($request->all());
                 foreach ($request->all() as $ClassID => $AbsentStudents) {
                     foreach ($AbsentStudents as $student) {
                         $Attendance = new Student_attendance();
@@ -102,13 +144,20 @@ class SupervisorProcessesController extends Controller
                         $Attendance->class_room_id = $ClassID;
                         $Attendance->date = now()->toDateString();
                         $Attendance->excused = $student['excused'];
-                        // dd("before save");
                         $Attendance->save();
-                        // dd("after save");
-                        $student_profile = Student_profile::where('student_id', $Attendance->student_id)->first();
+                        $student = Student::find($Attendance->student_id);
+                        $student_profile = Student_profile::firstOrCreate(
+                            ['student_id' => $Attendance->student_id],
+                            ['student_id' => $student->id, 'education_level_id' => $student->class->education_level_id, 'total_absences' => 0, 'unexcused_absences' => 0]
+                        );
                         $student_profile->total_absences++;
                         $student_profile->unexcused_absences = !$Attendance->excused ? $student_profile->unexcused_absences = $student_profile->unexcused_absences + 1 : $student_profile->unexcused_absences;
                         $student_profile->save();
+                        // dd($student);
+                        $studentuser = $student->user;
+                        $studentuser->notify(new StudentAbsencesNotification($Attendance));
+                        // $parentuser = $student->parent;
+                        // $parentuser->notify(new StudentAbsencesNotification($Attendance));
                     }
                 }
                 DB::commit();
@@ -128,6 +177,63 @@ class SupervisorProcessesController extends Controller
             return HelpersFunctions::success($reports, "Getting Students Data Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function Verify_Qr_Code(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'unique_code' => 'required|exists:qr_codes,Unique_code',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+        }
+        $qr = Qr_Code::where([
+            'Unique_code' => $request->input('unique_code'),
+            'Code_type' => 'employee'
+        ])->first();
+        if (!$qr) {
+            return HelpersFunctions::error("Sorry Qr Code Is Wrong", 400, "Qr that you Entered Not Found ");
+        } elseif ($qr->expires_at < Carbon::now()) {
+            return HelpersFunctions::error("Sorry Qr Code Is Expired", 400, "Qr that you Entered is Expired");
+        } else {
+            DB::beginTransaction();
+            $emloyee_attendance = new  Staff_attendance();
+            $emloyee_attendance->QR_id = $qr->id;
+            $emloyee_attendance->QR_id = auth()->id();
+            $emloyee_attendance->Attendance_status = 'present';
+            $emloyee_attendance->nots = null;
+            $emloyee_attendance->save();
+            DB::commit();
+            return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
+        }
+    }
+    public function notifications()
+    {
+        $notifications = auth('sanctum')->user()->notifications;
+        return HelpersFunctions::success($notifications, "Getting Notifications Done ", 200);
+    }
+    public function markAsRead($id)
+    {
+        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+        if (!$notification) {
+            return HelpersFunctions::error("bad Request", 400, "Notification not found");
+        }
+        $notification->markAsRead();
+        return HelpersFunctions::success("", "Notification mark As Read Done");
+    }
+    public function SendSpecificNotificationForUser(Request $request)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|exists:users,id',
+                'message' => 'required|string|max:1000',
+            ]);
+            $supervisor = auth('sanctum')->user();
+            $user = User::find($request->user_id);
+            $user->notify(new SupervisorNotification($request->message, $supervisor->naem));
+            return HelpersFunctions::success("", "Notification mark As Read Done");
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
 }

@@ -17,14 +17,9 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'teacher']);
-        Role::create(['name' => 'student']);
-        Role::create(['name' => 'supervisor']);
-        Role::create(['name' => 'librarian']);
-        Role::create(['name' => 'parent']);
+
         $this->call([
-            // RolesTableSeeder::class,
+            RolesTableSeeder::class,
             // PermissionsTableSeeder::class,
             // RoleHasPermissionsTableSeeder::class,
             UsersTableSeeder::class,

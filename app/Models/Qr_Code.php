@@ -20,7 +20,7 @@ class Qr_Code extends Model
 		'Code_type',
 		'is_Active'
 	);
-	protected $visible = array('class_id', 'user_id', 'expires_at', 'Unique_code', 'Code_type', 'is_Active');
+	// protected $visible = array('class_id', 'user_id', 'expires_at', 'Unique_code', 'Code_type', 'is_Active');
 	protected $dates = ['expires_at'];
 
 	public function classRoom()

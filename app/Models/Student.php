@@ -17,16 +17,10 @@ class Student extends Model
 
 	protected $table = 'students';
 	public $timestamps = true;
-	protected $fillable = array('user_id', 'class_id', 'Student_number', 'status');
-	// protected $visible = array('user_id', 'class_id', 'Student_number', 'status');
-
-
-
-
+	protected $fillable = array('user_id', 'parent_id', 'class_id', 'Student_number', 'status');
 	protected static function boot()
 	{
 		parent::boot();
-
 		static::creating(function ($student) {
 			do {
 				// ابدأ من آخر رقم موجود
@@ -37,13 +31,17 @@ class Student extends Model
 			$student->student_number = $newNumber;
 		});
 	}
+	public function parent()
+	{
+		return $this->belongsTo(User::class, 'parent_id'); // ولي الأمر
+	}
 	public function user()
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
 	public function class()
 	{
-		return $this->belongsTo(User::class, 'class_id');
+		return $this->belongsTo(Class_room::class, 'class_id');
 	}
 	public function sessions()
 	{

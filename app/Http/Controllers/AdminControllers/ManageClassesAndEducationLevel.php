@@ -16,7 +16,12 @@ use Exception;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Helpers\HelpersFunctions;
+use App\Notifications\SessionNotification;
 use Dompdf\Helpers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Notification as FacadesNotification;
+use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity as ActivityLogs;
 
 class ManageClassesAndEducationLevel extends Controller
@@ -174,6 +179,15 @@ class ManageClassesAndEducationLevel extends Controller
             return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
+    public function get_classes()
+    {
+        try {
+            $classes = Class_room::all();
+            return HelpersFunctions::success($classes, "Getting classes Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
     public function delete_class_for_education_level($id)
     {
 
@@ -255,10 +269,7 @@ class ManageClassesAndEducationLevel extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json([
-                    'Failed' => "Error",
-                    'message' => $validator->errors()
-                ]);
+                return HelpersFunctions::error('Bad Request', 400, $validator->errors());
             } else {
                 // Chech If Teacher Is Available At Same (Time && day)
                 $teacher_Av = true;
@@ -274,7 +285,7 @@ class ManageClassesAndEducationLevel extends Controller
                         break;
                     }
                 }
-                // Chech If Class Is Available At Same (Time && day)
+                // Check If Class Is Available At Same (Time && day)
                 $class_Av = true;
                 $Class = Class_room::where('id', $request->input('class_id'))->first();
                 $class_sessions = $Class->sessions;
@@ -288,16 +299,11 @@ class ManageClassesAndEducationLevel extends Controller
                     }
                 }
                 if ($class_Av == false) {
-                    return response()->json([
-                        'message' => "Add Session Failed",
-                        'reason' => "Class That You Entered Have Another Session in This Time "
-                    ]);
+                    return HelpersFunctions::error('Add Session Failed', 400, "Class That You Entered Have Another Session in This Time ");
                 } else if ($teacher_Av == false) {
-                    return response()->json([
-                        'message' => "Add Session Failed",
-                        'reason' => "Teacher That You Entered Have Another Session in This Time "
-                    ]);
+                    return HelpersFunctions::error('Add Session Failed', 400, "Teacher That You Entered Have Another Session in This Time ");
                 } else {
+                    DB::beginTransaction();
                     $class_session = new Class_session();
                     $class_session->teacher_id = $request->input('teacher_id');
                     $class_session->class_room_id = $request->input('class_id');
@@ -307,9 +313,19 @@ class ManageClassesAndEducationLevel extends Controller
                     $class_session->save();
                     // Add Process To Recent 
                     $user = auth('sanctum')->user();
-
                     $teacher = Teacher::findOrFail($class_session->teacher_id);
                     $subject = subject::findOrFail($teacher->subject_id);
+                    activity()->causedBy($user)->withProperties([
+                        'Process_type' => " Add Session ",
+                    ])->log("Admin Add Session ");
+                    // Send Notifications To Users For Updated Data 
+                    $students = Student::where('class_id', $request->input('class_id'))->get();
+                    $studentUsers = $students->map(function ($student) {
+                        return $student->user;
+                    })->filter();
+
+                    $teacher->user->notify(new SessionNotification($class_session));
+                    Notification::send($studentUsers, new SessionNotification($class_session));
                     $class_session_data = [
                         'session_day' => $class_session->session_day,
                         'start_time' =>    $class_session->start_time,
@@ -317,9 +333,7 @@ class ManageClassesAndEducationLevel extends Controller
                         'teacher' =>    $teacher,
                         'subject' =>  $subject
                     ];
-                    activity()->causedBy($user)->withProperties([
-                        'Process_type' => " Add Session ",
-                    ])->log("Admin Add Session ");
+                    DB::commit();
                     return HelpersFunctions::success($class_session_data, "Add Session Successfully", 200);
                 }
             }

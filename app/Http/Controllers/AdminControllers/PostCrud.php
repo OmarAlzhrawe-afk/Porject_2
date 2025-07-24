@@ -9,6 +9,10 @@ use Exception;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 use App\Helpers\HelpersFunctions;
+use App\Models\User;
+use App\Notifications\PostNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class PostCrud extends Controller
 {
@@ -39,6 +43,7 @@ class PostCrud extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", $validator->errors(), 400);
             } else {
+                DB::beginTransaction();
                 $post = new School_post();
                 $post->title = $request->input('title');
                 $post->description = $request->input('description');
@@ -55,10 +60,14 @@ class PostCrud extends Controller
                     $post->file_url = 'uploads/Posts/' . $file_Name;
                 }
                 $post->save();
+                // Send notification For all users in System when Add Post Or Update  
+                $users = User::all()->except(['role', 'admin']);
+                Notification::send($users, new PostNotification($post));
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "add_Post",
                 ])->log("Admin add_Post");
+                DB::commit();
                 return HelpersFunctions::success(null, "Added Post Successfully", 200);
             }
         } catch (Exception $e) {
@@ -103,6 +112,10 @@ class PostCrud extends Controller
                     $post->file_url = 'uploads/Posts/' . $file_Name;
                 }
                 $post->save();
+                // Send notification For all users in System when Add Post Or Update  
+                $users = User::all()->except(['role', 'admin']);
+                Notification::send($users, new PostNotification($post));
+
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "update_Post",

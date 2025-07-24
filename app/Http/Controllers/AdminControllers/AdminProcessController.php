@@ -20,6 +20,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\HelpersFunctions;
+use App\Notifications\LeaveNotification;
+use App\Notifications\RejectLeaveNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 
@@ -59,8 +62,12 @@ class AdminProcessController extends Controller
             // $student->Student_number = '5'; Auto
             $student->status = 'active';
             $student->save();
+            $admin = auth('sanctum')->user();
             Mail::to($Registration->student_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
             Mail::to($Registration->parent_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " Accepted_pre_registeration",
+            ])->log("Accepted_pre_registeration");
             return HelpersFunctions::success('', "student Accepted successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -113,6 +120,7 @@ class AdminProcessController extends Controller
             if ($validate->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validate->errors());
             }
+            DB::beginTransaction();
             $leave = Staff_leaves::FindOrFail($request->leave_id);
             $user = User::FindOrFail($leave->user_id);
             $deducation = new Staff_salary_deductions();
@@ -122,12 +130,14 @@ class AdminProcessController extends Controller
             $deducation->save();
             $leave->status = 'approved';
             $leave->save();
-            // Send Notification To User 
+            // Send Notification To employee
+            $user->notify(new LeaveNotification($deducation, $leave));
             // $user->notify();
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
                 'Process_type' => " Accept_Leave",
             ])->log("Accept_Leave");
+            DB::commit();
             return HelpersFunctions::success("", "Accept Leave Successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -136,17 +146,19 @@ class AdminProcessController extends Controller
     public function Reject_Leave($id)
     {
         try {
+            DB::beginTransaction();
             $leave = Staff_leaves::FindOrFail($id);
             $user = User::FindOrFail($leave->user_id);
             if ($leave && $user) {
                 $leave->status = 'rejected';
                 $leave->save();
-                // Send Notification To User 
-                // $user->notify();
+                // Send Notification To employee
+                $user->notify(new RejectLeaveNotification($leave));
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([
                     'Process_type' => " Reject_Leave",
                 ])->log("Reject_Leave");
+                DB::commit();
                 return HelpersFunctions::success("", "Reject Leave Successfully", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "Leave Not Found");
@@ -281,5 +293,20 @@ class AdminProcessController extends Controller
         } catch (Exception $e) {
             return HelpersFunctions::error("internal server error", 500, $e->getMessage());
         }
+    }
+    public function notifications()
+    {
+        $notifications = auth('sanctum')->user()->notifications;
+        return HelpersFunctions::success($notifications, "Getting Notifications Done ", 200);
+    }
+    public function markAsRead($id)
+    {
+        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+
+        if (!$notification) {
+            return HelpersFunctions::error("bad Request", 400, "Notification not found");
+        }
+        $notification->markAsRead();
+        return HelpersFunctions::success("", "Notification mark As Read Done");
     }
 }

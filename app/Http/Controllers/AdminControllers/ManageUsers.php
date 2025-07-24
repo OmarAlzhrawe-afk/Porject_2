@@ -261,31 +261,25 @@ class ManageUsers extends Controller
     {
         try {
             $user = User::findOrFail($user_id);
-            if ($user) {
-                if ($user->role == 'teacher') {
-                    $teacher = Teacher::findOrFail($user->id);
-                    $teacher->delete();
-                } elseif ($user->role == 'student') {
-                    $student = Student::findOrFail($user->id);
-                    $student->delete();
-                } elseif ($user->role == 'supervisor') {
-                    $supervisor = Supervisor::findOrFail($user->id);
-                    $supervisor->delete();
+            $role = $user->role;
+            if (method_exists($user, $role)) {
+                $related_model = $user->{$role};
+                if ($related_model) {
+                    $related_model->delete();
                 }
-                foreach ($user->ID_documents as $key => $value) {
-                    if (isset($files_array[$key]) && file_exists(public_path($files_array[$key]))) {
-                        unlink(public_path($files_array[$key]));
-                    }
-                }
-                $user->delete();
-                $admin = auth('sanctum')->user();
-                activity()->causedBy($admin)->withProperties([
-                    'Process_type' => " delete" .  $user->role,
-                ])->log("delete" .  $user->role);
-                return HelpersFunctions::success('', "Deleted User Successfully ", 204);
-            } else {
-                return HelpersFunctions::error("User that you entered Not Found", 400, "null");
             }
+            foreach ($user->ID_documents as $key => $value) {
+                if (isset($files_array[$key]) && file_exists(public_path($files_array[$key]))) {
+                    unlink(public_path($files_array[$key]));
+                }
+            }
+            $user->delete();
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " delete" .  $user->role,
+            ])->log("delete" .  $user->role);
+            return HelpersFunctions::success('', "Deleted User Successfully ", 204);
+            return HelpersFunctions::error("User that you entered Not Found", 400, "null");
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
