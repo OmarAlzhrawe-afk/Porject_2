@@ -25,10 +25,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Activitylog\Models\Activity as ActivityLog;
 
 class SupervisorProcessesController extends Controller
 {
-
+    public function get_last_activity()
+    {
+        try {
+            $user = auth()->user();
+            $activities = ActivityLog::causedBy($user)
+                ->latest()
+                ->take(5)
+                ->get();
+            return HelpersFunctions::success($activities, "Getting Activity Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
     public function Add_Activity(StoreActivityRequest $request)
     {
         try {

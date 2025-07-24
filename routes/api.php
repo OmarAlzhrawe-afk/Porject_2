@@ -88,6 +88,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('/notifications', [AdminProcessController::class, 'notifications']);
         Route::get('/notifications/read/{id}', [AdminProcessController::class, 'markAsRead']);
         // api for last activity for admin 
+        Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
     });
 });
 

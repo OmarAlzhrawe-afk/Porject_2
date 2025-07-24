@@ -22,9 +22,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\HelpersFunctions;
 use App\Notifications\LeaveNotification;
 use App\Notifications\RejectLeaveNotification;
+use Dompdf\Helpers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
+use Spatie\Activitylog\Models\Activity;
 
 
 class AdminProcessController extends Controller
@@ -308,5 +310,18 @@ class AdminProcessController extends Controller
         }
         $notification->markAsRead();
         return HelpersFunctions::success("", "Notification mark As Read Done");
+    }
+    public function get_last_activity()
+    {
+        try {
+            $user = auth()->user();
+            $activities = Activity::causedBy($user)
+                ->latest()
+                ->take(5)
+                ->get();
+            return HelpersFunctions::success($activities, "Getting Activity Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
     }
 }

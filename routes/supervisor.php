@@ -21,5 +21,7 @@ Route::prefix('/supervisor')->name('supervisor.')->group(function () {
         Route::get('/notifications', [SupervisorProcessesController::class, 'notifications']);
         Route::get('/notifications/read/{id}', [SupervisorProcessesController::class, 'markAsRead']);
         Route::post('/SendSpecificNotificationForUser', [SupervisorProcessesController::class, 'SendSpecificNotificationForUser']);
+        // api for last activity for admin 
+        Route::get('/get_last_activity', [SupervisorProcessesController::class, 'get_last_activity']);
     });
 });
