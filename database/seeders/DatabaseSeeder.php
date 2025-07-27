@@ -19,10 +19,12 @@ class DatabaseSeeder extends Seeder
 
 
         $this->call([
-            RolesTableSeeder::class,
+            RolePermissionSeeder::class,
+            UsersTableSeeder::class,
+
+            // RolesTableSeeder::class,
             // PermissionsTableSeeder::class,
             // RoleHasPermissionsTableSeeder::class,
-            UsersTableSeeder::class,
             // ModelHasRolesTableSeeder::class,
             // ModelHasPermissionsTableSeeder::class,
             // StudentsTableSeeder::class,

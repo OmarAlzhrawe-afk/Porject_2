@@ -9,12 +9,6 @@ use Spatie\Permission\Models\Role;
 
 class UsersTableSeeder extends Seeder
 {
-
-    /**
-     * Auto generated seed file
-     *
-     * @return void
-     */
     public function run()
     {
         $admin = User::create([

@@ -18,8 +18,8 @@ return new class extends Migration
 			$table->integer('sold_quantity')->default('0');
 			$table->integer('price');
 			$table->integer('available_quantity');
-			$table->foreign('subject_id')->references('id')->on('subjects');
-			$table->foreign('education_level_id')->references('id')->on('education_levels');
+			$table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
+			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
 			$table->timestamps();
 		});
 	}

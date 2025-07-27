@@ -23,7 +23,6 @@ class Student extends Model
 		parent::boot();
 		static::creating(function ($student) {
 			do {
-				// ابدأ من آخر رقم موجود
 				$lastNumber = Student::max('student_number') ?? 1000;
 				$newNumber = $lastNumber + 1;
 			} while (Student::where('student_number', $newNumber)->exists());

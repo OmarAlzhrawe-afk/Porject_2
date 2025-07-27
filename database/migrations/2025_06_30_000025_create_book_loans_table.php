@@ -20,7 +20,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('user_id')->unsigned();
             $table->bigInteger('cultural_book_id')->unsigned();
-            $table->string('name');
+            $table->enum('type', array('monthly', 'weekly'));
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('cultural_book_id')->references('id')->on('cultural_books');
             $table->timestamps();

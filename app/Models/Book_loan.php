@@ -16,14 +16,14 @@ class Book_loan extends Model
 		'id',
 		'user_id',
 		'book_id',
-		'name'
+		'type'
 	);
-	protected $visible = array(
-		'id',
-		'user_id',
-		'book_id',
-		'name'
-	);
+	// protected $visible = array(
+	// 	'id',
+	// 	'user_id',
+	// 	'book_id',
+	// 	'name'
+	// );
 
 	public function user()
 	{

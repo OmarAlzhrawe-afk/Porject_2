@@ -21,11 +21,11 @@ return new class extends Migration
             $table->date('publication_year');
             $table->enum('type', array('Paper', 'electronic', 'audio'));
             $table->text('format_url')->nullable();
-            $table->integer('copies_available');
-            $table->decimal('avg_student_rating');
-            $table->string('avg_teacher_rating');
-            $table->integer('total_student_reviews');
-            $table->bigInteger('total_teacher_reviews');
+            $table->integer('copies_available')->nullable();
+            $table->decimal('avg_student_rating')->default(0);
+            $table->decimal('avg_teacher_rating')->default(0);
+            $table->integer('total_student_reviews')->default(0);
+            $table->bigInteger('total_teacher_reviews')->default(0);
             $table->text('description');
             $table->timestamps();
         });

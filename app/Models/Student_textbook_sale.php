@@ -12,8 +12,8 @@ class Student_textbook_sale extends Model
 
 	protected $table = 'student_textbook_sales';
 	public $timestamps = true;
-	protected $fillable = array('student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price');
-	protected $visible = array('student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price');
+	protected $fillable = array('id', 'student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price');
+	// protected $visible = array('student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price');
 
 	public function book()
 	{

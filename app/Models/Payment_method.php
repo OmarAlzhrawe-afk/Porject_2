@@ -12,10 +12,6 @@ class Payment_method extends Model
 	public $timestamps = true;
 	protected $fillable = array('id', 'name', 'description');
 	protected $visible = array('name', 'description');
-
-
-
-
 	public function transactions()
 	{
 		return $this->hasMany(Transaction::class);

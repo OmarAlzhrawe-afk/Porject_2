@@ -17,34 +17,24 @@ class RolePermissionSeeder extends Seeder
     {
         // Reset Cashed Roles and permission
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        // Defines All roles And Permissions 
-        $permissions = [
-            'view dashborad',
-            'manage users',
-        ];
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
-        }
-
-
         // 'admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'
         // Admin Role
         $admin = Role::firstOrCreate(['name' => 'admin']);
-        $admin->givePermissionTo(Permission::all());
+        // $admin->givePermissionTo(Permission::all());
         // Teacher Role
         $teacher = Role::firstOrCreate(['name' => 'teacher']);
-        $teacher->givePermissionTo(Permission::all());
+        // $teacher->givePermissionTo(Permission::all());
         // Librarian Role
         $librarian = Role::firstOrCreate(['name' => 'librarian']);
-        $librarian->givePermissionTo(Permission::all());
+        // $librarian->givePermissionTo(Permission::all());
         // Supervisor Role
         $supervisor = Role::firstOrCreate(['name' => 'supervisor']);
-        $supervisor->givePermissionTo(Permission::all());
+        // $supervisor->givePermissionTo(Permission::all());
         // Student  Role
         $student = Role::firstOrCreate(['name' => 'student']);
-        $student->givePermissionTo(Permission::all());
+        // $student->givePermissionTo(Permission::all());
         // Parent  Role
         $parent = Role::firstOrCreate(['name' => 'parent']);
-        $parent->givePermissionTo(Permission::all());
+        // $parent->givePermissionTo(Permission::all());
     }
 }
