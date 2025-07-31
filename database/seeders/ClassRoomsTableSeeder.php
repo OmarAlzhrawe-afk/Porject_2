@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ClassRoomsTableSeeder extends Seeder
 {
@@ -15,22 +14,57 @@ class ClassRoomsTableSeeder extends Seeder
      */
     public function run()
     {
+        
 
-
-        DB::table('class_rooms')->delete();
-
-        DB::table('class_rooms')->insert(array(
-            0 =>
-            array(
+        \DB::table('class_rooms')->delete();
+        
+        \DB::table('class_rooms')->insert(array (
+            0 => 
+            array (
                 'id' => 1,
                 'education_level_id' => 1,
-                'name' => 'omar',
-                'capacity' => 12,
-                'current_count' => 12,
-                'floor' => 12,
-                'created_at' => '2025-07-04 16:45:47',
-                'updated_at' => '2025-07-04 16:45:47',
+                'name' => '1\\4',
+                'capacity' => 40,
+                'current_count' => 0,
+                'floor' => 2,
+                'created_at' => '2025-07-30 23:18:00',
+                'updated_at' => '2025-07-30 23:18:00',
+            ),
+            1 => 
+            array (
+                'id' => 2,
+                'education_level_id' => 1,
+                'name' => '2\\4',
+                'capacity' => 40,
+                'current_count' => 0,
+                'floor' => 2,
+                'created_at' => '2025-07-30 23:18:07',
+                'updated_at' => '2025-07-30 23:18:07',
+            ),
+            2 => 
+            array (
+                'id' => 3,
+                'education_level_id' => 1,
+                'name' => '3\\4',
+                'capacity' => 40,
+                'current_count' => 0,
+                'floor' => 2,
+                'created_at' => '2025-07-30 23:18:14',
+                'updated_at' => '2025-07-30 23:18:14',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'education_level_id' => 1,
+                'name' => '4\\4',
+                'capacity' => 40,
+                'current_count' => 0,
+                'floor' => 2,
+                'created_at' => '2025-07-30 23:18:21',
+                'updated_at' => '2025-07-30 23:18:21',
             ),
         ));
+        
+        
     }
 }

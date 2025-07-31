@@ -11,11 +11,11 @@ return new class extends Migration
 	{
 		Schema::create('transactions', function (Blueprint $table) {
 			$table->id();
-			$table->bigInteger('user_id')->unsigned();
+			$table->unsignedBigInteger('user_id')->nullable();
 			$table->enum('payment_method', array('cash', 'visa', 'Transfer(shamcash)'));
 			$table->decimal('amount');
 			$table->enum('type', array('in', 'out'));
-			$table->enum('transaction_source', array('salary', 'buy_book', 'register_user', 'activity'));
+			$table->enum('transaction_source', array('pay_salary', 'buy_book', 'pre_registration', 'installment_student', 'activity'));
 			$table->enum('status', array('pending', 'paid', 'failed'));
 			$table->integer('installment_number')->nullable();
 			$table->string('payment_reference')->nullable();

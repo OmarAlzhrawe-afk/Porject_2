@@ -15,23 +15,17 @@ class Book_loan extends Model
 	protected $fillable = array(
 		'id',
 		'user_id',
-		'book_id',
-		'type'
+		'cultural_book_id',
+		'type',
+		'status'
 	);
-	// protected $visible = array(
-	// 	'id',
-	// 	'user_id',
-	// 	'book_id',
-	// 	'name'
-	// );
-
 	public function user()
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
 
-	public function book_cloan()
+	public function book_loan()
 	{
-		return $this->belongsTo(Cultural_book::class, 'book_id');
+		return $this->belongsTo(Cultural_book::class, 'cultural_book_id');
 	}
 }

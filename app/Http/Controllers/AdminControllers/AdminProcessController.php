@@ -45,22 +45,51 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-    public function Accept_pre_registeration($id)
+    public function Accept_pre_registeration(Request $request)
     {
         try {
-            $Registration = Pre_registration::where('id', $id)->first();
+            DB::beginTransaction();
+            $validator = Validator::make($request->all(), [
+                'class_id' => 'required | exists:class_rooms,id',
+                'pre_id' => 'required | exists:pre_registrations,id',
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+            $Registration = Pre_registration::where('id', $request->pre_id)->first();
             $Registration->status = 'accepted';
             $Registration->save();
-            // dd($Registration);
-            $user = new User();
-            $user->name = $Registration->student_name;
-            $user->email = $Registration->student_email;
-            $user->role = 'student';
-            $user->hire_date = now();
-            $user->phone_number = $Registration->phone_number;
-            $user->save();
+            $studentuser = new User();
+            $studentuser->name = $Registration->student_name;
+            $studentuser->email = $Registration->student_email;
+            $studentuser->role = 'student';
+            $studentuser->hire_date = now();
+            $studentuser->phone_number = $Registration->phone_number;
+            // Store Id Files
+            $studentuser->ID_documents = $Registration->documents;
+            $studentuser->save();
+            $studentuser->assignRole('student');
+
+            $parentuser = new User();
+            $parentuser->name = $Registration->parent_name;
+            $parentuser->email = $Registration->parent_email;
+            $parentuser->role = 'parent';
+            $parentuser->hire_date = now();
+            $parentuser->phone_number = $Registration->phone_number;
+            $parentuser->save();
+            $studentuser->assignRole('parent');
             $student = new Student();
-            $student->user_id = $user->id;
+            $class = Class_room::find($request->class_id);
+            if ($class->education_level_id == $Registration->education_level_id && $class->capacity > $class->current_count) {
+                $student->class_id = $class->id;
+                $class->current_count++;
+            } else {
+                // dd("class Level : " . $class->education_level_id . "pre_level : " . $Registration->education_level_id . " class capacity : " . $class->capacity . " class current count : " . $class->current_count);
+                DB::commit();
+                return HelpersFunctions::error("Bad Request", 400, "Class That You Entered Is Invalid");
+            }
+            $student->user_id = $studentuser->id;
+            $student->parent_id = $parentuser->id;
             // $student->Student_number = '5'; Auto
             $student->status = 'active';
             $student->save();
@@ -70,6 +99,7 @@ class AdminProcessController extends Controller
             activity()->causedBy($admin)->withProperties([
                 'Process_type' => " Accepted_pre_registeration",
             ])->log("Accepted_pre_registeration");
+            DB::commit();
             return HelpersFunctions::success('', "student Accepted successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());

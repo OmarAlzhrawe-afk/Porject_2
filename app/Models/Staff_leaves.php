@@ -13,8 +13,8 @@ class Staff_leaves extends Model
 	protected $fillable = array(
 		'id',
 		'user_id',
-		'start_date',
-		'End_date',
+		'leave_date',
+		'period',
 		'leave_type',
 		'status',
 		'notes'

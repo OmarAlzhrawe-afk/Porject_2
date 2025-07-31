@@ -11,8 +11,8 @@ return new class extends Migration
 		Schema::create('staff_leaves', function (Blueprint $table) {
 			$table->id();
 			$table->bigInteger('user_id')->unsigned();
-			$table->date('start_date');
-			$table->date('End_date');
+			$table->date('leave_date');
+			$table->enum('period', ['day', '3day', 'week', '2week', 'month', 'year']);
 			$table->enum('leave_type', array('sick', 'personal', 'unpaid', 'emergency'));
 			$table->enum('status', array('pending', 'approved', 'rejected'));
 			$table->text('notes')->nullable();

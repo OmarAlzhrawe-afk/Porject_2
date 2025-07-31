@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class SubjectsTableSeeder extends Seeder
 {
@@ -15,29 +14,43 @@ class SubjectsTableSeeder extends Seeder
      */
     public function run()
     {
+        
 
-
-        DB::table('subjects')->delete();
-
-        DB::table('subjects')->insert(array(
-            0 =>
-            array(
+        \DB::table('subjects')->delete();
+        
+        \DB::table('subjects')->insert(array (
+            0 => 
+            array (
                 'id' => 1,
                 'name' => 'math',
             ),
-            1 =>
-            array(
+            1 => 
+            array (
                 'id' => 2,
-                'name' => 'sience',
+                'name' => 'logic',
             ),
-            array(
+            2 => 
+            array (
                 'id' => 3,
+                'name' => 'science',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'name' => 'chimistry',
+            ),
+            4 => 
+            array (
+                'id' => 5,
+                'name' => 'physics',
+            ),
+            5 => 
+            array (
+                'id' => 6,
                 'name' => 'sport',
             ),
-            array(
-                'id' => 4,
-                'name' => 'music',
-            ),
         ));
+        
+        
     }
 }

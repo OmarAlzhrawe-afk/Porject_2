@@ -8,17 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
-	/**
-	 * 
-	 
-	 * 
-	 */
+
 	protected $table = 'transactions';
 
 	public $timestamps = true;
+
 	protected $fillable = [
 		'user_id',
-		'payment_method_id',
+		'payment_method',
 		'amount',
 		'type',
 		'transaction_source',
@@ -26,9 +23,8 @@ class Transaction extends Model
 		'installment_number',
 		'payment_reference',
 		'is_installment'
-
 	];
-	protected $visible = array('user_id', 'payment_method_id', 'amount', 'type', 'transaction_source', 'status', 'installment_number', 'payment_reference', 'is_installment');
+	// protected $visible = array('user_id', 'payment_method_id', 'amount', 'type', 'transaction_source', 'status', 'installment_number', 'payment_reference', 'is_installment');
 
 	public function user()
 	{

@@ -46,5 +46,15 @@ class DatabaseSeeder extends Seeder
         // $this->call(ModelHasRolesTableSeeder::class);
         // $this->call(ModelHasPermissionsTableSeeder::class);
         // $this->call(RoleHasPermissionsTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
+        $this->call(CulturalBooksTableSeeder::class);
+        $this->call(BookLoansTableSeeder::class);
+        $this->call(ReportsTableSeeder::class);
+        $this->call(TextBooksTableSeeder::class);
+        $this->call(SupervisorsTableSeeder::class);
+        $this->call(TransactionsTableSeeder::class);
+        $this->call(StudentTextbookSalesTableSeeder::class);
+        $this->call(PersonalAccessTokensTableSeeder::class);
+        $this->call(EducationalLevelSubjectsTableSeeder::class);
     }
 }

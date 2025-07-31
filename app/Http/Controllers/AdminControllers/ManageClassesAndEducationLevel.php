@@ -110,6 +110,7 @@ class ManageClassesAndEducationLevel extends Controller
                 'name' => 'required|max:255 ',
                 'Acadimic_year' => 'required|date',
                 'description' => 'max:1024',
+                'price' => 'required|integer',
                 'supervisor_id' => 'required | exists:supervisors,id'
             ]);
             if ($validator->fails()) {
@@ -119,7 +120,9 @@ class ManageClassesAndEducationLevel extends Controller
                 $el->name = $request->input('name');
                 $el->description = $request->input('description');
                 $el->Acadimic_year = $request->input('Acadimic_year');
+                $el->price = $request->input('price');
                 $el->supervisor_id = $request->input('supervisor_id');
+                $el->is_fully = false;
                 $el->save();
                 // Add Process To Recent 
                 $user = auth('sanctum')->user();

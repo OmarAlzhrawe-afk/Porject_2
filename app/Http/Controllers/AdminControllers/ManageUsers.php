@@ -64,6 +64,7 @@ class ManageUsers extends Controller
                 $user->address = $request->input('address');
                 $user->gender = $request->input('gender');
                 $user->save();
+                // Here We Repeat same code Make It in Helpers *****
                 // Store Id Files
                 $docs = [];
                 $counter = 0;

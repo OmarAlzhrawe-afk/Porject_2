@@ -17,11 +17,11 @@ class Student_textbook_sale extends Model
 
 	public function book()
 	{
-		return $this->belongsTo(Text_book::class);
+		return $this->belongsTo(Text_book::class, 'textbook_id');
 	}
 
 	public function student()
 	{
-		return $this->belongsTo(Student::class);
+		return $this->belongsTo(Student::class, 'student_id');
 	}
 }

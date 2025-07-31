@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class EducationLevelsTableSeeder extends Seeder
 {
@@ -15,20 +14,25 @@ class EducationLevelsTableSeeder extends Seeder
      */
     public function run()
     {
+        
 
-
-        // DB::table('education_levels')->delete();
-
-        DB::table('education_levels')->insert(array(
-            0 =>
-            array(
+        \DB::table('education_levels')->delete();
+        
+        \DB::table('education_levels')->insert(array (
+            0 => 
+            array (
                 'id' => 1,
-                'created_at' => '2025-07-04 16:43:47',
-                'updated_at' => '2025-07-04 16:43:47',
-                'name' => 'first primary',
-                'supervisor_id' => '1',
-                'description' => 'this is for children',
+                'created_at' => '2025-07-30 23:17:41',
+                'updated_at' => '2025-07-30 23:17:41',
+                'name' => 'first_primary',
+                'Acadimic_year' => '2026-10-10',
+                'description' => 'this is the first Level Education',
+                'price' => 200,
+                'is_fully' => 0,
+                'supervisor_id' => 1,
             ),
         ));
+        
+        
     }
 }

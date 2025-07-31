@@ -73,7 +73,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         // Handle Pre_Registeration For Students
         // Add Mail For one student & Parent in System when Accept_pre_registeration  Or reject
         Route::get('get_all_pre_registeration', [AdminProcessController::class, 'get_all_pre_registeration']);
-        Route::get('Accept_pre_registeration/{id}', [AdminProcessController::class, 'Accept_pre_registeration']);
+        Route::post('Accept_pre_registeration', [AdminProcessController::class, 'Accept_pre_registeration']);
         Route::get('Reject_pre_registeration/{id}', [AdminProcessController::class, 'Reject_pre_registeration']);
         // Handle Staff Leaves 
         // Add Notification For one employee in System when Accept_Leave  Or Reject_Leave Done

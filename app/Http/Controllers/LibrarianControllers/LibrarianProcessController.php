@@ -6,16 +6,31 @@ use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Book_loan;
 use App\Models\Cultural_book;
+use App\Models\Qr_Code;
+use App\Models\Staff_attendance;
+use App\Models\Staff_leaves;
+use App\Models\Student;
 use App\Models\Student_textbook_sale;
 use App\Models\Text_book;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Notifications\LeaveOrderNotification;
 use App\Notifications\NewBookLoan;
 use App\Notifications\NewBookSale;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+// use Barryvdh\DomPDF\Facade\Pdf;
+use PDF as NewPDF;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
+use App\Exports\LibraryExport;
+use App\Exports\LibrarySalesLoansExport;
+use App\Models\Report;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LibrarianProcessController extends Controller
 {
@@ -220,7 +235,7 @@ class LibrarianProcessController extends Controller
             }
             $book_loan = new Book_loan();
             $book_loan->user_id = $request->input('user_id');
-            $book_loan->book_id = $request->input('book_id');
+            $book_loan->cultural_book_id = $request->input('book_id');
             $book_loan->type = $request->input('type');
             $book_loan->save();
             // Send Notification For User 
@@ -260,7 +275,7 @@ class LibrarianProcessController extends Controller
             $book_sale = new Student_textbook_sale();
             $book_sale->student_id = $request->input('student_id');
             $book_sale->textbook_id = $request->input('textbook_id');
-            $book_sale->sale_date = now()->date;
+            $book_sale->sale_date = now();
             $book_sale->quantity = $request->input('quantity');
             $book_sale->total_price = $text_book->price *  $request->input('quantity');
             $book_sale->save();
@@ -270,7 +285,7 @@ class LibrarianProcessController extends Controller
             // Make Transaction For Book Sale
             Transaction::create([
                 'user_id' => $book_sale->student->user_id,
-                'payment_method' => 'cach',
+                'payment_method' => 'cash',
                 'amount' => $book_sale->total_price,
                 'type' => 'in',
                 'transaction_source' => 'buy_book',
@@ -282,6 +297,210 @@ class LibrarianProcessController extends Controller
             $parent_student->notify(new NewBookSale($message));
             DB::commit();
             return HelpersFunctions::success($book_sale, "Book Loan Register Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function Verify_Qr_Code(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'unique_code' => 'required|exists:qr_codes,Unique_code',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+        }
+        $qr = Qr_Code::where([
+            'Unique_code' => $request->input('unique_code'),
+            'Code_type' => 'employee'
+        ])->first();
+        if (!$qr) {
+            return HelpersFunctions::error("Sorry Qr Code Is Wrong", 400, "Qr that you Entered Not Found ");
+        } elseif ($qr->expires_at < Carbon::now()) {
+            return HelpersFunctions::error("Sorry Qr Code Is Expired", 400, "Qr that you Entered is Expired");
+        } else {
+            DB::beginTransaction();
+            $emloyee_attendance = new  Staff_attendance();
+            $emloyee_attendance->QR_id = $qr->id;
+            $emloyee_attendance->user_id = auth()->id();
+            $emloyee_attendance->Attendance_status = 'present';
+            $emloyee_attendance->nots = null;
+            $emloyee_attendance->save();
+            DB::commit();
+            return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
+        }
+    }
+    public function get_students()
+    {
+        try {
+            $students = Student::with('user')->get()->map(function ($student) {
+                return [
+                    'id' => $student->id,
+                    'class_id' => $student->class_id,
+                    'user' => [
+                        'id' => $student->user->id,
+                        'name' => $student->user->name,
+                        'email' => $student->user->email,
+                        'phone_number' => $student->user->phone_number,
+                    ],
+                ];
+            });
+            return HelpersFunctions::success($students, 'Getting Students Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function get_loans()
+    {
+        try {
+            $loans = Book_loan::with(['user', 'book_loan'])->get()->map(function ($loan) {
+                return [
+                    'id' => $loan->id,
+                    'type' => $loan->type,
+                    'status' => $loan->status,
+                    'user_data' => [
+                        'id' => $loan->user->id,
+                        'name' => $loan->user->name,
+                        'role' => $loan->user->role,
+                    ],
+                    'book_data' => [
+                        'id' =>   $loan->book_loan->id,
+                        'title' => $loan->book_loan->title,
+                        'author' => $loan->book_loan->author,
+                        'type' => $loan->book_loan->type,
+                    ]
+                ];
+            });
+            return HelpersFunctions::success($loans, 'Getting Loans Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function get_sales()
+    {
+        try {
+            $sales = Student_textbook_sale::with(['student', 'book'])->get()->map(function ($sale) {
+                return [
+                    'id' =>   $sale->id,
+                    'sale_date' => $sale->sale_date,
+                    'quantity' =>   $sale->quantity,
+                    'total_price' =>   $sale->total_price,
+                    'user_data' => [
+                        'id' =>   $sale->student->user->id,
+                        'name' => $sale->student->user->name,
+                        'Student_number' => $sale->student->Student_number,
+                    ],
+                    'book_data' => [
+                        'id' =>     $sale->book->id,
+                        'title' =>  $sale->book->title,
+                        'price' => $sale->book->price,
+                    ]
+                ];
+            });
+            return HelpersFunctions::success($sales, 'Getting Loans Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function return_book(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'book_id' => 'required|exists:cultural_books,id',
+                'user_id' => 'required|exists:users,id',
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, "Wrong User Or Book I dont Have Loan For This ");
+            }
+            $loan = Book_loan::where([
+                'user_id' => $request->user_id,
+                'cultural_book_id' => $request->cultural_book_id,
+            ])->first();
+            $loan->status = 'returned';
+            $loan->save();
+            return HelpersFunctions::success($loan, 'Getting Loans Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    //  Here We Maybe edit fetch user ****
+    public function get_loans_Sales_For_user($id)
+    {
+        try {
+
+            $user = User::Find($id);
+            if ($user->role == 'student') {
+                $student = Student::where('user_id', $user->id)->first();
+                $sales = Student_textbook_sale::where([
+                    'student_id' => $student->id,
+                ])->get();
+            }
+            $loans = Book_loan::where([
+                'user_id' => $user->id,
+            ])->get();
+            $all_data = [
+                'user_name' => $user->name,
+                'student_number' => $student->Student_number, //optional($student->Student_number),
+                'loans' => $loans,
+                'sales' =>  $sales, // optional($sales),
+            ];
+            return HelpersFunctions::success($all_data, 'Getting Loans Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function make_leave_demand(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'leave_date' => 'required|date',
+                'period' => 'required|in:day,3day,week,2week,month,year',
+                'leave_type' => 'required|in:sick,ersonal,unpaid,emergency',
+                'notes' => 'nullable|string|max:1024',
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+            $user = auth('sanctum')->user();
+            $staff_leaves = new Staff_leaves();
+            $staff_leaves->user_id = $user->id;
+            $staff_leaves->leave_date = $request->leave_date;
+            $staff_leaves->period = $request->period;
+            $staff_leaves->leave_type = $request->leave_type;
+            $staff_leaves->notes = $request->notes;
+            $staff_leaves->save();
+            $admin = User::where('role', 'admin')->first();
+            $admin->notify(new LeaveOrderNotification($user, $staff_leaves));
+            return HelpersFunctions::success("", 'Getting Loans Done', 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function get_monthly_report()
+    {
+        try {
+            $reports = Report::where('report_type', 'library')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->groupBy(function ($report) {
+                    return Carbon::parse($report->report_date)->format('Y-m');
+                });
+
+            // ❺ إعادة تنسيق البيانات لتكون على شكل: شهر => مجموعة تقارير
+            $formatted = $reports->map(function ($items, $month) {
+                return [
+                    'month' => $month, // ❻ مفتاح المجموعة (مثلاً "2025-07")
+                    'reports' => $items->map(function ($report) {
+                        // ❼ لكل تقرير، أعدّ مصفوفة تحتوي التفاصيل التالية:
+                        return [
+                            'id' => $report->id, // رقم التقرير
+                            'url' => url($report->report_url), // تحويل المسار النسبي إلى رابط كامل
+                            'description' => $report->report_description, // وصف التقرير (إن وُجد)
+                            'report_type' => $report->report_type // تحويل التاريخ إلى نص قابل للعرض
+                        ];
+                    })->values() // ❽ إعادة ترتيب عناصر المجموعة (حتى نزيل المفاتيح التلقائية)
+                ];
+            })->values();
+            return HelpersFunctions::success($formatted, "Getting Reports Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }

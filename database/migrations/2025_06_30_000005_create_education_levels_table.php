@@ -15,6 +15,8 @@ return new class extends Migration
 			$table->string('name', 255);
 			$table->date('Acadimic_year');
 			$table->text('description');
+			$table->integer('price');
+			$table->boolean('is_fully');
 			$table->foreignId('supervisor_id')->constrained('supervisors')->onDelete('cascade');
 		});
 	}
