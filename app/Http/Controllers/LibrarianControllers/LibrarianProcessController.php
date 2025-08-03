@@ -270,7 +270,7 @@ class LibrarianProcessController extends Controller
             // 'student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price'
             $text_book = Text_book::find($request->input('textbook_id'));
             if ($text_book->available_quantity == 0) {
-                return HelpersFunctions::success("Quantity finished", 400, "sorry you can not perform this Sale because the quantity is finished");
+                return HelpersFunctions::success("Quantity Finished", 400, "sorry you can not perform this Sale because the quantity is finished");
             }
             $book_sale = new Student_textbook_sale();
             $book_sale->student_id = $request->input('student_id');

@@ -207,34 +207,40 @@ class AdminProcessController extends Controller
                 'class_id' => 'required|exists:class_rooms,id',
             ]);
             if ($validator->fails()) {
-                return $validator->errors();
+                return HelpersFunctions::error("bad Request", 400, $validator->errors());
             } else {
+                $class = Class_room::find($request->class_id);
+                Qr_Code::where('class_id', $class->id)->delete();
                 $code = Str::uuid();
                 $qr_code = new Qr_Code();
-                $qr_code->class_id = $request->class_id;
+                $qr_code->class_id = $class->id;
                 $qr_code->Unique_code = $code;
                 $qr_code->expires_at = now()->addDays(7);
                 $qr_code->Code_type = 'teacher';
                 $qr_code->user_id = auth()->user()->id;
                 $qr_code->save();
-                $class = Class_room::findOrFail($qr_code->class_id);
-
+                // Generate SVG
                 $svg = QrCode::format('svg')->size(300)->generate($code);
-                return response($svg, 200)
-                    ->header('Content-Type', 'image/svg+xml');
-                // $qr = QrCode::format('svg')->size(300)->generate($code);
-                // $qrImage = 'data:image/png;base64,' . base64_encode($qr);
-                // $pdf = Pdf::loadView('Qr_codes.QRpdf', [
-                //     'image' => $qrImage,
-                //     'class_name'  => $class->name,
-                // ]);
-                // $pdfPath = 'qr_codes/QR_Code_Class_' . $qr_code->class_id . '.pdf';
-                // Storage::disk('public')->put($pdfPath, $pdf->output());
-                // $url = asset('storage/' . $pdfPath);
-                // return response()->json([
-                //     'message' => 'QR PDF generated successfully',
-                //     'url' => $url
-                // ]);
+                // Add class name as <text> inside SVG
+                $svgObject = new SimpleXMLElement($svg);
+                $textNode = $svgObject->addChild('text', $class->name);
+                $textNode->addAttribute('x', '50%');
+                $textNode->addAttribute('y', '95%');
+                $textNode->addAttribute('text-anchor', 'middle');
+                $textNode->addAttribute('font-weight', 'bold');
+                $textNode->addAttribute('font-size', '64'); // حجم الخط
+                $textNode->addAttribute('fill', 'blue');
+                $svgWithText = $svgObject->asXML();
+                // Save SVG to file
+                $fileName = "qr_codes/class_{$class->id}.svg";
+                $oldpath = 'public' . $fileName;
+                if (Storage::exists($oldpath)) {
+                    Storage::delete($oldpath);
+                }
+                Storage::disk('public')->put($fileName, $svgWithText);
+                // Public URL
+                $publicUrl = asset("storage/{$fileName}");
+                return HelpersFunctions::success($publicUrl, "updating Qr Code For Class  " . $class->name  . " Done ", 200);
             }
         } catch (Exception $e) {
             return back()->with('error', 'Failed to save: ' . $e->getMessage());
@@ -272,8 +278,8 @@ class AdminProcessController extends Controller
             // Public URL
             $publicUrl = asset("storage/{$fileName}");
             return HelpersFunctions::success($publicUrl, "Creating Qr Code Done", 200);
-            return response($svg, 200)
-                ->header('Content-Type', 'image/svg+xml');
+            // return response($svg, 200)
+            //     ->header('Content-Type', 'image/svg+xml');
         } catch (Exception $e) {
             return HelpersFunctions::error("INternal Server Error", 500, $e->getMessage());
         }

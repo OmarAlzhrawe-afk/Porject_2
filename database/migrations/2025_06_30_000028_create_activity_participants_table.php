@@ -16,13 +16,14 @@ return new class extends Migration
         Schema::create('activity_participants', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('activity_id')->unsigned();
-            $table->bigInteger('student_id')->unsigned();
+            $table->bigInteger('user_id')->unsigned();
             $table->enum('payment_status', array('pending', 'paid', 'cancelled', 'free_activity'));
             $table->boolean('attendance')->default(false);
-            $table->enum('payment_method', array('cash', 'by_parent', 'by_app'))->nullable();
+            $table->string('payment_reference')->nullable();
+            $table->enum('payment_method', array('cash', 'OnLine'))->nullable();
             $table->text('notes')->nullable();
             $table->foreign('activity_id')->references('id')->on('activities');
-            $table->foreign('student_id')->references('id')->on('students');
+            $table->foreign('user_id')->references('id')->on('students');
 
             $table->timestamps();
         });

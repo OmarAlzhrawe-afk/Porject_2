@@ -108,9 +108,7 @@ class VisitorProcessController extends Controller
                     'payment_reference' => $paymentIntent->id,
                 ]);
                 $user = User::where('role', 'admin')->first();
-                $pre = Pre_registration::find($paymentIntent->metadata->pre_registration_id);
                 $user->notify(new New_Pre_Regesteration($pre));
-
                 DB::commit();
                 return HelpersFunctions::success($transaction, "Store Payment Done", 200);
             } else {

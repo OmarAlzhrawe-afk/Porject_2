@@ -17,11 +17,11 @@ class Salary extends Model
 		'bonus',
 		'deductions',
 		'net_salary',
-		'pay_date',
+		'date',
 		'status',
 		'notes'
 	);
-	protected $visible = array('user_id', 'Base_salary', 'bonus', 'deductions', 'net_salary', 'pay_date', 'status', 'notes');
+	// protected $visible = array('user_id', 'Base_salary', 'bonus', 'deductions', 'net_salary', 'pay_date', 'status', 'notes');
 
 	public function user()
 	{

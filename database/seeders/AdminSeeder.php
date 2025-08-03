@@ -3,18 +3,25 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
-class UsersTableSeeder extends Seeder
+class AdminSeeder extends Seeder
 {
+
     public function run()
     {
-
-
-        DB::table('users')->delete();
-        $user = User::create([
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
+            'guard_name' => 'api'
+        ]);
+        $teacherRole = Role::firstOrCreate(['name' => 'teacher', 'guard_name' => 'api']);
+        $librarianRole = Role::firstOrCreate(['name' => 'librarian', 'guard_name' => 'api']);
+        $supervisorRole = Role::firstOrCreate(['name' => 'supervisor', 'guard_name' => 'api']);
+        $studentRole = Role::firstOrCreate(['name' => 'student', 'guard_name' => 'api']);
+        $parentRole = Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'api']);
+        $admin = User::create([
             'id' => 1,
             'name' => 'Admin User',
             'email' => 'admin@example.com',
@@ -31,6 +38,6 @@ class UsersTableSeeder extends Seeder
             'created_at' => '2025-07-30 23:07:38',
             'updated_at' => '2025-07-30 23:07:38',
         ]);
-        // $user->ass
+        $admin->assignRole($adminRole);
     }
 }

@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Helpers\HelpersFunctions;
+use App\Models\Educationlevelsubject;
 use App\Notifications\SessionNotification;
 use Dompdf\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -246,6 +247,25 @@ class ManageClassesAndEducationLevel extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
+    public function  delete_subject_from_education_level(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'subject_id' => 'required|exists:subjects,id',
+            'education_level_id' => 'required|exists:education_levels,id',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+        }
+        try {
+            Educationlevelsubject::where([
+                'education_level_id' => $request->education_level_id,
+                'subject_id' => $request->subject_id
+            ])->delete();
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+
 
     public function get_all_subjects_with_his_data()
     {

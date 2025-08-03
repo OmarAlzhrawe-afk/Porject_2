@@ -169,8 +169,8 @@ class ManageUsers extends Controller
                 'phone_number' =>  'required',
                 'role' =>  'required|in:admin,teacher,librarian,supervisor,student,parent',
                 'address' =>  'required|string',
-                'ID_documents' =>  'required|array',
-                'ID_documents.*' =>  'file|mimes:jpg,jpeg,png,pdf',
+                'ID_documents' =>  'nullable|array',
+                'ID_documents.*' =>  'nullable|file|mimes:jpg,jpeg,png,pdf',
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
@@ -180,19 +180,24 @@ class ManageUsers extends Controller
                 $user->email = $request->input('email');
                 $user->phone_number = $request->input('phone_number');
                 $user->address = $request->input('address');
-                // Store Id Files
-                $docs = [];
-                $counter = 0;
-                $files_array = $user->ID_documents ?? [];
-                foreach ($request->file('ID_documents') as $key => $file) {
-                    if (isset($files_array[$key]) && file_exists(public_path($files_array[$key]))) {
-                        unlink(public_path($files_array[$key]));
+                if ($request->has('ID_documents')) {
+                    // Store Id Files
+                    $docs = [];
+                    $counter = 0;
+                    $files_array = $user->ID_documents ?? [];
+                    foreach ($request->file('ID_documents') as $key => $file) {
+                        if (isset($files_array[$key]) && file_exists(public_path($files_array[$key]))) {
+                            unlink(public_path($files_array[$key]));
+                        }
+                        $file_name = time() . $counter++ . '_' . $file->getClientOriginalName();
+                        $file->move(public_path('uploads/users/IDs/' . $user->id . '/'), $file_name);
+                        $docs[$key] = 'uploads/users/IDs/' . $user->id . '/' . $file_name;
                     }
-                    $file_name = time() . $counter++ . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/users/IDs/' . $user->id . '/'), $file_name);
-                    $docs[$key] = 'uploads/users/IDs/' . $user->id . '/' . $file_name;
+                    $user->ID_documents = $docs;
+                } else {
+                    $user->ID_documents =  "";
                 }
-                $user->ID_documents = $docs;
+
                 $user->save();
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([

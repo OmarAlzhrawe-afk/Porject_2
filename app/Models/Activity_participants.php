@@ -15,21 +15,22 @@ class Activity_participants extends Model
 	protected $fillable = array(
 		'id',
 		'activity_id',
-		'Student_id',
+		'user_id',
 		'payment_status',
 		'attendance',
 		'payment_method',
+		'payment_reference',
 		'notes'
 	);
-	protected $visible = array(
-		'id',
-		'activity_id',
-		'Student_id',
-		'payment_status',
-		'attendance',
-		'payment_method',
-		'notes'
-	);
+	// protected $visible = array(
+	// 	'id',
+	// 	'activity_id',
+	// 	'Student_id',
+	// 	'payment_status',
+	// 	'attendance',
+	// 	'payment_method',
+	// 	'notes'
+	// );
 
 	public function activity()
 	{

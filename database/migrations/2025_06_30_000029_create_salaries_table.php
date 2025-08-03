@@ -15,8 +15,7 @@ return new class extends Migration
 			$table->decimal('Base_salary');
 			$table->decimal('bonus')->nullable();
 			$table->decimal('deductions')->nullable();
-			$table->decimal('net_salary');
-			$table->date('pay_date');
+			$table->date('date');
 			$table->enum('status', array('paid', 'pending'));
 			$table->text('notes')->nullable();
 			$table->foreign('user_id')->references('id')->on('users');

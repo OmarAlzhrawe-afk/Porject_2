@@ -13,12 +13,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     * @var array<int, string>
-     */
     protected $table = 'users';
     public $timestamps = true;
+    protected $guard_name = 'api';
     protected $fillable = [
         'name',
         'email',
@@ -30,13 +27,8 @@ class User extends Authenticatable
         'birth_date',
         'gender',
         'address',
+        'salary'
     ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -60,8 +52,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
-
     public function supervisor()
+    {
+        return $this->hasOne(Supervisor::class);
+    }
+    public function activities()
     {
         return $this->hasOne(Supervisor::class);
     }

@@ -15,7 +15,8 @@ return new class extends Migration
 			$table->enum('payment_method', array('cash', 'visa', 'Transfer(shamcash)'));
 			$table->decimal('amount');
 			$table->enum('type', array('in', 'out'));
-			$table->enum('transaction_source', array('pay_salary', 'buy_book', 'pre_registration', 'installment_student', 'activity'));
+			// Done buy_book
+			$table->enum('transaction_source', array('pay_salary', 'buy_book', 'pre_registration', 'installment_student', 'Enroll_activity'));
 			$table->enum('status', array('pending', 'paid', 'failed'));
 			$table->integer('installment_number')->nullable();
 			$table->string('payment_reference')->nullable();

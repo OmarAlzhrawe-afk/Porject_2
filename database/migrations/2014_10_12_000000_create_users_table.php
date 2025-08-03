@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date('hire_date')->nullable();
             $table->longText('ID_documents')->nullable();
             $table->string('phone_number');
+            $table->integer('salary')->nullable();
             // $table->string('verification_code')->nullable();
             // $table->datetime('verification_code')->nullable();
             $table->date('birth_date')->nullable();

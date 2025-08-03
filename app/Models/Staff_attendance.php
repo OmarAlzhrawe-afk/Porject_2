@@ -18,7 +18,7 @@ class Staff_attendance extends Model
 		'Attendance_status',
 		'nots'
 	);
-	protected $visible = array('QR_id', 'user_id', 'Attendance_status', 'nots');
+	// protected $visible = array('QR_id', 'user_id', 'Attendance_status', 'nots');
 
 	public function user()
 	{

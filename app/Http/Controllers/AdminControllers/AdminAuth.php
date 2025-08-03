@@ -124,4 +124,12 @@ class AdminAuth extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
+    public function logout()
+    {
+        try {
+            return HelpersFunctions::logout();
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
 }

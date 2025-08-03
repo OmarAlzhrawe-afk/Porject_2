@@ -30,10 +30,12 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
     // 2  Entered VerifyCode Code verify
     Route::post('VerifyPasswordCodeAdmin', [AdminAuth::class, 'VerifyPasswordCodeAdmin']);
     // 3  Update Password 
-    Route::post('UpdatePasswordAdmin', [AdminAuth::class, 'UpdatePasswordAdmin']);
-    Route::prefix('process/')->name('process.')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('UpdatePasswordAdmin', [AdminAuth::class, 'UpdatePasswordAdmin']); // , 'role:admin'
+    Route::prefix('process/')->name('process.')->middleware(['auth:sanctum'])->group(function () {
         //4 Get dashboard data
         Route::get('Get_dash_data', [ManageClassesAndEducationLevel::class, 'Get_dash_data']);
+        //5 log out Route
+        Route::get('logout', [AdminAuth::class, 'logout']);
         //Create Education Level 
         Route::post('create_education_level', [ManageClassesAndEducationLevel::class, 'create_education_level']);
         Route::get('delete_education_level/{id}', [ManageClassesAndEducationLevel::class, 'delete_education_level']);
@@ -53,6 +55,8 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         // Create Subject For Specific Education Level
         Route::post('add_subject_for_education_level', [ManageClassesAndEducationLevel::class, 'add_subject_for_education_level'])->name('add_subject');
         Route::get('delete_subject/{id}', [ManageClassesAndEducationLevel::class, 'delete_subject'])->name('delete_subject');
+        // Delete subject from education level 
+        Route::post('delete_subject_from_education_level', [ManageClassesAndEducationLevel::class, 'delete_subject_from_education_level'])->name('delete_subject');
         Route::get('get_all_subjects_with_his_data', [ManageClassesAndEducationLevel::class, 'get_all_subjects_with_his_data'])->name('add_subject');
         // CRUD Post
         //  Add notification For all users in System when Add Post Or Update  Done

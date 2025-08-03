@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use Illuminate\Http\Request;
+
 class HelpersFunctions
 {
     public static function success($data = null, $message = 'تم بنجاح', $status = 200)
@@ -20,5 +22,14 @@ class HelpersFunctions
             'message' => $message,
             'errors' => $errors,
         ], $status);
+    }
+    public static function logout()
+    {
+        $request = request();
+        if ($request->user()?->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+            return HelpersFunctions::success("", "logout Done", 200);
+        }
+        return HelpersFunctions::error("Bad Request", 400, "No Active log in Found ");
     }
 }

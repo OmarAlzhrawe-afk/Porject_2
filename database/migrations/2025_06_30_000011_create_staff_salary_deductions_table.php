@@ -13,6 +13,7 @@ return new class extends Migration
 			$table->unsignedBigInteger('user_id');
 			//$table->enum('user_type', array('teacher', 'supervisor', 'librarian'));
 			$table->integer('amount')->default('0');
+			$table->enum('type', ['deducation', 'Bonos']);
 			$table->text('reason');
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 

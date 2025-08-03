@@ -22,6 +22,7 @@ class Pre_registration extends Model
 		'parent_email',
 		'phone_number',
 		'status',
+		'created_at',
 		'documents'
 	);
 	protected $casts = [

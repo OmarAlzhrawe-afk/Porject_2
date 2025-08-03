@@ -13,7 +13,9 @@ class Staff_salary_deductions extends Model
 	protected $fillable = array(
 		'id',
 		'user_type',
+		'user_id',
 		'amount',
+		'type',
 		'reason'
 	);
 	protected $visible = array(
