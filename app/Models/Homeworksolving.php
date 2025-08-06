@@ -15,6 +15,7 @@ class Homeworksolving extends Model
         'homework_id',
         'student_id',
         'solve_url'
+
     );
     public function homework()
     {

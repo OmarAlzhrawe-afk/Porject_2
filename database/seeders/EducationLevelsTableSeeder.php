@@ -22,8 +22,8 @@ class EducationLevelsTableSeeder extends Seeder
             0 => 
             array (
                 'id' => 1,
-                'created_at' => '2025-07-30 23:17:41',
-                'updated_at' => '2025-07-30 23:17:41',
+                'created_at' => '2025-08-06 15:37:43',
+                'updated_at' => '2025-08-06 15:37:43',
                 'name' => 'first_primary',
                 'Acadimic_year' => '2026-10-10',
                 'description' => 'this is the first Level Education',

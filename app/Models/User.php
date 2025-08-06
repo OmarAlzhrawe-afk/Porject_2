@@ -58,6 +58,6 @@ class User extends Authenticatable
     }
     public function activities()
     {
-        return $this->hasOne(Supervisor::class);
+        return $this->belongsToMany(Activity::class, 'activity_participants', 'user_id', 'activity_id');
     }
 }

@@ -28,8 +28,8 @@ return new class extends Migration
             $table->integer('seats_limit')->nullable();
             $table->date('registration_deadline');
             $table->boolean('is_open')->default(true);
-            $table->json('gallery_urls')->nullable();
-            $table->json('required_skills')->nullable();
+            $table->longText('gallery_urls')->nullable();
+            $table->longText('required_skills')->nullable();
             $table->boolean('auto_filter_participants');
             $table->foreign('class_room_id')->references('id')->on('class_rooms');
             $table->foreign('education_level_id')->references('id')->on('education_levels');

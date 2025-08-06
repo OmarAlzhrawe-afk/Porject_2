@@ -22,10 +22,10 @@ class SupervisorsTableSeeder extends Seeder
             0 => 
             array (
                 'id' => 1,
-                'user_id' => 3,
+                'user_id' => 2,
                 'status' => 'on_leave',
-                'created_at' => '2025-07-30 23:17:17',
-                'updated_at' => '2025-07-30 23:17:17',
+                'created_at' => '2025-08-06 15:37:36',
+                'updated_at' => '2025-08-06 15:37:36',
             ),
         ));
         

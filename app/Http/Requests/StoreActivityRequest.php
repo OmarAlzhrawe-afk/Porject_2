@@ -43,7 +43,7 @@ class StoreActivityRequest extends FormRequest
             'required_skills' => 'nullable|array',
             'required_skills.*' => 'string',
             'gallery' => 'nullable|array',
-            'gallery.*' => 'file|mimes:mp4,jpeg,jpg,png|max:20480|max:20480',
+            'gallery.*' => 'file|mimes:mp4,jpeg,jpg,png,pdf|max:20480|max:20480',
         ];
     }
     public function failedValidation(Validator $validator)

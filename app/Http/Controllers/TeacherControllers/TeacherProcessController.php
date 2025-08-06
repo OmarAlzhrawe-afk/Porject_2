@@ -9,11 +9,14 @@ use App\Models\Activity_participants;
 use App\Models\Class_room;
 use App\Models\Class_session;
 use App\Models\Education_content;
+use App\Models\Home_work;
 use App\Models\Homework;
+use App\Models\Homeworksolving;
 use App\Models\Mark;
 use App\Models\Qr_Code;
 use App\Models\Salary;
 use App\Models\Staff_attendance;
+use App\Models\Staff_leaves;
 use App\Models\Student;
 use App\Models\Student_attendance;
 use App\Models\Student_profile;
@@ -24,6 +27,8 @@ use App\Models\User;
 use App\Notifications\ActivityEnrollNotification;
 use App\Notifications\EducationContentNotification;
 use App\Notifications\HomeworkAddedNotification;
+use App\Notifications\LeaveNotification;
+use App\Notifications\LeaveOrderNotification;
 use App\Notifications\MarkNotification;
 use Carbon\Carbon;
 use Dompdf\Helpers;
@@ -92,7 +97,7 @@ class TeacherProcessController extends Controller
     public function surfing_available_activity()
     {
         try {
-            $activities = Activity::where('is_open', true)->get();
+            $activities = Activity::where('is_open', true)->get(); //where('is_open', true)->get();
             return HelpersFunctions::success($activities, "Getting Activities Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -116,6 +121,7 @@ class TeacherProcessController extends Controller
             $activity = Activity::find($request->activity_id);
             $register_in_activity = new Activity_participants();
             $register_in_activity->user_id = auth('sanctum')->user()->id;
+            $register_in_activity->activity_id = $request->activity_id;
             if ($activity->is_paid) {
                 $register_in_activity->payment_status = 'pending';
             } else {
@@ -124,31 +130,35 @@ class TeacherProcessController extends Controller
             $register_in_activity->attendance = false;
             $register_in_activity->payment_method = 'OnLine';
             if ($request->notes) {
-                $register_in_activity->notes = $request->notes;
+                $register_in_activity->notes = $request->notes  ?? null;
             }
             $register_in_activity->save();
-
-            Stripe::setApiKey(config('services.stripe.secret'));
-            $paymentIntent = PaymentIntent::create([
-                'amount' => $request->amount * 100,
-                'currency' => 'usd',
-                'metadata' => [
-                    'teacher_id' => $user->teacher()->id,
-                    'activity_id' => $request->activity_id,
-                ],
-            ]);
-            $register_in_activity->update([
-                'payment_reference' => $paymentIntent->id
-            ]);
-            $register_in_activity->save();
-            $data = [
-                'client_secret' => $paymentIntent->client_secret,
-                'message' => 'Creating Registering in Activity Done Please Process Payment cost',
-            ];
-            DB::commit();
-            return HelpersFunctions::success($data, "please Continue Payment", 200);
+            if ($activity->is_paid) {
+                Stripe::setApiKey(config('services.stripe.secret'));
+                $paymentIntent = PaymentIntent::create([
+                    'amount' => $activity->cost * 100,
+                    'currency' => 'usd',
+                    'metadata' => [
+                        'teacher_id' => $user->teacher->id,
+                        'activity_id' => $request->activity_id,
+                    ],
+                ]);
+                $register_in_activity->update([
+                    'payment_reference' => $paymentIntent->id
+                ]);
+                $register_in_activity->save();
+                $data = [
+                    'client_secret' => $paymentIntent->client_secret,
+                    'message' => 'Creating Registering in Activity Done Please Process Payment cost',
+                ];
+                DB::commit();
+                return HelpersFunctions::success($data, "please Continue Payment", 200);
+            } else {
+                DB::commit();
+                return HelpersFunctions::success($register_in_activity, "register_in_activity done", 200);
+            }
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function confirm_payment_register_in_avtivity(Request $request)
@@ -157,6 +167,7 @@ class TeacherProcessController extends Controller
             'payment_intent_id' => 'required|string',
         ]);
         try {
+            DB::beginTransaction();
             $user = User::find(auth('sanctum')->user()->id);
             Stripe::setApiKey(config('services.stripe.secret'));
             $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
@@ -175,7 +186,8 @@ class TeacherProcessController extends Controller
                 'is_installment' => false,
                 'payment_reference' => $paymentIntent->id,
             ]);
-            $user->noyify(new ActivityEnrollNotification($transaction, $activity_registeration->activity));
+            $user->notify(new ActivityEnrollNotification($transaction, $activity_registeration->activity));
+            DB::commit();
             return HelpersFunctions::success("", "Confirming paying Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -185,31 +197,35 @@ class TeacherProcessController extends Controller
     {
         try {
             $user =  User::find(auth('sanctum')->user()->id);
-            $salary = Salary::where(['user_id' => $user->id, 'date' => now()->format('y-m')])->get();
+            $salary = Salary::where(['user_id' => $user->id])
+                ->whereYear('date', now()->year)
+                ->whereMonth('date', now()->month)
+                ->first();
             if (!$salary) {
                 return HelpersFunctions::error("Your Salary Does not Exist Yet PLease Wait Some Days", 200, "");
             }
             return HelpersFunctions::success($salary, "Getting Salary Done", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
         }
     }
+
     public function view_schedul_table()
     {
         try {
             $user =  User::find(auth('sanctum')->user()->id);
             $sessions = Class_session::where('teacher_id', $user->teacher->id)
-                ->orderBy('session_day')->map(function ($session) {
+                ->orderBy('session_day')
+                ->get()->map(function ($session) {
                     return [
                         'class_Name' => $session->class->name,
                         'subject' => $session->teacher->subject->name,
                         'day' => $session->session_day,
-                        'start_time' => $session->session_day,
-                        'end_time'
+                        'start_time' => $session->start_time,
+                        'end_time' => $session->end_time,
                     ];
                 })
-                ->get()
-                ->groupBy('session_day');
+                ->groupBy('day');
             return HelpersFunctions::success($sessions, "Getting Salary Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -228,10 +244,11 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
         }
         try {
+            DB::beginTransaction();
             $user =  User::find(auth('sanctum')->user()->id);
             // Creating & saving E_C
             $education_content = new Education_content();
-            $education_content->teacher_id = $user->student->id;
+            $education_content->teacher_id = $user->teacher->id;
             $education_content->class_room_id = $request->class_room_id;
             $education_content->title = $request->title ?? "";
             $education_content->description = $request->description ?? "";
@@ -244,11 +261,16 @@ class TeacherProcessController extends Controller
             }
             $education_content->save();
             // Send Not.. To all users in class 
-            $users = Student::where('class_id', $request->class_room_id)->user()->get();
+            $users = Student::where('class_id', $request->class_room_id)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
             Notification::send($users, new EducationContentNotification($education_content));
+            DB::commit();
             return HelpersFunctions::success($education_content, "Adding  Education Content Done", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function enter_marks(Request $request)
@@ -262,10 +284,11 @@ class TeacherProcessController extends Controller
             'teacher_note' => 'nullable|string',
         ]);
         if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+            return HelpersFunctions::error(" Bad Request ", 400, $validator->errors());
         }
         try {
             $user =  User::find(auth('sanctum')->user()->id);
+            DB::beginTransaction();
             $mark = new Mark();
             $mark->teacher_id = $user->teacher->id;
             $mark->student_id = $request->student_id;
@@ -275,8 +298,12 @@ class TeacherProcessController extends Controller
             $mark->date = now()->format('y-m-d');
             $mark->teacher_note = $request->teacher_note;
             $mark->save();
-            $user = Student::where('id', $request->student_id)->user();
+            $user = Student::where('id', $request->student_id)
+                ->with('user')
+                ->first()
+                ->user;
             $user->notify(new MarkNotification($mark));
+            DB::commit();
             return HelpersFunctions::success($mark, "Getting Salary Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -293,9 +320,14 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
         }
         try {
-            // $user =  User::find(auth('sanctum')->user()->id);
+            $user =  User::find(auth('sanctum')->user()->id);
             $student_profile = Student_profile::where('student_id', $request->student_id)->first();
-            $student_profile->teacher_feedback = $request->teacher_feedback;
+            $feedback = $student_profile->teacher_feedback ?? [];
+
+            $feedback[$user->name][] = $request->teacher_feedback;
+            $student_profile->teacher_feedback = $feedback;
+
+
             $student_profile->save();
             return HelpersFunctions::success("", "adding Note Done", 200);
         } catch (Exception $e) {
@@ -304,36 +336,81 @@ class TeacherProcessController extends Controller
     }
     public function add_homework(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'class_id' => 'required|exists:class_rooms,id',
             'description' => 'required|string',
             'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            'last_date' => 'required|date',
         ]);
         if ($validator->fails()) {
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
         }
         try {
             DB::beginTransaction();
-            $homwork = new Homework();
-            $homwork->teacher_id = auth('sanctum')->user()->id;
+            $homwork = new Home_work();
+            $homwork->teacher_id = auth('sanctum')->user()->teacher->id;
             $homwork->class_id = $request->class_id;
             $homwork->description = $request->description;
+            $homwork->last_date = $request->last_date;
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = time() . '_' . $file->getClientOriginalExtension();
+                $filename = time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/Homeworks'), $filename);
-                $homwork->homework_url = 'uploads/Homeworks' . $filename;
+                $homwork->homework_url = 'uploads/Homeworks' . $filename . ".pdf";
             }
             $homwork->save();
-            $users = Student::where('class_id', $homwork->class_id)->user()->get();
-            $homwork->homework_url = $request->homework_url;
+            $users = Student::where('class_id', $homwork->class_id)
+                ->with('user')
+                ->get()
+                ->pluck('user')
+                ->filter();
+            // $homwork->homework_url = $request->homework_url;
             Notification::send($users, new HomeworkAddedNotification($homwork));
             DB::commit();
-            return HelpersFunctions::success("", "adding Note Done", 200);
+            return HelpersFunctions::success("", "adding Home work Done", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
-    public function leave_demand(Request $request) {}
+    public function leave_demand(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'leave_date' => 'required|date',
+            'period' => 'required|in:day,3day,week,2week,month,year',
+            'leave_type' => 'required|in:sick,personal,unpaid,emergency',
+            // 'status' => 'required|in:pending,approved,rejected',
+            'notes' => 'nullable|string|max:2048',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+        }
+        try {
+            DB::beginTransaction();
+            $leave = new  Staff_leaves();
+            $leave->user_id = auth('sanctum')->user()->id;
+            $leave->leave_date = $request->leave_date;
+            $leave->period = $request->period;
+            $leave->leave_type = $request->leave_type;
+            $leave->status = 'pending';
+            $leave->notes = $request->notes;
+            $leave->save();
+            $admin = User::where('role', 'admin')->first();
+            $user  = auth('sanctum')->user();
+            $admin->notify(new LeaveOrderNotification($user, $leave));
+            // Notification::send($users, new HomeworkAddedNotification($homwork));
+            DB::commit();
+            return HelpersFunctions::success("", "Leave Demand Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function view_home_work_solution()
+    {
+        try {
+            $solves = Homeworksolving::all();
+            return HelpersFunctions::success($solves, "Getting Solved Home Work Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
 }

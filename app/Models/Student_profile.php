@@ -31,6 +31,7 @@ class Student_profile extends Model
 		'activities_participated' => 'array',
 		'achievements' => 'array',
 		'skills' => 'array',
+		'teacher_feedback' => 'array',
 	];
 	public function student()
 	{

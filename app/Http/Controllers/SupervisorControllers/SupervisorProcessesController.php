@@ -47,44 +47,48 @@ class SupervisorProcessesController extends Controller
         try {
             $data = $request->validated();
             DB::beginTransaction();
+            // Create Record Activity
+            $activity = new Activity();
+            $activity->Title = $data['Title'];
+            $activity->class_room_id = $data['class_room_id'] ?? null;
+            $activity->education_level_id = $data['education_level_id'] ?? null;
+            $activity->Description = $data['Description'];
+            $activity->activity_type = $data['activity_type'];
+            $activity->date = $data['date'];
+            $activity->location = $data['location'] ?? null;
+            $activity->target_group = $data['target_group'];
+            $activity->is_paid = $data['is_paid'];
+            $activity->cost = $data['cost'] ?? null;
+            $activity->seats_limit = $data['seats_limit'] ?? null;
+            $activity->registration_deadline = $data['registration_deadline'];
+            $activity->is_open = $data['is_open'] ?? true;
+            $activity->auto_filter_participants = $data['auto_filter_participants'];
+            $activity->required_skills = $data['required_skills'] ?? null;
+            // 'gallery_urls' => $data['gallery'] ?? null,
             //  Upload Files Of Activity
             $gallery_urls = [];
-
             if ($request->hasFile('gallery')) {
                 $counter = 0;
-                foreach ($request->file('gallery') as $file) {
-
+                foreach ($request->file('gallery') as $key =>  $file) {
                     $file_name = time() . $counter++ . '_' . $file->getClientOriginalName();
                     $file->move(public_path('uploads/Activity/gallery_urls/'), $file_name);
-                    $gallery_urls[] = 'uploads/Activity/gallery_urls/' .  $file_name;
+                    $gallery_urls[$key] = 'uploads/Activity/gallery_urls/' .  $file_name;
                 }
             }
-            // Create Record Activity
-            $activity = Activity::create([
-                'Title' => $data['Title'],
-                'class_room_id' => $data['class_room_id'] ?? null,
-                'education_level_id' => $data['education_level_id'] ?? null,
-                'Description' => $data['Description'],
-                'activity_type' => $data['activity_type'],
-                'date' => $data['date'],
-                'location' => $data['location'] ?? null,
-                'target_group' => $data['target_group'],
-                'is_paid' => $data['is_paid'],
-                'cost' => $data['cost'] ?? null,
-                'seats_limit' => $data['seats_limit'] ?? null,
-                'registration_deadline' => $data['registration_deadline'],
-                'is_open' => $data['is_open'] ?? true,
-                'auto_filter_participants' => $data['auto_filter_participants'],
-                'required_skills' => $data['required_skills'] ?? null,
-            ]);
-            $activity->required_skills = $request->has('required_skills')
-                ? json_encode($request->required_skills)
-                : null;
-            $activity->gallery_urls = json_encode($gallery_urls);
+            // dd($gallery_urls);
+
+            $activity->gallery_urls = $gallery_urls;
             $activity->save();
-            $activity->gallery_urls = json_decode($activity->gallery_urls);
+            // dd($activity->toArray());
+
+            $activity->required_skills = $request->has('required_skills')
+                ? $request->required_skills
+                : null;
+            $requiredSkills = $activity->required_skills;
+            $activity->save();
+            // $activity->gallery_urls = json_decode($activity->gallery_urls);
             // Here We Will Add Send Notifications For Class Student Users That Is New Activity Is Added
-            $requiredSkills = $activity->required_skills ? json_decode($activity->required_skills, true) : [];
+
             $student = collect();
             switch ($activity->target_group) {
                 case 'all':
@@ -116,8 +120,8 @@ class SupervisorProcessesController extends Controller
             if ($users->isNotEmpty()) {
                 Notification::send($users, new NewActivity($activity));
             }
-            return HelpersFunctions::success($activity, "Activity Add Done", 200);
             DB::commit();
+            return HelpersFunctions::success($activity, "Activity Add Done", 200);
         } catch (Exception  $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
         }

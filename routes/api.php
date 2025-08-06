@@ -95,10 +95,3 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
     });
 });
-
-// Route::get('supervisor/login', [LoginController::class, 'GetLoginViewForSupervisor'])->name('supervisor.loginpage')->middleware('web');
-
-// Route::post('supervisor/login/createcode', [LoginController::class, 'Supervisorcreatecode'])->name('supervisor.login.createcode')->middleware('web');
-
-// Route::post('supervisor/login/entercode', [LoginController::class, 'Supervisorentercode'])->name('supervisor.login.entercode')->middleware('web');
-// Route::post('supervisor/login/resendcode', [LoginController::class, 'SupervisorResendCode'])->name('supervisor.login.resendcode')->middleware('web');

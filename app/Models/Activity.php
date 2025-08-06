@@ -32,25 +32,10 @@ class Activity extends Model
 		'required_skills',
 		'auto_filter_participants'
 	);
-	// protected $visible = array(
-	// 	'id',
-	// 	'class_id',
-	// 	'education_level_id',
-	// 	'Title',
-	// 	'Description',
-	// 	'date',
-	// 	'location',
-	// 	'target_group',
-	// 	'is_paid',
-	// 	'cost',
-	// 	'seats_limit',
-	// 	'registration_deadline',
-	// 	'is_open',
-	// 	'gallery_urls',
-	// 	'required_skills',
-	// 	'auto_filter_participants'
-	// );
-
+	protected $casts = [
+		'gallery_urls' => 'array',
+		'required_skills' => 'array',
+	];
 	public function classes()
 	{
 		return $this->belongsTo(Class_room::class, 'class_id');

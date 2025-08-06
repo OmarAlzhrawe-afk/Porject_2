@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('payment_method', array('cash', 'OnLine'))->nullable();
             $table->text('notes')->nullable();
             $table->foreign('activity_id')->references('id')->on('activities');
-            $table->foreign('user_id')->references('id')->on('students');
+            $table->foreign('user_id')->references('id')->on('users');
 
             $table->timestamps();
         });

@@ -15,7 +15,8 @@ class Home_work extends Model
         'teacher_id',
         'class_id',
         'description',
-        'homework_url'
+        'homework_url',
+        'last_date'
     );
     public function teacher()
     {
