@@ -20,17 +20,21 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\HelpersFunctions;
+use App\Models\Installment_payment;
+use App\Models\Installment_Plan;
 use App\Notifications\LeaveNotification;
 use App\Notifications\RejectLeaveNotification;
+use Carbon\Carbon;
 use Dompdf\Helpers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 use Spatie\Activitylog\Models\Activity;
-
+use App\Traits\SharedFunctionTrait;
 
 class AdminProcessController extends Controller
 {
+    use SharedFunctionTrait;
     // Handle Pre_Registeration For Students
     public function get_all_pre_registeration()
     {
@@ -52,11 +56,15 @@ class AdminProcessController extends Controller
             $validator = Validator::make($request->all(), [
                 'class_id' => 'required | exists:class_rooms,id',
                 'pre_id' => 'required | exists:pre_registrations,id',
+                'plan_id' => 'required | exists:installment_plans,id',
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
             $Registration = Pre_registration::where('id', $request->pre_id)->first();
+            if ($Registration->status = 'pending') {
+                return HelpersFunctions::error("Bad Registeration", 403, "Registeration that you Entered Not Pending Status");
+            }
             $Registration->status = 'accepted';
             $Registration->save();
             $studentuser = new User();
@@ -78,21 +86,33 @@ class AdminProcessController extends Controller
             $parentuser->phone_number = $Registration->phone_number;
             $parentuser->save();
             $studentuser->assignRole('parent');
-            $student = new Student();
             $class = Class_room::find($request->class_id);
             if ($class->education_level_id == $Registration->education_level_id && $class->capacity > $class->current_count) {
+                $student = new Student();
                 $student->class_id = $class->id;
+                $student->user_id = $studentuser->id;
+                $student->parent_id = $parentuser->id;
+                $student->status = 'active';
+                $student->save();
+                $plan = Installment_Plan::where('id', $request->plan_id)->first();
+                $start_date = Carbon::now()->addDays(30);
+                for ($i = 1; $i <= $plan->number_of_installments; $i++) {
+                    $due_date = $start_date->copy()->addDays($i * $plan->count_of_days_per_each_installment);
+                    $installment_payment = new Installment_payment();
+                    $installment_payment->student_id = $student->id;
+                    $installment_payment->installment_plan_id = $plan->id;
+                    $installment_payment->paid = false;
+                    $installment_payment->due_date = $due_date;
+                    $installment_payment->amount = $plan->total_amount / $plan->number_of_installments;
+                    $installment_payment->save();
+                }
                 $class->current_count++;
             } else {
                 // dd("class Level : " . $class->education_level_id . "pre_level : " . $Registration->education_level_id . " class capacity : " . $class->capacity . " class current count : " . $class->current_count);
                 DB::commit();
                 return HelpersFunctions::error("Bad Request", 400, "Class That You Entered Is Invalid");
             }
-            $student->user_id = $studentuser->id;
-            $student->parent_id = $parentuser->id;
             // $student->Student_number = '5'; Auto
-            $student->status = 'active';
-            $student->save();
             $admin = auth('sanctum')->user();
             Mail::to($Registration->student_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
             Mail::to($Registration->parent_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
@@ -349,15 +369,6 @@ class AdminProcessController extends Controller
     }
     public function get_last_activity()
     {
-        try {
-            $user = auth()->user();
-            $activities = Activity::causedBy($user)
-                ->latest()
-                ->take(5)
-                ->get();
-            return HelpersFunctions::success($activities, "Getting Activity Done", 200);
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
-        }
+        $this->get_last_activity_for_all();
     }
 }

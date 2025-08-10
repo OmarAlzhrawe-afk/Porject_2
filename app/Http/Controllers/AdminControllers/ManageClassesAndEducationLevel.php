@@ -2,6 +2,12 @@
 
 namespace App\Http\Controllers\AdminControllers;
 
+use App\Events\ClassRoomCreated;
+use App\Events\ClassRoomDeleted;
+use App\Events\EducationLevelCreated;
+use App\Events\EducationLevelDeleted;
+use App\Events\SubjectCreated;
+use App\Events\SubjectDeletedFromEducationLevel;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Class_room;
@@ -17,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Helpers\HelpersFunctions;
 use App\Models\Educationlevelsubject;
+use App\Models\Installment_Plan;
 use App\Notifications\SessionNotification;
 use Dompdf\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +34,32 @@ use Spatie\Activitylog\Models\Activity as ActivityLogs;
 
 class ManageClassesAndEducationLevel extends Controller
 {
+    public function make_installment_plan(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|max:255 ',
+                'education_level_id' => 'required|exists:education_levels,id',
+                'number_of_installments' => 'required|integer',
+                'count_of_days_per_each_installment' => 'required|integer',
+                'description' => 'required|string'
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+            $plane = new  Installment_Plan();
+            $plane->name = $request->name;
+            $plane->education_level_id = $request->education_level_id;
+            $plane->number_of_installments = $request->number_of_installments;
+            $plane->count_of_days_per_each_installment = $request->count_of_days_per_each_installment;
+            $plane->total_amount = Education_level::where('id', $request->education_level_id)->value('price');
+            $plane->description = $request->description;
+            $plane->save();
+            return HelpersFunctions::success($plane, "Creating Plan Done", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
     public function Get_dash_data()
     {
         try {
@@ -73,6 +106,7 @@ class ManageClassesAndEducationLevel extends Controller
     }
     public function get_education_level_data($id)
     {
+
         $el = Education_level::findOrFail($id);
         $subjects = $el->subjects;
         $Regesterations = $el->Regesterations;
@@ -125,6 +159,8 @@ class ManageClassesAndEducationLevel extends Controller
                 $el->supervisor_id = $request->input('supervisor_id');
                 $el->is_fully = false;
                 $el->save();
+                // Release Event 
+                event(new EducationLevelCreated($el));
                 // Add Process To Recent 
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
@@ -145,6 +181,7 @@ class ManageClassesAndEducationLevel extends Controller
                 return HelpersFunctions::error("Education Level Not Found", 404, "");
             } else {
                 $education_level->delete();
+                event(new EducationLevelDeleted($id));
                 return HelpersFunctions::success("", "Deleted Education Level Done", 200);
             }
         } catch (Exception  $e) {
@@ -172,6 +209,8 @@ class ManageClassesAndEducationLevel extends Controller
                 $class->current_count = $request->input('current_count');
                 $class->floor = $request->input('floor');
                 $class->save();
+                // broad cast event() 
+                event(new ClassRoomCreated($class));
                 // Add Process To Recent 
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
@@ -201,6 +240,7 @@ class ManageClassesAndEducationLevel extends Controller
                 return HelpersFunctions::error("Class Not Found", 404, "");
             } else {
                 $class->delete();
+                event(new ClassRoomDeleted($id));
                 return HelpersFunctions::success("", "Deleted Class Done", 200);
             }
         } catch (Exception  $e) {
@@ -221,6 +261,7 @@ class ManageClassesAndEducationLevel extends Controller
                 $subject->name = $request->input('name');
                 $subject->save();
                 $subject->educationalLevels()->attach($request->level_id);
+                event(new SubjectCreated($subject));
                 // Add Process To Recent 
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
@@ -261,12 +302,12 @@ class ManageClassesAndEducationLevel extends Controller
                 'education_level_id' => $request->education_level_id,
                 'subject_id' => $request->subject_id
             ])->delete();
+            event(new SubjectDeletedFromEducationLevel(Subject::find($request->subject_id), $request->education_level_id));
+            return HelpersFunctions::success("", "deleting subject done", 200);
         } catch (Exception  $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-
-
     public function get_all_subjects_with_his_data()
     {
         try {

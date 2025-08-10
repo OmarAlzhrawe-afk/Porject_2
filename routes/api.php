@@ -32,6 +32,8 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
     // 3  Update Password 
     Route::post('UpdatePasswordAdmin', [AdminAuth::class, 'UpdatePasswordAdmin']); // , 'role:admin'
     Route::prefix('process/')->name('process.')->middleware(['auth:sanctum'])->group(function () {
+        //Make Installment PLan
+        Route::post('make_installment_plan', [ManageClassesAndEducationLevel::class, 'make_installment_plan']);
         //4 Get dashboard data
         Route::get('Get_dash_data', [ManageClassesAndEducationLevel::class, 'Get_dash_data']);
         //5 log out Route
@@ -71,12 +73,14 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::delete('delete_PublicContent/{public_content_id}', [PublicContentCrud::class, 'delete_PublicContent'])->name('delete_PublicContent');
         // CRUD  User
         Route::get('get_all_Users', [ManageUsers::class, 'get_all_users']);
+        // 
         Route::post('add_User', [ManageUsers::class, 'add_User'])->name('add_User');
         Route::post('update_User', [ManageUsers::class, 'update_User'])->name('update_User');
         Route::get('delete_User/{id}', [ManageUsers::class, 'delete_User']);
         // Handle Pre_Registeration For Students
         // Add Mail For one student & Parent in System when Accept_pre_registeration  Or reject
         Route::get('get_all_pre_registeration', [AdminProcessController::class, 'get_all_pre_registeration']);
+        //  Here Maybe will edit to store User files 
         Route::post('Accept_pre_registeration', [AdminProcessController::class, 'Accept_pre_registeration']);
         Route::get('Reject_pre_registeration/{id}', [AdminProcessController::class, 'Reject_pre_registeration']);
         // Handle Staff Leaves 

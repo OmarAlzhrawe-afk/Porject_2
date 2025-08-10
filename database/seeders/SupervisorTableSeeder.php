@@ -15,7 +15,7 @@ class SupervisorTableSeeder extends Seeder
     {
         DB::table('supervisors')->insert([
             'id' => 1,
-            'user_id' => 1,
+            'user_id' => 2,
             'status' => 'active',
             'created_at' => now(),
             'updated_at' => now(),

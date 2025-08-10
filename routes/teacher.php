@@ -20,4 +20,5 @@ Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sa
     Route::post('/leave_demand', [TeacherProcessController::class, 'leave_demand']);
     // Here We wil add correct solution And pass Notification to student for it & edit solving table for that 
     Route::get('/view_home_work_solution', [TeacherProcessController::class, 'view_home_work_solution']);
+    Route::get('/get_last_activity', [TeacherProcessController::class, 'get_last_activity']);
 });

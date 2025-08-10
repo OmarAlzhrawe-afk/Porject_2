@@ -17,7 +17,16 @@ class Student extends Model
 
 	protected $table = 'students';
 	public $timestamps = true;
-	protected $fillable = array('user_id', 'parent_id', 'class_id', 'Student_number', 'status');
+	protected $fillable = [
+		'user_id',
+		'parent_id',
+		'class_id',
+		'Student_number',
+		'installment_total_amount',
+		'installment_count',
+		'installment_interval_days',
+		'status'
+	];
 	protected static function boot()
 	{
 		parent::boot();

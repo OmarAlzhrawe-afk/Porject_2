@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\AdminControllers;
 
+use App\Events\PublicContentCreated;
+use App\Events\PublicContentDeleted;
+use App\Events\PublicContentUpdated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -42,6 +45,8 @@ class PublicContentCrud extends Controller
                 $public_content->content_type = $request->input('content_type');
                 $public_content->content = $request->input('content');
                 $public_content->save();
+                // broad cast 
+                event(new PublicContentCreated($public_content));
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "add_PublicContent",
@@ -54,6 +59,7 @@ class PublicContentCrud extends Controller
     }
     public function update_PublicContent(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'content_id' =>  'required|exists:public_contents,id',
@@ -67,6 +73,8 @@ class PublicContentCrud extends Controller
                 $public_content->content_type = $request->input('content_type');
                 $public_content->content = $request->input('content');
                 $public_content->save();
+                // broad cast 
+                event(new PublicContentUpdated($public_content));
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "update_PublicContent",
@@ -79,11 +87,14 @@ class PublicContentCrud extends Controller
     }
     public function delete_PublicContent($public_content_id)
     {
+
         try {
             $public_content = Public_content::where('id', $public_content_id)->first();
             if ($public_content) {
                 $public_content->delete();
                 $user = auth('sanctum')->user();
+                // broad cast 
+                event(new PublicContentDeleted($public_content->id));
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "delete_PublicContent",
                 ])->log("Admin delete_PublicContent");

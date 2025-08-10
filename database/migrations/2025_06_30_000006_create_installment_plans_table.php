@@ -7,20 +7,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
 	public function up()
 	{
 		Schema::create('installment_plans', function (Blueprint $table) {
 			$table->id();
 			$table->string('name', 50);
+			$table->unsignedBigInteger('education_level_id');
 			$table->decimal('total_amount');
 			$table->tinyInteger('number_of_installments');
 			$table->tinyInteger('count_of_days_per_each_installment');
 			$table->text('description')->nullable();
+			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
 			$table->timestamps();
 		});
 	}

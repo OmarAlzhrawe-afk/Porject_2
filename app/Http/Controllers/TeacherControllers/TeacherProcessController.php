@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\TeacherControllers;
 
+use App\Events\StudentProfileUpdatedEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
@@ -40,59 +41,18 @@ use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
+use App\Traits\SharedFunctionTrait;
 
 class TeacherProcessController extends Controller
 {
+    use SharedFunctionTrait;
+    public function get_last_activity()
+    {
+        $this->get_last_activity_for_all();
+    }
     public function verify_attendance_for_session(Request $request)
     {
-        try {
-            $validator = Validator::make($request->all(), [
-                'unique_code' => 'required|exists:qr_codes,Unique_code'
-            ]);
-            if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
-            }
-            $qr = Qr_Code::where([
-                'Unique_code' => $request->input('unique_code'),
-                'Code_type' => 'teacher'
-            ])->first();
-            if (!$qr) {
-                return HelpersFunctions::error("Sorry Qr Code Is Wrong", 400, "Qr that you Entered Not Found ");
-            } elseif ($qr->expires_at < Carbon::now()) {
-                return HelpersFunctions::error("Sorry Qr Code Is Expired", 400, "Qr that you Entered is Expired");
-            } else {
-                $teacher = Teacher::where('user_id', auth('sanctum')->user()->id)->first();
-                $now = now()->format('h:i');
-                // Debug 
-                // dd(
-                //     "Teacher ID :  " . $teacher->id,
-                //     "  Class ID :  " . $qr->class_id,
-                //     " Session_day : " . now()->dayName,
-                //     " Time : " . $now
-                // );
-                $session = Class_session::where('teacher_id', $teacher->id)
-                    ->where('class_room_id', $qr->class_id)
-                    ->where('session_day', now()->dayName)
-                    ->where('start_time', '<=', $now)
-                    ->where('end_time', '>=', $now)
-                    ->first();
-                if (!$session) {
-                    return HelpersFunctions::error("Sorry You Dont Have Session For This Class Now You are Wrong", 400, "");
-                } else {
-                    DB::beginTransaction();
-                    $attendance = new Staff_attendance();
-                    $attendance->QR_id = $qr->id;
-                    $attendance->user_id = auth('sanctum')->user()->id;
-                    $attendance->Attendance_status = 'present';
-                    $attendance->nots = '';
-                    $attendance->save();
-                    DB::commit();
-                    return HelpersFunctions::success($attendance, "Registering Attendance Done", 200);
-                }
-            }
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
-        }
+        $this->verifyQrCodeRequest($request, 'teacher');
     }
     public function surfing_available_activity()
     {
@@ -105,61 +65,7 @@ class TeacherProcessController extends Controller
     }
     public function register_in_activity(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'activity_id' => 'required|exists:activities,id',
-            'notes' => 'nullable|exists:activities,id'
-        ]);
-        if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
-        }
-        try {
-            DB::beginTransaction();
-            $user = User::find(auth('sanctum')->user()->id);
-            if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
-                return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
-            }
-            $activity = Activity::find($request->activity_id);
-            $register_in_activity = new Activity_participants();
-            $register_in_activity->user_id = auth('sanctum')->user()->id;
-            $register_in_activity->activity_id = $request->activity_id;
-            if ($activity->is_paid) {
-                $register_in_activity->payment_status = 'pending';
-            } else {
-                $register_in_activity->payment_status = 'free_activity';
-            }
-            $register_in_activity->attendance = false;
-            $register_in_activity->payment_method = 'OnLine';
-            if ($request->notes) {
-                $register_in_activity->notes = $request->notes  ?? null;
-            }
-            $register_in_activity->save();
-            if ($activity->is_paid) {
-                Stripe::setApiKey(config('services.stripe.secret'));
-                $paymentIntent = PaymentIntent::create([
-                    'amount' => $activity->cost * 100,
-                    'currency' => 'usd',
-                    'metadata' => [
-                        'teacher_id' => $user->teacher->id,
-                        'activity_id' => $request->activity_id,
-                    ],
-                ]);
-                $register_in_activity->update([
-                    'payment_reference' => $paymentIntent->id
-                ]);
-                $register_in_activity->save();
-                $data = [
-                    'client_secret' => $paymentIntent->client_secret,
-                    'message' => 'Creating Registering in Activity Done Please Process Payment cost',
-                ];
-                DB::commit();
-                return HelpersFunctions::success($data, "please Continue Payment", 200);
-            } else {
-                DB::commit();
-                return HelpersFunctions::success($register_in_activity, "register_in_activity done", 200);
-            }
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
-        }
+        $this->register_in_activity_for_all($request);
     }
     public function confirm_payment_register_in_avtivity(Request $request)
     {
@@ -195,19 +101,7 @@ class TeacherProcessController extends Controller
     }
     public function surfing_salary()
     {
-        try {
-            $user =  User::find(auth('sanctum')->user()->id);
-            $salary = Salary::where(['user_id' => $user->id])
-                ->whereYear('date', now()->year)
-                ->whereMonth('date', now()->month)
-                ->first();
-            if (!$salary) {
-                return HelpersFunctions::error("Your Salary Does not Exist Yet PLease Wait Some Days", 200, "");
-            }
-            return HelpersFunctions::success($salary, "Getting Salary Done", 200);
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
-        }
+        $this->surfing_salary_for_all();
     }
 
     public function view_schedul_table()
@@ -329,6 +223,8 @@ class TeacherProcessController extends Controller
 
 
             $student_profile->save();
+            // Broadcast Event
+            event(new StudentProfileUpdatedEvent($student_profile));
             return HelpersFunctions::success("", "adding Note Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -374,35 +270,7 @@ class TeacherProcessController extends Controller
     }
     public function leave_demand(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'leave_date' => 'required|date',
-            'period' => 'required|in:day,3day,week,2week,month,year',
-            'leave_type' => 'required|in:sick,personal,unpaid,emergency',
-            // 'status' => 'required|in:pending,approved,rejected',
-            'notes' => 'nullable|string|max:2048',
-        ]);
-        if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
-        }
-        try {
-            DB::beginTransaction();
-            $leave = new  Staff_leaves();
-            $leave->user_id = auth('sanctum')->user()->id;
-            $leave->leave_date = $request->leave_date;
-            $leave->period = $request->period;
-            $leave->leave_type = $request->leave_type;
-            $leave->status = 'pending';
-            $leave->notes = $request->notes;
-            $leave->save();
-            $admin = User::where('role', 'admin')->first();
-            $user  = auth('sanctum')->user();
-            $admin->notify(new LeaveOrderNotification($user, $leave));
-            // Notification::send($users, new HomeworkAddedNotification($homwork));
-            DB::commit();
-            return HelpersFunctions::success("", "Leave Demand Done", 200);
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
-        }
+        $this->leave_demand_for_all($request);
     }
     public function view_home_work_solution()
     {

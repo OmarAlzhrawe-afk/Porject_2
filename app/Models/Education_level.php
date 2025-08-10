@@ -7,6 +7,9 @@ use App\Models\Pre_registration;
 use App\Models\Student_profile;
 use App\Models\Text_book;
 
+/**
+ * @property bool $is_fully
+ */
 class Education_level extends Model
 {
 	protected $table = 'education_levels';
@@ -32,5 +35,9 @@ class Education_level extends Model
 	public function subjects()
 	{
 		return $this->belongsToMany(Subject::class, 'educational_level_subjects');
+	}
+	public function classes()
+	{
+		return $this->hasMany(Class_room::class, 'education_level_id');
 	}
 }

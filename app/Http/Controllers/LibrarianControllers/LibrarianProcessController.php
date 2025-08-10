@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\LibrarianControllers;
 
+use App\Events\BookAdded;
+use App\Events\BookDelete;
+use App\Events\BookSaleEvent;
+use App\Events\BookUpdate;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Book_loan;
@@ -31,9 +35,23 @@ use App\Exports\LibraryExport;
 use App\Exports\LibrarySalesLoansExport;
 use App\Models\Report;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Traits\SharedFunctionTrait;
 
 class LibrarianProcessController extends Controller
 {
+    use SharedFunctionTrait;
+    public function leave_demand(Request $request)
+    {
+        $this->leave_demand_for_all($request);
+    }
+    public function get_last_activity()
+    {
+        $this->get_last_activity_for_all();
+    }
+    public function surfing_salary()
+    {
+        $this->surfing_salary_for_all();
+    }
     // CRUD Textual_Books
     public function Add_Textual_book(Request $request)
     {
@@ -66,6 +84,7 @@ class LibrarianProcessController extends Controller
             $new_text_book->available_quantity = $request->input('total_quantity');
             $new_text_book->price = $request->input('price');
             $new_text_book->save();
+            event(new BookAdded($new_text_book, "textual"));
             DB::commit();
             return  HelpersFunctions::success($new_text_book, "Adding Book Done", 200);
         } catch (Exception $e) {
@@ -92,6 +111,7 @@ class LibrarianProcessController extends Controller
                 $exist_book->price = $request->input('price');
             }
             $exist_book->save();
+            event(new BookUpdate($exist_book, "textual"));
             DB::commit();
             return  HelpersFunctions::success($exist_book, "edit Book Done", 200);
         } catch (Exception $e) {
@@ -109,10 +129,12 @@ class LibrarianProcessController extends Controller
     }
     public function delete_Textual_book($id)
     {
+
         try {
             $text_book = Text_book::findOrfail($id);
             if ($text_book) {
                 $text_book->delete();
+                event(new BookDelete($text_book->id, "textual"));
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -123,6 +145,7 @@ class LibrarianProcessController extends Controller
     // CRUD Textual_Books
     public function Add_cultural_book(Request $request)
     {
+
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
@@ -168,6 +191,7 @@ class LibrarianProcessController extends Controller
                 $newbook->copies_available = 0;
             }
             $newbook->save();
+            event(new BookAdded($newbook, "cultural"));
             DB::commit();
             return  HelpersFunctions::success($newbook, "Adding Book Done", 200);
         } catch (Exception $e) {
@@ -176,6 +200,7 @@ class LibrarianProcessController extends Controller
     }
     public function edit_cultural_book(Request $request)
     {
+
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
@@ -190,8 +215,8 @@ class LibrarianProcessController extends Controller
                 'type' => 'Paper'
             ])->first();
             $exist_book->copies_available = $exist_book->copies_available + $request->input('copies_available');
-
             $exist_book->save();
+            event(new BookUpdate($exist_book, "cultural"));
             DB::commit();
             return  HelpersFunctions::success($exist_book, "edit Book Done", 200);
         } catch (Exception $e) {
@@ -210,10 +235,12 @@ class LibrarianProcessController extends Controller
     }
     public function delete_cultural_book($id)
     {
+
         try {
             $text_book = Cultural_book::findOrfail($id);
             if ($text_book) {
                 $text_book->delete();
+                event(new BookDelete($text_book->id, "cultural"));
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -223,6 +250,7 @@ class LibrarianProcessController extends Controller
     }
     public function Make_Book_Loan(Request $request)
     {
+
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
@@ -245,11 +273,16 @@ class LibrarianProcessController extends Controller
                 $returnDate = now()->addMonth();
             }
             if ($book_loan->type == 'weekly') {
+
                 $returnDate = now()->addWeek();
             }
             $user->notify(new NewBookLoan($returnDate));
+            // Update Cultural Book 
+            $book = Cultural_book::find($request->book_id);
+            $book->copies_available = $book->copies_available--;
+            $book->save();
+            event(new BookUpdate($book, "cultural"));
             DB::commit();
-
             return HelpersFunctions::success($book_loan, "Book Loan Register Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -257,6 +290,7 @@ class LibrarianProcessController extends Controller
     }
     public function Make_Book_Buy(Request $request)
     {
+
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
@@ -272,6 +306,8 @@ class LibrarianProcessController extends Controller
             if ($text_book->available_quantity == 0) {
                 return HelpersFunctions::success("Quantity Finished", 400, "sorry you can not perform this Sale because the quantity is finished");
             }
+
+            // save sales book data and Book update data and send Events with data
             $book_sale = new Student_textbook_sale();
             $book_sale->student_id = $request->input('student_id');
             $book_sale->textbook_id = $request->input('textbook_id');
@@ -279,9 +315,12 @@ class LibrarianProcessController extends Controller
             $book_sale->quantity = $request->input('quantity');
             $book_sale->total_price = $text_book->price *  $request->input('quantity');
             $book_sale->save();
+            event(new BookSaleEvent($book_sale));
             $text_book->available_quantity = $text_book->available_quantity - $book_sale->quantity;
             $text_book->sold_quantity = $text_book->sold_quantity + $book_sale->sold_quantity;
             $text_book->save();
+            // Send Event with Book updated 
+            event(new BookUpdate($text_book, "textual"));
             // Make Transaction For Book Sale
             Transaction::create([
                 'user_id' => $book_sale->student->user_id,
@@ -303,31 +342,7 @@ class LibrarianProcessController extends Controller
     }
     public function Verify_Qr_Code(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'unique_code' => 'required|exists:qr_codes,Unique_code',
-        ]);
-        if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
-        }
-        $qr = Qr_Code::where([
-            'Unique_code' => $request->input('unique_code'),
-            'Code_type' => 'employee'
-        ])->first();
-        if (!$qr) {
-            return HelpersFunctions::error("Sorry Qr Code Is Wrong", 400, "Qr that you Entered Not Found ");
-        } elseif ($qr->expires_at < Carbon::now()) {
-            return HelpersFunctions::error("Sorry Qr Code Is Expired", 400, "Qr that you Entered is Expired");
-        } else {
-            DB::beginTransaction();
-            $emloyee_attendance = new  Staff_attendance();
-            $emloyee_attendance->QR_id = $qr->id;
-            $emloyee_attendance->user_id = auth()->id();
-            $emloyee_attendance->Attendance_status = 'present';
-            $emloyee_attendance->nots = null;
-            $emloyee_attendance->save();
-            DB::commit();
-            return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
-        }
+        $this->verifyQrCodeRequest($request, 'employee');
     }
     public function get_students()
     {
@@ -403,6 +418,7 @@ class LibrarianProcessController extends Controller
     }
     public function return_book(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'book_id' => 'required|exists:cultural_books,id',
@@ -417,6 +433,11 @@ class LibrarianProcessController extends Controller
             ])->first();
             $loan->status = 'returned';
             $loan->save();
+            // update book cultural data  and send Event with updating data
+            $cultural_book = Cultural_book::find($request->book_id);
+            $cultural_book->copies_available = $cultural_book->copies_available + 1;
+            $cultural_book->save();
+            event(new BookUpdate($cultural_book, "cultural"));
             return HelpersFunctions::success($loan, 'Getting Loans Done', 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -426,7 +447,6 @@ class LibrarianProcessController extends Controller
     public function get_loans_Sales_For_user($id)
     {
         try {
-
             $user = User::Find($id);
             if ($user->role == 'student') {
                 $student = Student::where('user_id', $user->id)->first();
@@ -450,6 +470,7 @@ class LibrarianProcessController extends Controller
     }
     public function make_leave_demand(Request $request)
     {
+
         try {
             $validator = Validator::make($request->all(), [
                 'leave_date' => 'required|date',

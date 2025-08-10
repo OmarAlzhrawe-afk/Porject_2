@@ -36,9 +36,9 @@ class Activity extends Model
 		'gallery_urls' => 'array',
 		'required_skills' => 'array',
 	];
-	public function classes()
+	public function class_room()
 	{
-		return $this->belongsTo(Class_room::class, 'class_id');
+		return $this->belongsTo(Class_room::class, 'class_room_id');
 	}
 	public function education_levels()
 	{

@@ -13,6 +13,7 @@ class Installment_Plan extends Model
 	protected $fillable = array(
 		'id',
 		'name',
+		'education_level_id',
 		'total_amount',
 		'number_of_installments',
 		'count_of_days_per_each_installment',

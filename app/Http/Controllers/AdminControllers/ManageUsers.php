@@ -13,6 +13,9 @@ use Exception;
 use Illuminate\Support\Facades\Validator;
 use App\Helpers\HelpersFunctions;
 use App\Models\Class_room;
+use App\Models\Installment_payment;
+use App\Models\Installment_Plan;
+use Carbon\Carbon;
 
 class ManageUsers extends Controller
 {
@@ -47,6 +50,7 @@ class ManageUsers extends Controller
                 'birth_date' =>  'required|date',
                 'address' =>  'required|string',
                 'gender' =>  'required|in:male,Female',
+                'salary' =>  'nullable|integer',
                 'ID_documents' =>  'required|array',
                 'ID_documents.*' =>  'file|mimes:jpg,jpeg,png,pdf',
             ]);
@@ -60,10 +64,14 @@ class ManageUsers extends Controller
                 $user->email = $request->input('email');
                 $user->phone_number = $request->input('phone_number');
                 $user->birth_date = $request->input('birth_date');
+                if ($request->role == 'librarian') {
+                    $user->salary = $request->salary;
+                }
                 $user->role = $request->input('role');
                 $user->address = $request->input('address');
                 $user->gender = $request->input('gender');
                 $user->save();
+
                 // Here We Repeat same code Make It in Helpers *****
                 // Store Id Files
                 $docs = [];
@@ -94,6 +102,7 @@ class ManageUsers extends Controller
                         'End_of_contract' =>  'required|date',
                         'number_of_lesson_in_week' =>  'required',
                         'wages_per_lesson' =>  'required',
+                        'salary' =>  'required|integer',
                     ]);
                     if ($validatorteacher->fails()) {
                         return HelpersFunctions::error("Bad Request Invalid data", 400, $validatorteacher->errors());
@@ -110,11 +119,14 @@ class ManageUsers extends Controller
                         $teacher->number_of_lesson_in_week = $request->number_of_lesson_in_week;
                         $teacher->wages_per_lesson = $request->wages_per_lesson;
                         $teacher->save();
+                        $user->salary = $request->salary;
+                        $user->save();
                     }
                 } elseif ($request->role == 'supervisor') {
                     $validatorteacher = Validator::make($request->all(), [
                         //  Supervisor Data
                         'status' =>  'required|in:active,on_leave,resigned',
+                        'salary' =>  'required|integer',
                     ]);
                     if ($validatorteacher->fails()) {
                         return HelpersFunctions::error("Bad Request Invalid data", 400, $validatorteacher->errors());
@@ -124,12 +136,16 @@ class ManageUsers extends Controller
                         $supervisor->user_id = $user->id;
                         $supervisor->status = $request->status;
                         $supervisor->save();
+                        $user->salary = $request->salary;
+                        $user->save();
                     }
                 } elseif ($request->role == 'student') {
                     $validatorstudent = Validator::make($request->all(), [
                         //  Student Data
                         'status' =>  'required|in:active,suspended,graduated,left',
                         'class_id' =>  'required|exists:class_rooms,id',
+                        'parent_id' =>  'required|exists:users,id',
+                        'plan_id' =>  'required|exists:installment_plans,id',
                     ]);
                     if ($validatorstudent->fails()) {
                         return HelpersFunctions::error("Bad Request Invalid data", 400, $validatorstudent->errors());
@@ -140,9 +156,22 @@ class ManageUsers extends Controller
                             $student = new Student();
                             $student->user_id = $user->id;
                             $student->class_id =  $request->class_id;
+                            $student->parent_id =  $request->parent_id;
                             $student->status = $request->status;
                             $student->save();
                             $class->current_count++;
+                            $plan = Installment_Plan::where('id', $request->plan_id)->first();
+                            $start_date = Carbon::now()->addDays(30);
+                            for ($i = 1; $i <= $plan->number_of_installments; $i++) {
+                                $due_date = $start_date->copy()->addDays($i * $plan->count_of_days_per_each_installment);
+                                $installment_payment = new Installment_payment();
+                                $installment_payment->student_id = $student->id;
+                                $installment_payment->installment_plan_id = $plan->id;
+                                $installment_payment->paid = false;
+                                $installment_payment->due_date = $due_date;
+                                $installment_payment->amount = $plan->total_amount / $plan->number_of_installments;
+                                $installment_payment->save();
+                            }
                         } else {
                             return HelpersFunctions::error("Sorry Class Is Fully", 200, "");
                         }
@@ -194,10 +223,7 @@ class ManageUsers extends Controller
                         $docs[$key] = 'uploads/users/IDs/' . $user->id . '/' . $file_name;
                     }
                     $user->ID_documents = $docs;
-                } else {
-                    $user->ID_documents =  "";
                 }
-
                 $user->save();
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([

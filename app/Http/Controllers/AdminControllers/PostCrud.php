@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\AdminControllers;
 
+use App\Events\PostCreated;
+use App\Events\Postdeleted;
+use App\Events\Postupdated;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\School_post;
@@ -63,6 +66,8 @@ class PostCrud extends Controller
                 // Send notification For all users in System when Add Post Or Update  
                 $users = User::all()->except(['role', 'admin']);
                 Notification::send($users, new PostNotification($post));
+                // Broad Cast
+                event(new PostCreated($post));
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "add_Post",
@@ -115,6 +120,8 @@ class PostCrud extends Controller
                 // Send notification For all users in System when Add Post Or Update  
                 $users = User::all()->except(['role', 'admin']);
                 Notification::send($users, new PostNotification($post));
+                // Broad Cast
+                event(new Postupdated($post));
 
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
@@ -137,6 +144,8 @@ class PostCrud extends Controller
                 if (File::exists($path)) {
                     File::delete($path);
                 }
+                // Broad Cast
+                event(new Postdeleted($post->id));
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "delete_Post",

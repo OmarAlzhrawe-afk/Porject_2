@@ -22,7 +22,7 @@ class CulturalBooksTableSeeder extends Seeder
             0 => 
             array (
                 'id' => 1,
-                'title' => '55 مشكلة حب',
+                'title' => 'book1',
                 'author' => 'مصطفى محمود',
                 'publisher' => 'مكتبة القاهرة',
                 'publication_year' => '1990-02-02',
@@ -34,8 +34,8 @@ class CulturalBooksTableSeeder extends Seeder
                 'total_student_reviews' => 0,
                 'total_teacher_reviews' => 0,
                 'description' => 'يتحدث عن حالة المجتمع وعلاقات الزواج والارتباط وما يعرف بالحب بأسلوب هزلي ساخر ناقد',
-                'created_at' => '2025-07-30 23:22:43',
-                'updated_at' => '2025-07-30 23:22:43',
+                'created_at' => '2025-08-10 05:20:07',
+                'updated_at' => '2025-08-10 05:20:07',
             ),
             1 => 
             array (
@@ -52,8 +52,8 @@ class CulturalBooksTableSeeder extends Seeder
                 'total_student_reviews' => 0,
                 'total_teacher_reviews' => 0,
                 'description' => 'يتحدث عن حالة المجتمع وعلاقات الزواج والارتباط وما يعرف بالحب بأسلوب هزلي ساخر ناقد',
-                'created_at' => '2025-07-30 23:22:56',
-                'updated_at' => '2025-07-30 23:22:56',
+                'created_at' => '2025-08-10 05:20:13',
+                'updated_at' => '2025-08-10 05:20:13',
             ),
             2 => 
             array (
@@ -70,8 +70,8 @@ class CulturalBooksTableSeeder extends Seeder
                 'total_student_reviews' => 0,
                 'total_teacher_reviews' => 0,
                 'description' => 'يتحدث عن حالة المجتمع وعلاقات الزواج والارتباط وما يعرف بالحب بأسلوب هزلي ساخر ناقد',
-                'created_at' => '2025-07-30 23:23:01',
-                'updated_at' => '2025-07-30 23:23:01',
+                'created_at' => '2025-08-10 05:20:18',
+                'updated_at' => '2025-08-10 05:20:18',
             ),
             3 => 
             array (
@@ -88,8 +88,8 @@ class CulturalBooksTableSeeder extends Seeder
                 'total_student_reviews' => 0,
                 'total_teacher_reviews' => 0,
                 'description' => 'يتحدث عن حالة المجتمع وعلاقات الزواج والارتباط وما يعرف بالحب بأسلوب هزلي ساخر ناقد',
-                'created_at' => '2025-07-30 23:23:07',
-                'updated_at' => '2025-07-30 23:23:07',
+                'created_at' => '2025-08-10 05:20:24',
+                'updated_at' => '2025-08-10 05:20:24',
             ),
         ));
         

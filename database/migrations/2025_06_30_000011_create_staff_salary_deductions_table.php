@@ -11,7 +11,6 @@ return new class extends Migration
 		Schema::create('staff_salary_deductions', function (Blueprint $table) {
 			$table->id();
 			$table->unsignedBigInteger('user_id');
-			//$table->enum('user_type', array('teacher', 'supervisor', 'librarian'));
 			$table->integer('amount')->default('0');
 			$table->enum('type', ['deducation', 'Bonos']);
 			$table->text('reason');

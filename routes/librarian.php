@@ -32,11 +32,12 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
         Route::get('/get_sales', [LibrarianProcessController::class, 'get_sales']);
         // return All Loans And Sales For User // Done
         Route::get('/get_loans_Sales_For_user/{id}', [LibrarianProcessController::class, 'get_loans_Sales_For_user']);
-        // Return All Loans And Sales For User
-        Route::post('/make_leave_demand', [LibrarianProcessController::class, 'make_leave_demand']);
         // return Book To library
         Route::post('/return_book', [LibrarianProcessController::class, 'return_book']);
         // Return All Loans And Sales For User
         Route::get('/get_monthly_report', [LibrarianProcessController::class, 'get_monthly_report']);
+        Route::get('/surfing_salary', [LibrarianProcessController::class, 'surfing_salary']);
+        Route::get('/get_last_activity', [LibrarianProcessController::class, 'get_last_activity']);
+        Route::post('/leave_demand', [LibrarianProcessController::class, 'leave_demand']);
     });
 });

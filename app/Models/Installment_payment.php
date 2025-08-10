@@ -14,21 +14,21 @@ class Installment_payment extends Model
 	protected $fillable = array(
 		'id',
 		'student_id',
-		'plan_id',
+		'installment_plan_id',
 		'due_date',
 		'amount',
 		'paid',
 		'payment_date'
 	);
-	protected $visible = array(
-		'id',
-		'student_id',
-		'plan_id',
-		'due_date',
-		'amount',
-		'paid',
-		'payment_date'
-	);
+	// protected $visible = array(
+	// 	'id',
+	// 	'student_id',
+	// 	'plan_id',
+	// 	'due_date',
+	// 	'amount',
+	// 	'paid',
+	// 	'payment_date'
+	// );
 
 	public function student()
 	{
