@@ -13,10 +13,12 @@ return new class extends Migration
 			$table->id();
 			$table->timestamps();
 			$table->string('name', 255);
-			$table->date('Acadimic_year');
+			// $table->date('Acadimic_year');
 			$table->text('description');
 			$table->integer('price');
 			$table->boolean('is_fully');
+			$table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
+
 			$table->foreignId('supervisor_id')->constrained('supervisors')->onDelete('cascade');
 		});
 	}

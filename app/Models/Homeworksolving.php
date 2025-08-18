@@ -17,6 +17,10 @@ class Homeworksolving extends Model
         'solve_url'
 
     );
+    protected static function newFactory()
+    {
+        return \Database\Factories\HomeworkSolvingFactory::new();
+    }
     public function homework()
     {
         return $this->belongsTo(Teacher::class, 'homework_id');

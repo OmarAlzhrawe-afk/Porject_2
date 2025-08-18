@@ -39,5 +39,9 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
         Route::get('/surfing_salary', [LibrarianProcessController::class, 'surfing_salary']);
         Route::get('/get_last_activity', [LibrarianProcessController::class, 'get_last_activity']);
         Route::post('/leave_demand', [LibrarianProcessController::class, 'leave_demand']);
+
+
+        // Extra Apis 
+        Route::get('/get_subjects', [LibrarianProcessController::class, 'get_subjects']);
     });
 });

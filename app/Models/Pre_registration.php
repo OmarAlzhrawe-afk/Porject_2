@@ -4,10 +4,11 @@ namespace App\Models;
 
 use App\Models\Education_content;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Pre_registration extends Model
 {
-
+	use HasFactory;
 	protected $table = 'pre_registrations';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -28,6 +29,10 @@ class Pre_registration extends Model
 	protected $casts = [
 		'documents' => 'array',
 	];
+	protected static function newFactory()
+	{
+		return \Database\Factories\PreRegistrationFactory::new();
+	}
 	public function education_level()
 	{
 		return $this->belongsTo(Education_content::class, 'education_level_id');

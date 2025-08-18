@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('Title', 255);
             $table->bigInteger('class_room_id')->unsigned()->nullable();
             $table->bigInteger('education_level_id')->unsigned()->nullable();
+            $table->unsignedBigInteger('term_id');
+
             $table->text('Description');
             $table->enum('activity_type', array('trip', 'sports', 'art', 'competition', 'course', 'other'));
             $table->date('date');
@@ -31,6 +33,7 @@ return new class extends Migration
             $table->longText('gallery_urls')->nullable();
             $table->longText('required_skills')->nullable();
             $table->boolean('auto_filter_participants');
+            $table->foreign('term_id')->references('id')->on('terms')->onDelete('cascade');
             $table->foreign('class_room_id')->references('id')->on('class_rooms');
             $table->foreign('education_level_id')->references('id')->on('education_levels');
             $table->timestamps();

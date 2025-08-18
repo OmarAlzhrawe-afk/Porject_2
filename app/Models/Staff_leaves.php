@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Staff_leaves extends Model
 {
-
+	use HasFactory;
 	protected $table = 'staff_leaves';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -19,7 +20,7 @@ class Staff_leaves extends Model
 		'status',
 		'notes'
 	);
-	protected $visible = array('user_id', 'start_date', 'End_date', 'leave_type', 'status', 'notes');
+	// protected $visible = array('user_id', 'start_date', 'End_date', 'leave_type', 'status', 'notes');
 
 	public function employee()
 	{

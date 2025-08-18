@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('class_rooms', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('education_level_id');
+            // $table->unsignedBigInteger('education_level_id');
             $table->string('name', 50);
             $table->integer('capacity');
             $table->integer('current_count');

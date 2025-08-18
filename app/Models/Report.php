@@ -12,9 +12,14 @@ class Report extends Model
     public $timestamps = true;
     protected $fillable = array(
         'id',
+        'term_id',
         'report_type',
         'report_url',
         'report_description',
         'report_date'
     );
+    public function term()
+    {
+        $this->belongsTo(Term::class, 'term_id');
+    }
 }

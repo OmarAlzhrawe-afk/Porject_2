@@ -160,6 +160,7 @@ class ManageUsers extends Controller
                             $student->status = $request->status;
                             $student->save();
                             $class->current_count++;
+                            $class->save();
                             $plan = Installment_Plan::where('id', $request->plan_id)->first();
                             $start_date = Carbon::now()->addDays(30);
                             for ($i = 1; $i <= $plan->number_of_installments; $i++) {

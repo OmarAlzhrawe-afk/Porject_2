@@ -5,11 +5,11 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Education_content;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Teacher extends Model
 {
-	/**
-	 */
+	use HasFactory;
 	protected $table = 'teachers';
 	public $timestamps = true;
 	protected $fillable = [

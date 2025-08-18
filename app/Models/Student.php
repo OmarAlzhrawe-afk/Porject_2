@@ -11,9 +11,11 @@ use App\Models\Activity_participants;
 use App\Models\Mark;
 use App\Models\Student_textbook_sale;
 use App\Models\Installment_payment;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student extends Model
 {
+	use HasFactory;
 
 	protected $table = 'students';
 	public $timestamps = true;
@@ -45,7 +47,7 @@ class Student extends Model
 	}
 	public function user()
 	{
-		return $this->belongsTo(User::class, 'user_id');
+		return $this->belongsTo(User::class, 'user_id', 'id');
 	}
 	public function class()
 	{

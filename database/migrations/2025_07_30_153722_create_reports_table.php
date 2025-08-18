@@ -15,10 +15,14 @@ return new class extends Migration
     {
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('term_id');
+
             $table->enum('report_type', ['library']);
             $table->longText('report_url');
             $table->text('report_description')->nullable();
             $table->text('report_date');
+            $table->foreign('term_id')->references('id')->on('terms')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

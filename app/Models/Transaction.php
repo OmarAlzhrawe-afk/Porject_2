@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Payment_method;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends Model
 {
+	use HasFactory;
 
 	protected $table = 'transactions';
 

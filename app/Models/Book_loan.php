@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\User;
 use App\Models\Cultural_book;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Book_loan extends Model
 {
-
+	use HasFactory;
 	protected $table = 'book_loans';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -19,6 +20,10 @@ class Book_loan extends Model
 		'type',
 		'status'
 	);
+	protected static function newFactory()
+	{
+		return \Database\Factories\BookLoanFactory::new();
+	}
 	public function user()
 	{
 		return $this->belongsTo(User::class, 'user_id');

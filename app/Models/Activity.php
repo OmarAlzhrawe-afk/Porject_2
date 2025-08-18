@@ -8,18 +8,20 @@ use App\Models\Student;
 use App\Models\Class_room;
 use App\Models\Education_level;
 use App\Models\Activity_participants;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Activity extends Model
 {
-
+	use HasFactory;
 	protected $table = 'activities';
 	public $timestamps = true;
 	protected $fillable = array(
-		'id',
+		'Title',
 		'class_room_id',
 		'education_level_id',
-		'Title',
+		'term_id',
 		'Description',
+		'activity_type',
 		'date',
 		'location',
 		'target_group',
@@ -36,6 +38,7 @@ class Activity extends Model
 		'gallery_urls' => 'array',
 		'required_skills' => 'array',
 	];
+
 	public function class_room()
 	{
 		return $this->belongsTo(Class_room::class, 'class_room_id');
@@ -43,6 +46,10 @@ class Activity extends Model
 	public function education_levels()
 	{
 		return $this->belongsTo(Education_level::class, 'education_level_id');
+	}
+	public function term()
+	{
+		return $this->belongsTo(Term::class, 'term_id');
 	}
 	public function students()
 	{

@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Educationlevelsubject extends Model
 {
     use HasFactory;
-    /**
-     *   $table->id();
-            $table->unsignedBigInteger('education_level_id');
-            $table->unsignedBigInteger('subject_id');
-     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\EducationalLevelSubjectFactory::new();
+    }
     protected $table = 'educational_level_subjects';
     public $timestamps = true;
     protected $fillable = array(

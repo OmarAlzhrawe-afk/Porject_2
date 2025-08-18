@@ -5,6 +5,7 @@ use App\Http\Controllers\TeacherControllers\TeacherProcessController;
 
 Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sanctum', 'role:teacher'])->group(function () {
     Route::post('/verify_attendance_for_session', [TeacherProcessController::class, 'verify_attendance_for_session']);
+    Route::get('/get_my_student', [TeacherProcessController::class, 'get_my_student']);
     Route::get('/surfing_available_activity', [TeacherProcessController::class, 'surfing_available_activity']);
     Route::post('/register_in_activity', [TeacherProcessController::class, 'register_in_activity']);
     Route::post('/confirm_payment_register_in_avtivity', [TeacherProcessController::class, 'confirm_payment_register_in_avtivity']);

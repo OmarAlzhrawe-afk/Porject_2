@@ -46,9 +46,26 @@ use App\Traits\SharedFunctionTrait;
 class TeacherProcessController extends Controller
 {
     use SharedFunctionTrait;
+    public function get_my_student()
+    {
+        try {
+            $teacher = auth('sanctum')->user()->teacher;
+            $class_sessions = Class_session::where('teacher_id', $teacher->id)
+                ->with('class.students.profile')
+                ->with('class.students.user')
+                ->get();
+            $students = $class_sessions->pluck('class.students')
+                ->flatten()
+                ->unique('id')
+                ->values();
+            return HelpersFunctions::success($students, "Getting Students Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN  : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
     public function get_last_activity()
     {
-        $this->get_last_activity_for_all();
+        return   $this->get_last_activity_for_all();
     }
     public function verify_attendance_for_session(Request $request)
     {
@@ -57,7 +74,11 @@ class TeacherProcessController extends Controller
     public function surfing_available_activity()
     {
         try {
+            $user = auth('sanctum')->user();
             $activities = Activity::where('is_open', true)->get(); //where('is_open', true)->get();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "surfing activity",
+            ])->log("Teacher "  . $user->name  . "surfing activity");
             return HelpersFunctions::success($activities, "Getting Activities Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -191,6 +212,7 @@ class TeacherProcessController extends Controller
             $mark->max_score = $request->max_score;
             $mark->date = now()->format('y-m-d');
             $mark->teacher_note = $request->teacher_note;
+            $mark->term_id = HelpersFunctions::getCurrentTermId();
             $mark->save();
             $user = Student::where('id', $request->student_id)
                 ->with('user')

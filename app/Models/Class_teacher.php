@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Teacher;
 use App\Models\Class_room;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Class_teacher extends Model
 {
-
+	use HasFactory;
 	protected $table = 'class_teachers';
 	public $timestamps = true;
 	protected $fillable = array(

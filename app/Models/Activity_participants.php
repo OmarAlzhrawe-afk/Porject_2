@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Activity;
 use App\Models\Student;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Activity_participants extends Model
 {
+	use HasFactory;
 
 	protected $table = 'activity_participants';
 	public $timestamps = true;
@@ -22,15 +24,6 @@ class Activity_participants extends Model
 		'payment_reference',
 		'notes'
 	);
-	// protected $visible = array(
-	// 	'id',
-	// 	'activity_id',
-	// 	'Student_id',
-	// 	'payment_status',
-	// 	'attendance',
-	// 	'payment_method',
-	// 	'notes'
-	// );
 
 	public function activity()
 	{

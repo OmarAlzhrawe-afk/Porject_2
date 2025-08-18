@@ -114,8 +114,8 @@ class AdminProcessController extends Controller
             }
             // $student->Student_number = '5'; Auto
             $admin = auth('sanctum')->user();
-            Mail::to($Registration->student_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
-            Mail::to($Registration->parent_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
+            // Mail::to($Registration->student_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
+            // Mail::to($Registration->parent_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
             activity()->causedBy($admin)->withProperties([
                 'Process_type' => " Accepted_pre_registeration",
             ])->log("Accepted_pre_registeration");
@@ -131,8 +131,7 @@ class AdminProcessController extends Controller
             $Registration = Pre_registration::where('id', $id)->first();
             $Registration->status = 'rejected';
             $Registration->save();
-            Mail::to($Registration->student_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
-            Mail::to($Registration->parent_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
+            // Mail::to($Registration->parent_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
                 'Process_type' => " Reject_pre_registeration",
@@ -166,8 +165,8 @@ class AdminProcessController extends Controller
         try {
             $validate = Validator::make($request->all(), [
                 'leave_id'  =>  'required|exists:staff_leaves,id',
-                'amount'  =>  'required|integer',
-                'reason'  =>  'required|string',
+                'amount'  =>  'nullable|integer',
+                'reason'  =>  'nullable|string',
             ]);
             if ($validate->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validate->errors());
@@ -175,16 +174,18 @@ class AdminProcessController extends Controller
             DB::beginTransaction();
             $leave = Staff_leaves::FindOrFail($request->leave_id);
             $user = User::FindOrFail($leave->user_id);
-            $deducation = new Staff_salary_deductions();
-            $deducation->amount = $request->input('amount');
-            $deducation->reason = $request->input('reason');
-            $deducation->user_id = $user->id;
-            $deducation->save();
+            if ($request->has('amount')) {
+                $deducation = new Staff_salary_deductions();
+                $deducation->amount = $request->input('amount');
+                $deducation->reason = $request->input('reason');
+                $deducation->type = 'deducation';
+                $deducation->user_id = $user->id;
+                $deducation->save();
+            }
             $leave->status = 'approved';
             $leave->save();
             // Send Notification To employee
-            $user->notify(new LeaveNotification($deducation, $leave));
-            // $user->notify();
+            $user->notify(new LeaveNotification($deducation ?? null, $leave));
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
                 'Process_type' => " Accept_Leave",
@@ -192,7 +193,7 @@ class AdminProcessController extends Controller
             DB::commit();
             return HelpersFunctions::success("", "Accept Leave Successfully", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error IN " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function Reject_Leave($id)

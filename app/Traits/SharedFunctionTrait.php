@@ -62,6 +62,9 @@ trait SharedFunctionTrait
             if (!$salary) {
                 return HelpersFunctions::error("Your Salary Does not Exist Yet PLease Wait Some Days", 200, "");
             }
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "surfing salary",
+            ])->log("Teacher "  . $user->name  . "surfing salary ");
             return HelpersFunctions::success($salary, "Getting Salary Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());

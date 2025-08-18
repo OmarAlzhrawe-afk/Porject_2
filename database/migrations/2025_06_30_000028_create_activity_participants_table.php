@@ -22,9 +22,8 @@ return new class extends Migration
             $table->string('payment_reference')->nullable();
             $table->enum('payment_method', array('cash', 'OnLine'))->nullable();
             $table->text('notes')->nullable();
-            $table->foreign('activity_id')->references('id')->on('activities');
-            $table->foreign('user_id')->references('id')->on('users');
-
+            $table->foreign('activity_id')->references('id')->on('activities')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -32,8 +32,13 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
     // 3  Update Password 
     Route::post('UpdatePasswordAdmin', [AdminAuth::class, 'UpdatePasswordAdmin']); // , 'role:admin'
     Route::prefix('process/')->name('process.')->middleware(['auth:sanctum'])->group(function () {
-        //Make Installment PLan
+        Route::post('/academic-years', [ManageClassesAndEducationLevel::class, 'store_academic_year']);
+        Route::post('/terms', [ManageClassesAndEducationLevel::class, 'store_term']);
+        // Installment PLan Crud
         Route::post('make_installment_plan', [ManageClassesAndEducationLevel::class, 'make_installment_plan']);
+        Route::post('edit_installment_plan', [ManageClassesAndEducationLevel::class, 'edit_installment_plan']);
+        Route::get('get_installment_plans', [ManageClassesAndEducationLevel::class, 'get_installment_plans']);
+        Route::get('delete_installment_plan/{id}', [ManageClassesAndEducationLevel::class, 'delete_installment_plan']);
         //4 Get dashboard data
         Route::get('Get_dash_data', [ManageClassesAndEducationLevel::class, 'Get_dash_data']);
         //5 log out Route
@@ -85,8 +90,8 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('Reject_pre_registeration/{id}', [AdminProcessController::class, 'Reject_pre_registeration']);
         // Handle Staff Leaves 
         // Add Notification For one employee in System when Accept_Leave  Or Reject_Leave Done
-        Route::get('get_all_Leaves_order', [AdminProcessController::class, 'get_all_Leaves_order']);
-        Route::post('Accept_Leave', [AdminProcessController::class, 'Accept_Leave']);
+        Route::get('get_all_Leaves_order', [AdminProcessController::class, 'get_all_Leaves_order']); //check send Id leave ***
+        Route::post('Accept_Leave', [AdminProcessController::class, 'Acce\pt_Leave']);
         Route::get('Reject_Leave/{id}', [AdminProcessController::class, 'Reject_Leave']);
         // Generate Qr Codes 
         Route::post('Generate_QR_For_Specific_Class', [AdminProcessController::class, 'Generate_QR_For_Specific_Class']);

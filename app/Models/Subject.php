@@ -6,10 +6,11 @@ use App\Models\Education_level;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Text_book;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Subject extends Model
 {
-
+	use HasFactory;
 	protected $table = 'subjects';
 	public $timestamps = false;
 	protected $fillable = array('name');

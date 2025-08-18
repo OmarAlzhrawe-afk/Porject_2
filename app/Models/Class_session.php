@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Teacher;
 use App\Models\Class_room;
 use App\Models\Subject;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Class_session extends Model
 {
-
+	use HasFactory;
 	protected $table = 'class_sessions';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -22,13 +23,10 @@ class Class_session extends Model
 		'start_time',
 		'end_time'
 	);
-	// protected $visible = array('treacher_id', 'class_id', 'subject_id', 'session_day', 'start_time', 'end_time');
-
-	// public function subject()
-	// {
-	// 	return $this->belongsTo(Subject::class, 'subject_id');
-	// }
-
+	protected static function newFactory()
+	{
+		return \Database\Factories\ClassSessionFactory::new();
+	}
 	public function class()
 	{
 		return $this->belongsTo(Class_room::class, 'class_room_id');

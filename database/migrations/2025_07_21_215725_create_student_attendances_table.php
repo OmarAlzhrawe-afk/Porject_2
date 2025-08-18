@@ -17,19 +17,16 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('student_id');
             $table->unsignedBigInteger('class_room_id');
+            $table->unsignedBigInteger('term_id');
             $table->date('date');
             $table->boolean('excused')->default(false);
             $table->timestamps();
             $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
             $table->foreign('class_room_id')->references('id')->on('class_rooms')->onDelete('cascade');
+            $table->foreign('term_id')->references('id')->on('terms')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('student_attendances');

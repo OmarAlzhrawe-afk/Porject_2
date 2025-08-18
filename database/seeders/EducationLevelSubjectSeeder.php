@@ -2,8 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Education_level;
-use App\Models\Subject;
+use App\Models\Educationlevelsubject;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,11 +15,6 @@ class EducationLevelSubjectSeeder extends Seeder
      */
     public function run()
     {
-        $levels = Education_level::all();
-        $subjects = Subject::all();
-        foreach ($levels as $level) {
-            $randsubjects  = $subjects->random(3)->pluck('id')->toArray();
-            $level->subjects()->attach($randsubjects);
-        }
+        Educationlevelsubject::factory(10)->create();
     }
 }

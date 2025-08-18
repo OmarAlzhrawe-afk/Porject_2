@@ -34,8 +34,10 @@ use Illuminate\Support\Facades\Response;
 use App\Exports\LibraryExport;
 use App\Exports\LibrarySalesLoansExport;
 use App\Models\Report;
+use App\Models\Subject;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\SharedFunctionTrait;
+use Dompdf\Helpers;
 
 class LibrarianProcessController extends Controller
 {
@@ -524,6 +526,16 @@ class LibrarianProcessController extends Controller
             return HelpersFunctions::success($formatted, "Getting Reports Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    // Extra Apis 
+    public function get_subjects()
+    {
+        try {
+            $subjects = Subject::all();
+            return HelpersFunctions::success($subjects, " Getting Subjects Done ", 200);
+        } catch (Exception $e) {
+            return  HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
 }

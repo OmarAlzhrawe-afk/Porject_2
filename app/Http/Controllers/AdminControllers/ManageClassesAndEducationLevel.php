@@ -22,8 +22,10 @@ use Exception;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Helpers\HelpersFunctions;
+use App\Models\Academic_year;
 use App\Models\Educationlevelsubject;
 use App\Models\Installment_Plan;
+use App\Models\Term;
 use App\Notifications\SessionNotification;
 use Dompdf\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +36,44 @@ use Spatie\Activitylog\Models\Activity as ActivityLogs;
 
 class ManageClassesAndEducationLevel extends Controller
 {
+    public function store_academic_year(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'name' => 'required|string',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date',
+            ]);
+
+            Academic_year::where('is_current', true)->update(['is_current' => false]);
+
+            $data['is_current'] = true;
+            $academicYear = Academic_year::create($data);
+
+            return HelpersFunctions::success($academicYear, "Creating acadimic year Done", 201);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error In  : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function store_term(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'academic_year_id' => 'required|exists:academic_years,id',
+                'name' => 'required|string',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after:start_date'
+            ]);
+            Term::where('is_current', true)->update(['is_current' => false]);
+            $data['is_current'] = true;
+
+            $term = Term::create($data);
+
+            return HelpersFunctions::success($term, "Creating Term Done", 201);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error In  : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
     public function make_installment_plan(Request $request)
     {
         try {
@@ -60,6 +100,59 @@ class ManageClassesAndEducationLevel extends Controller
             return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
+    public function edit_installment_plan(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'plan_id' => 'required|exists:installment_plans,id',
+                'name' => 'nullable|max:255 ',
+                'education_level_id' => 'nullable|exists:education_levels,id',
+                'number_of_installments' => 'nullable|integer',
+                'count_of_days_per_each_installment' => 'nullable|integer',
+                'description' => 'nullable|string'
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+            $plane = Installment_Plan::find($request->plan_id);
+            $plane->name = $request->name ?? $plane->name;
+            $plane->education_level_id = $request->education_level_id ?? $plane->education_level_id;
+            $plane->number_of_installments = $request->number_of_installments ?? $plane->number_of_installments;
+            $plane->count_of_days_per_each_installment = $request->count_of_days_per_each_installment ?? $plane->count_of_days_per_each_installment;
+            if ($request->education_level_id) {
+                $plane->total_amount = Education_level::where('id', $request->education_level_id)->value('price');
+            }
+            $plane->description = $request->description ?? $plane->description;
+            $plane->save();
+            return HelpersFunctions::success($plane, "updating Plan Done", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+    public function get_installment_plans()
+    {
+        try {
+            $plans = Installment_Plan::all();
+            return HelpersFunctions::success($plans, "Getting Plans Done", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+    public function delete_installment_plan($id)
+    {
+        try {
+            $plan = Installment_Plan::find($id);
+            if (!$plan) {
+                return HelpersFunctions::error("Bad Request", 400, "Plan You Entered Not Exist");
+            }
+            $plan->delete();
+            return HelpersFunctions::success("", "Deleting Plan Done", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+
+
     public function Get_dash_data()
     {
         try {
@@ -143,7 +236,7 @@ class ManageClassesAndEducationLevel extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required|max:255 ',
-                'Acadimic_year' => 'required|date',
+                // 'Acadimic_year' => 'required|date',
                 'description' => 'max:1024',
                 'price' => 'required|integer',
                 'supervisor_id' => 'required | exists:supervisors,id'
@@ -154,10 +247,11 @@ class ManageClassesAndEducationLevel extends Controller
                 $el = new Education_level();
                 $el->name = $request->input('name');
                 $el->description = $request->input('description');
-                $el->Acadimic_year = $request->input('Acadimic_year');
+                // $el->Acadimic_year = $request->input('Acadimic_year');
                 $el->price = $request->input('price');
                 $el->supervisor_id = $request->input('supervisor_id');
                 $el->is_fully = false;
+                $el->academic_year_id = HelpersFunctions::getCurrentAcademicYearId();
                 $el->save();
                 // Release Event 
                 event(new EducationLevelCreated($el));
@@ -378,6 +472,8 @@ class ManageClassesAndEducationLevel extends Controller
                     // Add Process To Recent 
                     $user = auth('sanctum')->user();
                     $teacher = Teacher::findOrFail($class_session->teacher_id);
+                    $teacher->number_of_lesson_in_week++;
+                    $teacher->save();
                     $subject = subject::findOrFail($teacher->subject_id);
                     activity()->causedBy($user)->withProperties([
                         'Process_type' => " Add Session ",

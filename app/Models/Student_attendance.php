@@ -13,13 +13,22 @@ class Student_attendance extends Model
     protected $fillable = array(
         'id',
         'student_id',
+        'term_id',
         'class_room_id',
         'date',
         'excused',
     );
+    protected static function newFactory()
+    {
+        return \Database\Factories\StudentAttendanceFactory::new();
+    }
     public function student()
     {
         return $this->belongsTo(Student::class);
+    }
+    public function term()
+    {
+        return $this->belongsTo(Term::class);
     }
     public function class()
     {

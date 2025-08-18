@@ -20,13 +20,14 @@ class SupervisorAuth extends Controller
         try {
             // verify Request data 
             $validator = Validator::make($request->all(), [
-                'email' => 'required |exists:users,email',
+                'email' => 'required|exists:users,email',
             ]);
             if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors()->toArray());
             } else {
                 // Fetch User From database 
                 $user = User::where('email', $request->email)->first();
+                // dd($user);
                 // Delete All last Login Codes For this User 
                 Login_code::where('email', $request->email)->delete();
                 // create code For Login
@@ -36,14 +37,14 @@ class SupervisorAuth extends Controller
                 $code->created_at = now();
                 $code->save();
                 // Send Code To Supervisor Email
-                Mail::to($request->email)->send(new PasswordCodeMail($code->code));
+                // Mail::to($request->email)->send(new PasswordCodeMail($code->code));
                 activity()->causedBy($user)->withProperties([
-                    'Process_type' => "Send Forget Password Code",
-                ])->log("Admin Send Forget Password Code");
+                    'Process_type' => "Send Login Code",
+                ])->log("Admin Send Login Code");
                 return HelpersFunctions::success("", "Sending Password Code  Successfully ", 201);
             }
         } catch (Exception  $e) {
-            return HelpersFunctions::error("Internal server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function verify_passcode(Request $request)

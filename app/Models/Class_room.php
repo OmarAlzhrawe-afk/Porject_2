@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Class_session;
 use App\Models\Education_content;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Class_room extends Model
 {
-
+	use HasFactory;
 	protected $table = 'class_rooms';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -20,9 +21,10 @@ class Class_room extends Model
 		'current_count',
 		'floor'
 	);
-	protected $guarded = [];
-	// protected $visible = array('name', 'capacity', 'current_count', 'floor');
-
+	protected static function newFactory()
+	{
+		return \Database\Factories\ClassRoomFactory::new();
+	}
 	public function sessions()
 	{
 		return $this->hasMany(Class_session::class);
@@ -38,5 +40,9 @@ class Class_room extends Model
 	public function activities()
 	{
 		return $this->hasMany(Activity::class, 'class_room_id');
+	}
+	public function students()
+	{
+		return $this->hasMany(Student::class, 'class_id', 'id');
 	}
 }

@@ -13,6 +13,7 @@ return new class extends Migration
 			$table->id();
 			$table->unsignedBigInteger('user_id');
 			$table->unsignedBigInteger('class_id');
+			$table->unsignedBigInteger('parent_id')->nullable();
 			$table->string('Student_number', 50)->unique();
 			$table->decimal('installment_total_amount')->nullable();
 			$table->tinyInteger('installment_count')->nullable();
@@ -20,7 +21,6 @@ return new class extends Migration
 			$table->enum('status', array('active', 'suspended', 'graduated', 'left'));
 			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 			$table->foreign('class_id')->references('id')->on('class_rooms')->onDelete('cascade');
-			$table->unsignedBigInteger('parent_id')->nullable();
 			$table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
 			$table->timestamps();
 		});

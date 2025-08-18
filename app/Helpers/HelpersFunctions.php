@@ -3,6 +3,8 @@
 namespace App\Helpers;
 
 use Illuminate\Http\Request;
+use App\Models\Academic_year;
+use App\Models\Term;
 
 class HelpersFunctions
 {
@@ -31,5 +33,14 @@ class HelpersFunctions
             return HelpersFunctions::success("", "logout Done", 200);
         }
         return HelpersFunctions::error("Bad Request", 400, "No Active log in Found ");
+    }
+
+    public static function getCurrentAcademicYearId()
+    {
+        return Academic_year::where('is_current', true)->value('id');
+    }
+    public static function getCurrentTermId()
+    {
+        return Term::where('is_current', true)->value('id');
     }
 }

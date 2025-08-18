@@ -6,18 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Pre_registration;
 use App\Models\Student_profile;
 use App\Models\Text_book;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-/**
- * @property bool $is_fully
- */
 class Education_level extends Model
 {
+	use HasFactory;
 	protected $table = 'education_levels';
 	public $timestamps = true;
-	protected $fillable = array('id', 'is_fully', 'price', 'Acadimic_year', 'supervisor_id', 'name', 'description');
-	// protected $visible = array('id', 'supervisor_id', 'name', 'description');
-
-	public function students()
+	protected $fillable = array('id', 'is_fully', 'price', 'academic_year_id', 'supervisor_id', 'name', 'description');
+	protected static function newFactory()
+	{
+		return \Database\Factories\EducationLevelFactory::new();
+	}
+	public function students_profiles()
 	{
 		return $this->hasMany(Student_profile::class);
 	}

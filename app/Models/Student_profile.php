@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Student;
 use App\Models\Education_level;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Student_profile extends Model
 {
+	use HasFactory;
 	protected $table = 'student_profiles';
 	public $timestamps = true;
 	protected $fillable = array(
@@ -33,6 +35,10 @@ class Student_profile extends Model
 		'skills' => 'array',
 		'teacher_feedback' => 'array',
 	];
+	protected static function newFactory()
+	{
+		return \Database\Factories\StudentProfileFactory::new();
+	}
 	public function student()
 	{
 		return $this->belongsTo(Student::class);

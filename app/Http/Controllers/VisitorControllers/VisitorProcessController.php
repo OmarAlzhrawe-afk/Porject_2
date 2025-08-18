@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Login_code;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\PasswordCodeMail;
-
+use App\Models\Subject;
 
 class VisitorProcessController extends Controller
 {
@@ -174,7 +174,7 @@ class VisitorProcessController extends Controller
                 $code->created_at = now();
                 $code->save();
                 // Send Code To Supervisor Email
-                Mail::to($request->email)->send(new PasswordCodeMail($code->code));
+                // Mail::to($request->email)->send(new PasswordCodeMail($code->code));
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "Send login Code for librarian Code",
                 ])->log("Librarian" . $user->name  . " Send Forget Password Code");
@@ -188,34 +188,68 @@ class VisitorProcessController extends Controller
     {
         // I send Email Here Because maybe Code is repeated  
         // verify Request data 
-        $validator = Validator::make($request->all(), [
-            'code' => 'required |exists:login_codes,code',
-            'email' => 'required |exists:users,email',
-        ]);
-        if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request Wrong code Or Email", 400, $validator->errors());
-        }
-        $code = Login_code::where([
-            'code' => $request->code,
-            'email' => $request->email,
-        ])->first();
+        try {
+            $validator = Validator::make($request->all(), [
+                'code' => 'required |exists:login_codes,code',
+                'email' => 'required |exists:users,email',
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request Wrong code Or Email", 400, $validator->errors());
+            }
+            $code = Login_code::where([
+                'code' => $request->code,
+                'email' => $request->email,
+            ])->first();
 
-        // verify if code expired or Not  
-        if (now()->diffInMinutes($code->created_at) > 5) {
-            return HelpersFunctions::error("Bad Request", 400, "Code That you Entered Expired");
+            // verify if code expired or Not  
+            if (now()->diffInMinutes($code->created_at) > 5) {
+                return HelpersFunctions::error("Bad Request", 400, "Code That you Entered Expired");
+            }
+            $code->delete();
+            $user = User::where('email', $request->email)->first();
+            $token = $user->createToken($user->name)->plainTextToken;
+            if ($user->role == "teacher") {
+                $teacher =  $user->teacher;
+                $teacher = [
+                    'User_Name' => $user->name,
+                    'User_Email' => $user->email,
+                    'User_phone_number' => $user->phone_number,
+                    'User_Role' => $user->role,
+                    'User_IDS' => $user->ID_documents,
+                    'User_Salary' => $user->salary,
+                    'User_birth_date' => $user->birth_date,
+                    'subject' => Subject::where('id', $teacher->subject_id)->value('name'),
+                    'Academic_qualification' => $teacher->Academic_qualification,
+                    'Employment_status' => $teacher->Employment_status,
+                    'Payment_type' => $teacher->Payment_type,
+                    'Contract_type' => $teacher->Contract_type,
+                    'The_beginning_of_the_contract' => $teacher->The_beginning_of_the_contract,
+                    'End_of_contract' => $teacher->End_of_contract,
+                    'number_of_lesson_in_week' => $teacher->number_of_lesson_in_week,
+                    'wages_per_lesson' => $teacher->wages_per_lesson,
+                    'classes' => $teacher->sessions->map(function ($session) {
+                        return $session->class;
+                    })->filter()->unique('id')
+                ];
+                $data = [
+                    'token' =>  $token,
+                    // 'admin data' =>  $user,
+                    'teacher data' =>  $teacher,
+                ];
+            } else {
+                $data = [
+                    'token' =>  $token,
+                    'user_data' =>  $user,
+                ];
+            }
+            //Enrolling librarian Log in 
+            activity()->causedBy($user)->withProperties([
+                'Process_role' => $user->role,
+                'Process_type' => "Log_In " . $user->role,
+            ])->log($user->role . $user->name . " Loged In");
+            return HelpersFunctions::success($data, " Login Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getMessage(), 500, $e->getMessage());
         }
-        $code->delete();
-        $user = User::where('email', $request->email)->first();
-        $token = $user->createToken($user->name)->plainTextToken;
-        $data = [
-            'token' =>  $token,
-            'admin data' =>  $user,
-        ];
-        //Enrolling librarian Log in 
-        activity()->causedBy($user)->withProperties([
-            'Process_role' => "Librarian",
-            'Process_type' => "Log_In Librarian",
-        ])->log("Librarian" . $user->name . "Loged In");
-        return HelpersFunctions::success($data, " Login Done ", 200);
     }
 }

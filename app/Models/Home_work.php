@@ -18,6 +18,10 @@ class Home_work extends Model
         'homework_url',
         'last_date'
     );
+    protected static function newFactory()
+    {
+        return \Database\Factories\HomeworkFactory::new();
+    }
     public function teacher()
     {
         return $this->belongsTo(Teacher::class, 'teacher_id');

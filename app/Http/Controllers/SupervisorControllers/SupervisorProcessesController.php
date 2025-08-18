@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SupervisorControllers;
 
 use App\Events\AddedActivityEvent;
+use App\Events\updatedActivityEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreActivityRequest;
@@ -25,6 +26,7 @@ use App\Models\User;
 use App\Notifications\NewActivity;
 use App\Notifications\StudentAbsencesNotification;
 use App\Notifications\SupervisorNotification;
+use App\Notifications\UpdatedActivityNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -74,6 +76,7 @@ class SupervisorProcessesController extends Controller
             $activity->is_open = $data['is_open'] ?? true;
             $activity->auto_filter_participants = $data['auto_filter_participants'];
             $activity->required_skills = $data['required_skills'] ?? null;
+            $activity->term_id = HelpersFunctions::getCurrentTermId();
             // 'gallery_urls' => $data['gallery'] ?? null,
             //  Upload Files Of Activity
             $gallery_urls = [];
@@ -137,6 +140,128 @@ class SupervisorProcessesController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
         }
     }
+    public function edit_Activity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'activity_id' => 'required|exists:activities,id',
+            'Title' => 'nullable|string|max:255',
+            'class_room_id' => 'nullable|exists:class_rooms,id',
+            'education_level_id' => 'nullable|exists:education_levels,id',
+            'Description' => 'nullable|string',
+            'activity_type' => 'nullable|in:trip,sports,art,competition,course,other',
+            'date' => 'nullable|date',
+            'location' => 'nullable|string|max:255',
+            'target_group' => 'nullable|in:all,class,stage,specific',
+            'is_paid' => 'nullable|boolean',
+            'cost' => 'nullable|integer',
+            'seats_limit' => 'nullable|integer',
+            'registration_deadline' => 'nullable|date',
+            'is_open' => 'boolean',
+            'auto_filter_participants' => 'nullable|boolean',
+            'required_skills' => 'nullable|array',
+            'required_skills.*' => 'string',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'file|mimes:mp4,jpeg,jpg,png,pdf|max:20480|max:20480',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+        }
+        try {
+            DB::beginTransaction();
+            // Create Record Activity
+            $activity = Activity::find($request->activity_id);
+            $activity->Title = $request->Title ??  $activity->Title;
+            $activity->class_room_id = $request->class_room_id ??  $activity->class_room_id;
+            $activity->education_level_id = $request->education_level_id ??  $activity->education_level_id;
+            $activity->Description = $request->Description ??  $activity->Description;
+            $activity->activity_type = $request->activity_type ??  $activity->activity_type;
+            $activity->date = $request->date ??  $activity->date;
+            $activity->location = $request->location ??  $activity->location;
+            $activity->target_group = $request->target_group ??  $activity->target_group;
+            $activity->is_paid = $request->is_paid ??  $activity->is_paid;
+            $activity->cost = $request->cost ??  $activity->cost;
+            $activity->seats_limit = $request->seats_limit ??  $activity->seats_limit;
+            $activity->registration_deadline = $request->registration_deadline ??  $activity->registration_deadline;
+            $activity->is_open = $request->is_open ??  $activity->is_open;
+            $activity->auto_filter_participants = $request->auto_filter_participants ??  $activity->auto_filter_participants;
+            $activity->required_skills = $request->required_skills ??  $activity->required_skills;
+            $activity->term_id = HelpersFunctions::getCurrentTermId();
+            // 'gallery_urls' => $data['gallery'] ?? null,
+            //  Upload Files Of Activity
+            $gallery_urls = [];
+            if ($request->hasFile('gallery')) {
+                $counter = 0;
+                foreach ($request->file('gallery') as $key =>  $file) {
+                    $file_name = time() . $counter++ . '_' . $file->getClientOriginalName();
+                    $file->move(public_path('uploads/Activity/gallery_urls/'), $file_name);
+                    $gallery_urls[$key] = 'uploads/Activity/gallery_urls/' .  $file_name;
+                }
+            }
+            // dd($gallery_urls);
+
+            $activity->gallery_urls = $gallery_urls;
+            $activity->save();
+            // $activity->required_skills = $request->has('required_skills')
+            //     ? $request->required_skills
+            //     : null;
+            $requiredSkills = $activity->required_skills;
+            // $activity->save();
+            // $activity->gallery_urls = json_decode($activity->gallery_urls);
+            // Here We Will Add Send Notifications For Class Student Users That Is New Activity Is Added
+
+            $student = collect();
+            switch ($activity->target_group) {
+                case 'all':
+                    $student = Student_profile::with('student.user')->get();
+                    break;
+                case 'class':
+                    $student = Student_profile::whereHas('student', function ($query) use ($activity) {
+                        $query->where('class_id', $activity->class_room_id);
+                    })->with('student.user')->get();
+                    break;
+                case 'stage':
+                    $student = Student_profile::where('education_level_id', $activity->education_level_id)
+                        ->with('student.user')->get();
+                    break;
+                case 'specific':
+                    // Supervisor will send Ids For users want to notify them 
+                    break;
+            }
+            // Filter Students As There Skills
+            $filtered_students = $student->filter(function ($profile) use ($requiredSkills) {
+                if (empty($requiredSkills)) {
+                    return true;
+                }
+                $student_skills = $profile->skills ?? [];
+                return !empty(array_intersect($requiredSkills, $student_skills));
+            });
+            // 
+            $users = $filtered_students->pluck('student.user')->filter();
+            if ($users->isNotEmpty()) {
+                Notification::send($users, new UpdatedActivityNotification($activity));
+            }
+            // Send Event 
+            event(new updatedActivityEvent($activity));
+
+            DB::commit();
+            return HelpersFunctions::success($activity, "Activity Add Done", 200);
+        } catch (Exception  $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
+        }
+    }
+    public function delete_Activity($id)
+    {
+        try {
+            $activity = Activity::find($id);
+            if (!$activity) {
+                return HelpersFunctions::error("bad Request", 400, "Activity Not Found");
+            }
+            $activity->delete();
+            return HelpersFunctions::success("", "deleting  Activity Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
+        }
+    }
     public function Add_student_profile_data(StoreStudentProfileRequest $request)
     {
         try {
@@ -172,6 +297,7 @@ class SupervisorProcessesController extends Controller
                         $Attendance->class_room_id = $ClassID;
                         $Attendance->date = now()->toDateString();
                         $Attendance->excused = $student['excused'];
+                        $Attendance->term_id = HelpersFunctions::getCurrentTermId();
                         $Attendance->save();
                         $student = Student::find($Attendance->student_id);
                         $student_profile = Student_profile::firstOrCreate(
@@ -247,7 +373,19 @@ class SupervisorProcessesController extends Controller
             $education_level = Education_level::where('supervisor_id', $supervisor)->first();
             $subjects = $education_level->subjects;
             $Regesterations = $education_level->Regesterations;
-            $classes = Class_room::where('education_level_id', $education_level->id)->get();
+            $classes = Class_room::where('education_level_id', $education_level->id)
+                ->get();
+            // Get All students IN Specific Education Level
+            $students = collect();
+            foreach ($classes as $class) {
+                foreach ($class->students as $student) {
+                    if (!$students->contains('id', $student->id)) {
+                        $student->load('user');
+                        $students->push($student);
+                    }
+                }
+                unset($class->students);
+            }
             // Get All Teachers IN Specific Education Level
             $teachers = collect();
             foreach ($classes as $class) {
@@ -263,8 +401,9 @@ class SupervisorProcessesController extends Controller
                 "education_Level" => $education_level,
                 "subjects" => $subjects,
                 "regesterations" => $Regesterations,
+                "Teachers" => $teachers,
                 "Classes" => $classes,
-                "Teachers" => $teachers
+                "Students" => $students
             ];
             return HelpersFunctions::success($data, "Gettinf Education Level Data", 200);
         } catch (Exception $e) {
