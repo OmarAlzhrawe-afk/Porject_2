@@ -17,7 +17,7 @@ class Salary extends Model
 		'Base_salary',
 		'bonus',
 		'deductions',
-		'net_salary',
+		// 'net_salary',
 		'date',
 		'status',
 		'notes'

@@ -14,17 +14,17 @@ class ClassRoomDeleted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
     public $class_id;
+    public $level_id;
 
-    public function __construct($class_id)
+    public function __construct($class_id, $level_id)
     {
         $this->class_id = $class_id;
+        $this->level_id = $level_id;
     }
-
     public function broadcastOn()
     {
         return new Channel('class_rooms');
     }
-
     public function broadcastAs()
     {
         return 'class_rooms.deleted';

@@ -18,7 +18,6 @@ return new class extends Migration
 			$table->integer('price');
 			$table->boolean('is_fully');
 			$table->foreignId('academic_year_id')->constrained()->onDelete('cascade');
-
 			$table->foreignId('supervisor_id')->constrained('supervisors')->onDelete('cascade');
 		});
 	}

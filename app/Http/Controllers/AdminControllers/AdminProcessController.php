@@ -22,6 +22,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\HelpersFunctions;
 use App\Models\Installment_payment;
 use App\Models\Installment_Plan;
+use App\Models\Salary;
+use App\Models\Transaction;
 use App\Notifications\LeaveNotification;
 use App\Notifications\RejectLeaveNotification;
 use Carbon\Carbon;
@@ -35,6 +37,47 @@ use App\Traits\SharedFunctionTrait;
 class AdminProcessController extends Controller
 {
     use SharedFunctionTrait;
+    public function Get_Salaries_For_Users()
+    {
+        try {
+            $salary = Salary::where('status', 'pending')
+                ->whereYear('date', now()->year)
+                ->whereMonth('date', now()->month)
+                ->get();
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => " Get_Salaries_For_Users",
+            ])->log("Get_Salaries_For_Users");
+            return HelpersFunctions::success($salary, "Getting salaries Successfully ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
+    public function Paying_Salary($user_id)
+    {
+        try {
+            $salary = Salary::where(['user_id' => $user_id, 'status' => 'pending'])
+                ->whereYear('date', now()->year)
+                ->whereMonth('date', now()->month)
+                ->first();
+            if (!$salary) {
+                return HelpersFunctions::error("Empty Account", 400, "The User That You Entered dont Have Salary To Pay it ");
+            }
+            $salary->status = "paid";
+            $salary->save();
+            $transaction = new Transaction();
+            $transaction->user_id = $user_id;
+            $transaction->payment_method = "cash";
+            $transaction->amount =  $salary->Base_salary + $salary->bonus -  $salary->deductions; //$salary->net_salary;
+            $transaction->status = "paid";
+            $transaction->type = "in";
+            $transaction->is_installment = false;
+            $transaction->save();
+            return HelpersFunctions::success("", "Saving Paid Salary Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
     // Handle Pre_Registeration For Students
     public function get_all_pre_registeration()
     {
@@ -54,15 +97,15 @@ class AdminProcessController extends Controller
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
-                'class_id' => 'required | exists:class_rooms,id',
-                'pre_id' => 'required | exists:pre_registrations,id',
-                'plan_id' => 'required | exists:installment_plans,id',
+                'class_id' => 'required|exists:class_rooms,id',
+                'pre_id' => 'required|exists:pre_registrations,id',
+                'plan_id' => 'required|exists:installment_plans,id',
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
             $Registration = Pre_registration::where('id', $request->pre_id)->first();
-            if ($Registration->status = 'pending') {
+            if (!$Registration->status == "pending") {
                 return HelpersFunctions::error("Bad Registeration", 403, "Registeration that you Entered Not Pending Status");
             }
             $Registration->status = 'accepted';
@@ -240,28 +283,33 @@ class AdminProcessController extends Controller
                 $qr_code->Code_type = 'teacher';
                 $qr_code->user_id = auth()->user()->id;
                 $qr_code->save();
-                // Generate SVG
-                $svg = QrCode::format('svg')->size(300)->generate($code);
-                // Add class name as <text> inside SVG
-                $svgObject = new SimpleXMLElement($svg);
-                $textNode = $svgObject->addChild('text', $class->name);
-                $textNode->addAttribute('x', '50%');
-                $textNode->addAttribute('y', '95%');
-                $textNode->addAttribute('text-anchor', 'middle');
-                $textNode->addAttribute('font-weight', 'bold');
-                $textNode->addAttribute('font-size', '64'); // حجم الخط
-                $textNode->addAttribute('fill', 'blue');
-                $svgWithText = $svgObject->asXML();
-                // Save SVG to file
-                $fileName = "qr_codes/class_{$class->id}.svg";
-                $oldpath = 'public' . $fileName;
-                if (Storage::exists($oldpath)) {
-                    Storage::delete($oldpath);
-                }
-                Storage::disk('public')->put($fileName, $svgWithText);
-                // Public URL
-                $publicUrl = asset("storage/{$fileName}");
-                return HelpersFunctions::success($publicUrl, "updating Qr Code For Class  " . $class->name  . " Done ", 200);
+                $data = [
+                    'QR_code' => $qr_code->Unique_code,
+                    'Expird_at' => $qr_code->expires_at,
+                    'Code_type' => $qr_code->Code_type,
+                ];
+                // // Generate SVG
+                // $svg = QrCode::format('svg')->size(300)->generate($code);
+                // // Add class name as <text> inside SVG
+                // $svgObject = new SimpleXMLElement($svg);
+                // $textNode = $svgObject->addChild('text', $class->name);
+                // $textNode->addAttribute('x', '50%');
+                // $textNode->addAttribute('y', '95%');
+                // $textNode->addAttribute('text-anchor', 'middle');
+                // $textNode->addAttribute('font-weight', 'bold');
+                // $textNode->addAttribute('font-size', '64'); // حجم الخط
+                // $textNode->addAttribute('fill', 'blue');
+                // $svgWithText = $svgObject->asXML();
+                // // Save SVG to file
+                // $fileName = "qr_codes/class_{$class->id}.svg";
+                // $oldpath = 'public' . $fileName;
+                // if (Storage::exists($oldpath)) {
+                //     Storage::delete($oldpath);
+                // }
+                // Storage::disk('public')->put($fileName, $svgWithText);
+                // // Public URL
+                // $publicUrl = asset("storage/{$fileName}");
+                return HelpersFunctions::success($data, "updating Qr Code For Class  " . $class->name  . " Done ", 200);
             }
         } catch (Exception $e) {
             return back()->with('error', 'Failed to save: ' . $e->getMessage());
@@ -278,27 +326,32 @@ class AdminProcessController extends Controller
             $qr_code->Code_type = 'employee';
             $qr_code->user_id = auth()->user()->id;
             $qr_code->save();
-            $svg = QrCode::format('svg')->size(300)->generate($code);
+            // $svg = QrCode::format('svg')->size(300)->generate($code);
             // Add Qr type name to  SVG
-            $svgObject = new SimpleXMLElement($svg);
-            $textNode = $svgObject->addChild('text', "Employee");
-            $textNode->addAttribute('x', '50%');
-            $textNode->addAttribute('y', '95%');
-            $textNode->addAttribute('text-anchor', 'middle');
-            $textNode->addAttribute('font-weight', 'bold');
-            $textNode->addAttribute('font-size', '64'); // حجم الخط
-            $textNode->addAttribute('fill', 'blue');
-            $svgWithText = $svgObject->asXML();
-            // Save SVG to file
-            $fileName = "qr_codes/Employee.svg";
-            $oldpath = 'public' . $fileName;
-            if (Storage::exists($oldpath)) {
-                Storage::delete($oldpath);
-            }
-            Storage::disk('public')->put($fileName, $svgWithText);
-            // Public URL
-            $publicUrl = asset("storage/{$fileName}");
-            return HelpersFunctions::success($publicUrl, "Creating Qr Code Done", 200);
+            // $svgObject = new SimpleXMLElement($svg);
+            // $textNode = $svgObject->addChild('text', "Employee");
+            // $textNode->addAttribute('x', '50%');
+            // $textNode->addAttribute('y', '95%');
+            // $textNode->addAttribute('text-anchor', 'middle');
+            // $textNode->addAttribute('font-weight', 'bold');
+            // $textNode->addAttribute('font-size', '64'); // حجم الخط
+            // $textNode->addAttribute('fill', 'blue');
+            // $svgWithText = $svgObject->asXML();
+            // // Save SVG to file
+            // $fileName = "qr_codes/Employee.svg";
+            // $oldpath = 'public' . $fileName;
+            // if (Storage::exists($oldpath)) {
+            //     Storage::delete($oldpath);
+            // }
+            // Storage::disk('public')->put($fileName, $svgWithText);
+            // // Public URL
+            // $publicUrl = asset("storage/{$fileName}");
+            $data = [
+                'QR_code' => $qr_code->Unique_code,
+                'Expird_at' => $qr_code->expires_at,
+                'Code_type' => $qr_code->Code_type,
+            ];
+            return HelpersFunctions::success($data, "Creating Qr Code Done", 200);
             // return response($svg, 200)
             //     ->header('Content-Type', 'image/svg+xml');
         } catch (Exception $e) {
@@ -321,31 +374,37 @@ class AdminProcessController extends Controller
                 $qr_code->Code_type = 'teacher';
                 $qr_code->user_id = auth()->user()->id;
                 $qr_code->save();
-                // Generate SVG
-                $svg = QrCode::format('svg')->size(300)->generate($code);
-                // Add class name as <text> inside SVG
-                $svgObject = new SimpleXMLElement($svg);
-                $textNode = $svgObject->addChild('text', $class->name);
-                $textNode->addAttribute('x', '50%');
-                $textNode->addAttribute('y', '95%');
-                $textNode->addAttribute('text-anchor', 'middle');
-                $textNode->addAttribute('font-weight', 'bold');
-                $textNode->addAttribute('font-size', '64'); // حجم الخط
-                $textNode->addAttribute('fill', 'blue');
-                $svgWithText = $svgObject->asXML();
-                // Save SVG to file
-                $fileName = "qr_codes/class_{$class->id}.svg";
-                $oldpath = 'public' . $fileName;
-                if (Storage::exists($oldpath)) {
-                    Storage::delete($oldpath);
-                }
-                Storage::disk('public')->put($fileName, $svgWithText);
-                // Public URL
-                $publicUrl = asset("storage/{$fileName}");
+                // // Generate SVG
+                // $svg = QrCode::format('svg')->size(300)->generate($code);
+                // // Add class name as <text> inside SVG
+                // $svgObject = new SimpleXMLElement($svg);
+                // $textNode = $svgObject->addChild('text', $class->name);
+                // $textNode->addAttribute('x', '50%');
+                // $textNode->addAttribute('y', '95%');
+                // $textNode->addAttribute('text-anchor', 'middle');
+                // $textNode->addAttribute('font-weight', 'bold');
+                // $textNode->addAttribute('font-size', '64'); // حجم الخط
+                // $textNode->addAttribute('fill', 'blue');
+                // $svgWithText = $svgObject->asXML();
+                // // Save SVG to file
+                // $fileName = "qr_codes/class_{$class->id}.svg";
+                // $oldpath = 'public' . $fileName;
+                // if (Storage::exists($oldpath)) {
+                //     Storage::delete($oldpath);
+                // }
+                // Storage::disk('public')->put($fileName, $svgWithText);
+                // // Public URL
+                // $publicUrl = asset("storage/{$fileName}");
                 $qrList[] = [
-                    'class_id' => $class->id,
-                    'class_name' => $class->name,
-                    'qr_svg_url' => $publicUrl,
+                    'Class_Name' => $class->name,
+                    'Class_ID' => $class->id,
+                    'qr_data' => [
+                        'QR_code' => $qr_code->Unique_code,
+                        'Expird_at' => $qr_code->expires_at,
+                        'Code_type' => $qr_code->Code_type,
+                    ],
+                    // 'class_name' => $class->name,
+                    // 'qr_svg_url' => $publicUrl,
                 ];
             }
             return HelpersFunctions::success($qrList, "Creating Qr_codes Done", 200);

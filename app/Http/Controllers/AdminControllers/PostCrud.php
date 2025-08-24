@@ -40,11 +40,11 @@ class PostCrud extends Controller
                 'title' =>  'required',
                 'description' =>  'required',
                 'post_type' =>  'required|in:lesson,news,event',
-                'file_url' =>  'required|file|mimes:jpg,jpeg,png,pdf,docx,mp4,mov,avi,wmv|max:2048 ',
+                'file_url' =>  'required|file|mimes:jpg,jpeg,png,pdf,docx,mp4,mov,avi,wmv ',
                 'is_public' =>  'required|in:true,false',
             ]);
             if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", $validator->errors(), 400);
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             } else {
                 DB::beginTransaction();
                 $post = new School_post();
@@ -76,7 +76,7 @@ class PostCrud extends Controller
                 return HelpersFunctions::success(null, "Added Post Successfully", 200);
             }
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error ", $e->getMessage(), 500);
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
     public function update_Post(Request $request)
@@ -150,7 +150,7 @@ class PostCrud extends Controller
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "delete_Post",
                 ])->log("Admin delete_Post");
-                return HelpersFunctions::success(null, "", 204);
+                return HelpersFunctions::success(null, "deleting Post Done", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "Post that you Eant Not Found ");
             }

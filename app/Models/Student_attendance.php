@@ -32,6 +32,6 @@ class Student_attendance extends Model
     }
     public function class()
     {
-        return $this->belongsTo(Class_room::class);
+        return $this->belongsTo(Class_room::class, 'class_room_id');
     }
 }

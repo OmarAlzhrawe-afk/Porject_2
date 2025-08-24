@@ -19,6 +19,6 @@ class Supervisor extends Model
 	}
 	public function education_level()
 	{
-		return $this->hasOne(Education_level::class);
+		return $this->hasOne(Education_level::class, 'supervisor_id');
 	}
 }

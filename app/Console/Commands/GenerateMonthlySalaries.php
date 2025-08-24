@@ -21,7 +21,7 @@ class GenerateMonthlySalaries extends Command
         $employees = User::whereIn('role', ['teacher', 'supervisor', 'librarian'])->get();
 
         foreach ($employees as $employee) {
-            $baseSalary = $employee->salary;
+            $baseSalary = $employee->salary ?? 200;
 
             //calculate deduc
             $totalDeductions = Staff_salary_deductions::where('user_id', $employee->id)
@@ -37,6 +37,7 @@ class GenerateMonthlySalaries extends Command
             $salary = Salary::create([
                 'user_id'    => $employee->id,
                 'Base_salary' => $baseSalary,
+                // 'net_salary' => $baseSalary - $totalDeductions + $totalBonuses,
                 'bonus'      => $totalBonuses,
                 'deductions' => $totalDeductions,
                 'date'       => Carbon::now()->format('Y-m-d'),

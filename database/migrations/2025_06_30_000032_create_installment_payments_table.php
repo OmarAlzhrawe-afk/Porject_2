@@ -17,8 +17,8 @@ return new class extends Migration
 			$table->decimal('amount');
 			$table->boolean('paid')->default(false);
 			$table->date('payment_date')->nullable();
-			$table->foreign('student_id')->references('id')->on('students');
-			$table->foreign('installment_plan_id')->references('id')->on('installment_plans');
+			$table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+			$table->foreign('installment_plan_id')->references('id')->on('installment_plans')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

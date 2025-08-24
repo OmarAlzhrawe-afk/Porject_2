@@ -78,8 +78,8 @@ class PublicContentCrud extends Controller
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "update_PublicContent",
-                ])->log("Admin update_PublicContent");
-                return HelpersFunctions::success(null, 'Content Updated Successfully', 201);
+                ])->log("Admin update_Public Content");
+                return HelpersFunctions::success($public_content, 'Content Updated Successfully', 201);
             }
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -98,7 +98,7 @@ class PublicContentCrud extends Controller
                 activity()->causedBy($user)->withProperties([
                     'Process_type' => "delete_PublicContent",
                 ])->log("Admin delete_PublicContent");
-                return HelpersFunctions::success(null, '', 204);
+                return HelpersFunctions::success(null, "deleting public content Done", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, "public Content that You Entered Is Not Found");
             }

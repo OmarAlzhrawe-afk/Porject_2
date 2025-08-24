@@ -10,13 +10,13 @@ return new class extends Migration
 	{
 		Schema::create('student_textbook_sales', function (Blueprint $table) {
 			$table->id();
-			$table->bigInteger('student_id')->unsigned();
-			$table->bigInteger('textbook_id')->unsigned();
+			$table->bigInteger('student_id')->unsigned()->nullable();
+			$table->bigInteger('textbook_id')->unsigned()->nullable();
 			$table->date('sale_date');
 			$table->integer('quantity');
 			$table->integer('total_price');
-			$table->foreign('student_id')->references('id')->on('students');
-			$table->foreign('textbook_id')->references('id')->on('text_books');
+			$table->foreign('student_id')->references('id')->on('students')->onDelete('set null')->onUpdate('cascade');
+			$table->foreign('textbook_id')->references('id')->on('text_books')->onDelete('set null')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

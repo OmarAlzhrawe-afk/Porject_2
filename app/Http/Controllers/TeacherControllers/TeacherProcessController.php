@@ -122,7 +122,7 @@ class TeacherProcessController extends Controller
     }
     public function surfing_salary()
     {
-        $this->surfing_salary_for_all();
+        return $this->surfing_salary_for_all();
     }
 
     public function view_schedul_table()
@@ -153,7 +153,7 @@ class TeacherProcessController extends Controller
             'title' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2048',
             'content_type' => 'required|in:video,pdf,link,image,text,quiz',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,mp4',
         ]);
         if ($validator->fails()) {
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
@@ -292,7 +292,7 @@ class TeacherProcessController extends Controller
     }
     public function leave_demand(Request $request)
     {
-        $this->leave_demand_for_all($request);
+        return $this->leave_demand_for_all($request);
     }
     public function view_home_work_solution()
     {

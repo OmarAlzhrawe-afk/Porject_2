@@ -68,14 +68,14 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         // CRUD Post
         //  Add notification For all users in System when Add Post Or Update  Done
         Route::get('get_all_posts', [PostCrud::class, 'get_Posts']);
-        Route::post('add_Post', [PostCrud::class, 'add_Post'])->name('add_Post');
+        Route::post('add_Post', [PostCrud::class, 'add_Post']);
         Route::post('update_Post', [PostCrud::class, 'update_Post'])->name('update_Post');
-        Route::delete('delete_Post/{post_id}', [PostCrud::class, 'delete_Post'])->name('delete_Post');
+        Route::get('delete_Post/{post_id}', [PostCrud::class, 'delete_Post'])->name('delete_Post');
         // CRUD Public_Content
         Route::get('get_all_public_content', [PublicContentCrud::class, 'get_public_content']);
         Route::post('add_PublicContent', [PublicContentCrud::class, 'add_PublicContent'])->name('add_PublicContent');
         Route::post('update_PublicContent', [PublicContentCrud::class, 'update_PublicContent'])->name('update_PublicContent');
-        Route::delete('delete_PublicContent/{public_content_id}', [PublicContentCrud::class, 'delete_PublicContent'])->name('delete_PublicContent');
+        Route::get('delete_PublicContent/{public_content_id}', [PublicContentCrud::class, 'delete_PublicContent'])->name('delete_PublicContent');
         // CRUD  User
         Route::get('get_all_Users', [ManageUsers::class, 'get_all_users']);
         // 
@@ -91,7 +91,7 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         // Handle Staff Leaves 
         // Add Notification For one employee in System when Accept_Leave  Or Reject_Leave Done
         Route::get('get_all_Leaves_order', [AdminProcessController::class, 'get_all_Leaves_order']); //check send Id leave ***
-        Route::post('Accept_Leave', [AdminProcessController::class, 'Acce\pt_Leave']);
+        Route::post('Accept_Leave', [AdminProcessController::class, 'Accept_Leave']);
         Route::get('Reject_Leave/{id}', [AdminProcessController::class, 'Reject_Leave']);
         // Generate Qr Codes 
         Route::post('Generate_QR_For_Specific_Class', [AdminProcessController::class, 'Generate_QR_For_Specific_Class']);
@@ -100,7 +100,9 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         // Notifications Process 
         Route::get('/notifications', [AdminProcessController::class, 'notifications']);
         Route::get('/notifications/read/{id}', [AdminProcessController::class, 'markAsRead']);
+        Route::get('/Get_Salaries_For_Users', [AdminProcessController::class, 'Get_Salaries_For_Users']);
+        Route::get('/Paying_Salary/{user_id}', [AdminProcessController::class, 'Paying_Salary']);
         // api for last activity for admin 
-        Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
+        // Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
     });
 });

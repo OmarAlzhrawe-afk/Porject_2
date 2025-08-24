@@ -334,7 +334,7 @@ class ManageClassesAndEducationLevel extends Controller
                 return HelpersFunctions::error("Class Not Found", 404, "");
             } else {
                 $class->delete();
-                event(new ClassRoomDeleted($id));
+                event(new ClassRoomDeleted($id, $class->education_level_id));
                 return HelpersFunctions::success("", "Deleted Class Done", 200);
             }
         } catch (Exception  $e) {

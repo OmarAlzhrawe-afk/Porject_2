@@ -51,7 +51,7 @@ class UserFactory extends Factory
             'phone_number' => $this->faker->phoneNumber(),
             'salary' => $this->faker->optional()->numberBetween(2000, 10000),
             'birth_date' => $this->faker->optional()->date(),
-            'gender' => $this->faker->optional()->randomElement(['male', 'female']),
+            'gender' => $this->faker->randomElement(['male', 'female']),
             'email_verified_at' => now(),
             'address' => $this->faker->optional()->address(),
             'remember_token' => Str::random(10),

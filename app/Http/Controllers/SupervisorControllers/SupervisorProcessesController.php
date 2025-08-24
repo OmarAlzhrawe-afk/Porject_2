@@ -35,14 +35,32 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Activitylog\Models\Activity as ActivityLog;
 use App\Traits\SharedFunctionTrait;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupervisorProcessesController extends Controller
 {
     use SharedFunctionTrait;
-
+    public function Check_if_attendance_student_done()
+    {
+        try {
+            $supervisor = auth('sanctum')->user()->supervisor;
+            $today = now()->toDateString();
+            $attendanceExists = Student_attendance::whereDate('date', $today)
+                ->whereHas('class', function ($query) use ($supervisor) {
+                    $query->where('education_level_id', $supervisor->education_level->id);
+                })->exists();
+            if ($attendanceExists) {
+                return HelpersFunctions::success(true, "Attendance Is Done", 200);
+            } else {
+                return HelpersFunctions::success(false, "Attendance Is Not Done", 200);
+            }
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
     public function leave_demand(Request $request)
     {
-        $this->leave_demand_for_all($request);
+        return   $this->leave_demand_for_all($request);
     }
     public function surfing_salary()
     {
@@ -324,10 +342,24 @@ class SupervisorProcessesController extends Controller
     public function Show_Reports_For_Students()
     {
         try {
-            $reports = Student_profile::all()->map(function ($report) {
-                $report->load('student.user');
-                return $report;
-            });
+            $user = auth('sanctum')->user();
+            // dd($user);
+            $supervisoe_user = Supervisor::where('user_id', $user->id)->first();
+            // dd($supervisoe_user);
+
+            $reports = Student_profile::with('student.user')
+                ->where('education_level_id', $supervisoe_user->education_level->id)
+                ->get()
+                ->map(function ($report) {
+                    $studentData = $report->makeHidden(['student_id', 'education_level_id']);
+                    return [
+                        'Student_ID' => $report->student_id,
+                        'education_level_ID' => $report->education_level_id,
+                        [
+                            "Student_data" => $studentData
+                        ]
+                    ];
+                });
             return HelpersFunctions::success($reports, "Getting Students Data Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -335,7 +367,7 @@ class SupervisorProcessesController extends Controller
     }
     public function Verify_Qr_Code(Request $request)
     {
-        $this->verifyQrCodeRequest($request, 'employee');
+        return $this->verifyQrCodeRequest($request, 'employee');
     }
     public function notifications()
     {

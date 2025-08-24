@@ -43,7 +43,7 @@ trait SharedFunctionTrait
             DB::beginTransaction();
             $emloyee_attendance = new  Staff_attendance();
             $emloyee_attendance->QR_id = $qr->id;
-            $emloyee_attendance->QR_id = auth()->id();
+            $emloyee_attendance->user_id = auth('sanctum')->user()->id;
             $emloyee_attendance->Attendance_status = 'present';
             $emloyee_attendance->nots = null;
             $emloyee_attendance->save();
