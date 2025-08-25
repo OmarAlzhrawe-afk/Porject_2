@@ -22,7 +22,10 @@ class Education_level extends Model
 	{
 		return $this->hasMany(Student_profile::class);
 	}
-
+	public function Installment_plans()
+	{
+		return $this->hasMany(Installment_Plan::class, 'education_level_id');
+	}
 	public function Regesterations()
 	{
 		return $this->hasMany(Pre_registration::class);

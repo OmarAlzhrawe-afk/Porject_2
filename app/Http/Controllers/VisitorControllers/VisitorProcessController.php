@@ -128,11 +128,11 @@ class VisitorProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-    public function view_public_content($content_type)
+    public function view_public_content()
     {
         try {
-            $posts = Public_content::where('content_type', $content_type)->get();
-            return HelpersFunctions::success($posts, "Getting public Content Done", 200);
+            $public_contents = Public_content::all(['content_type', 'content']);
+            return HelpersFunctions::success($public_contents, "Getting public Content Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -140,8 +140,10 @@ class VisitorProcessController extends Controller
     public function view_education_level()
     {
         try {
-            $education_level = Education_level::all();
-            return HelpersFunctions::success($education_level, "Getting education Level Done", 200);
+            $education_levels = Education_level::all()->map(function ($education_level) {
+                return $education_level->load('Installment_plans');
+            });
+            return HelpersFunctions::success($education_levels, "Getting education Level Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
