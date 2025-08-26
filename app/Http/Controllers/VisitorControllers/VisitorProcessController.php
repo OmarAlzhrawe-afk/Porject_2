@@ -60,29 +60,57 @@ class VisitorProcessController extends Controller
         $pre_regesteration->status = 'pending';
         $pre_regesteration->save();
 
-        // Stripe Intialization
-        \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-        // Create New Payment Intent By Stripe
-        $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => 1 * 100,
-            'currency' => 'usd',
-            'description' => 'cost for School Registration Demand ',
-            'metadata' => [
-                'pre_registration_id' => $pre_regesteration->id
-            ]
-        ]);
+        // // Stripe Intialization
+        // \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+        // // Create New Payment Intent By Stripe
+        // $paymentIntent = \Stripe\PaymentIntent::create([
+        //     'amount' => 1 * 100,
+        //     'currency' => 'usd',
+        //     'description' => 'cost for School Registration Demand ',
+        //     'metadata' => [
+        //         'pre_registration_id' => $pre_regesteration->id
+        //     ]
+        // ]);
 
-        //save PaymentIntent Id
-        $pre_regesteration->update([
-            'payment_reference' => $paymentIntent->id
-        ]);
-        // return  Cliect Secret for Flutter To get Interface Payment From Sprite
-        $data = [
-            'client_secret' => $paymentIntent->client_secret,
-            'message' => 'Creating Pre_registeration Done Please Process Payment cost',
-        ];
+        // //save PaymentIntent Id
+        // $pre_regesteration->update([
+        //     'payment_reference' => $paymentIntent->id
+        // ]);
+        // // return  Cliect Secret for Flutter To get Interface Payment From Sprite
+        // $data = [
+        //     'client_secret' => $paymentIntent->client_secret,
+        //     'message' => 'Creating Pre_registeration Done Please Process Payment cost',
+        // ];
         DB::commit();
-        return HelpersFunctions::success($data, "Done", 200);
+        return HelpersFunctions::success("", "Done", 200);
+    }
+    public function create_payment_intent(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'amount' => 'required|integer'
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+            }
+
+            // Stripe Intialization
+            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+            // Create New Payment Intent By Stripe
+            $paymentIntent = \Stripe\PaymentIntent::create([
+                'amount' => 1 * 100,
+                'currency' => 'usd',
+                'description' => 'cost for School Registration Demand ',
+            ]);
+
+            $data = [
+                'client_secret' => $paymentIntent->client_secret,
+                'message' => 'Creating Pre_registeration Done Please Process Payment cost',
+            ];
+            return HelpersFunctions::success($data, "pa", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
     }
     public function confirmPayment(Request $request)
     {
@@ -93,27 +121,27 @@ class VisitorProcessController extends Controller
             ]);
             \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
             $paymentIntent = \Stripe\PaymentIntent::retrieve($request->payment_intent_id);
-            $pre = Pre_registration::where('payment_reference', $request->payment_intent_id)->first();
-            if ($pre) {
-                $pre->update(['payment_status' => true]);
-                // Make Transaction
-                $transaction =   Transaction::create([
-                    'user_id' => null,
-                    'payment_method' => 'visa',
-                    'amount' => $paymentIntent->amount / 100,
-                    'type' => 'in',
-                    'transaction_source' => 'pre_registration',
-                    'status' => 'paid',
-                    'is_installment' => false,
-                    'payment_reference' => $paymentIntent->id,
-                ]);
-                $user = User::where('role', 'admin')->first();
-                $user->notify(new New_Pre_Regesteration($pre));
-                DB::commit();
-                return HelpersFunctions::success($transaction, "Store Payment Done", 200);
-            } else {
-                return HelpersFunctions::error("Bad Request ", 400, "Demand Anexist In database");
-            }
+            // $pre = Pre_registration::where('payment_reference', $request->payment_intent_id)->first();
+            // if ($pre) {
+            //     $pre->update(['payment_status' => true]);
+            // Make Transaction
+            $transaction =   Transaction::create([
+                'user_id' => null,
+                'payment_method' => 'visa',
+                'amount' => $paymentIntent->amount / 100,
+                'type' => 'in',
+                'transaction_source' => 'pre_registration',
+                'status' => 'paid',
+                'is_installment' => false,
+                'payment_reference' => $paymentIntent->id,
+            ]);
+            $user = User::where('role', 'admin')->first();
+            // $user->notify(new New_Pre_Regesteration($pre));
+            DB::commit();
+            return HelpersFunctions::success($transaction, "Store Payment Done", 200);
+            // } else {
+            //     return HelpersFunctions::error("Bad Request ", 400, "Demand Anexist In database");
+            // }
             // }
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
