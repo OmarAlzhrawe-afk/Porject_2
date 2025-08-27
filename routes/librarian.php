@@ -31,7 +31,7 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
         // get All Sales Processes
         Route::get('/get_sales', [LibrarianProcessController::class, 'get_sales']);
         // return All Loans And Sales For User // Done
-        Route::get('/get_loans_Sales_For_user/{id}', [LibrarianProcessController::class, 'get_loans_Sales_For_user']);
+        Route::post('/get_loans_Sales_For_student', [LibrarianProcessController::class, 'get_loans_Sales_For_student']);
         // return Book To library
         Route::post('/return_book', [LibrarianProcessController::class, 'return_book']);
         // Return All Loans And Sales For User
@@ -42,6 +42,7 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
 
 
         // Extra Apis 
-        Route::get('/get_subjects', [LibrarianProcessController::class, 'get_subjects']);
+        Route::get('/get_subjects_and_education_level', [LibrarianProcessController::class, 'get_subjects_and_education_level']);
+        Route::get('/get_users', [LibrarianProcessController::class, 'get_users']);
     });
 });

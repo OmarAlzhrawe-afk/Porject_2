@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\HelpersFunctions;
 use Illuminate\Console\Command;
 use App\Models\Book_loan;
 use App\Models\Report;
@@ -70,8 +71,16 @@ class GenerateLibraryReport extends Command
         // Sending Notifications To Users 
         Notification::send($users, new LibraryReportNotification($relativeUrl));
         // store Report in DataBase 
+        /**
+         * 'term_id',
+        'report_type',
+        'report_url',
+        'report_description',
+        'report_date'
+         */
         $report = new Report();
         $report->report_type = 'library';
+        $report->term_id = HelpersFunctions::getCurrentTermId();
         $report->report_url = $relativeUrl;
         $report->report_description = " ";
         $report->report_date = now()->format('Y-m'); // 'F Y'

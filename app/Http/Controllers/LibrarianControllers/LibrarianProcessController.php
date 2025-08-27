@@ -33,6 +33,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Response;
 use App\Exports\LibraryExport;
 use App\Exports\LibrarySalesLoansExport;
+use App\Models\Education_level;
 use App\Models\Report;
 use App\Models\Subject;
 use Maatwebsite\Excel\Facades\Excel;
@@ -75,7 +76,7 @@ class LibrarianProcessController extends Controller
                 'education_level_id' => $request->input('education_level_id'),
             ])->first();
             if (!empty($exist_book)) {
-                return  HelpersFunctions::success("", "Book That You Want To Create It Is Exists in Our School Data Pleas Edit it Instead Of Create New One", 200);
+                return  HelpersFunctions::success(null, "Book That You Want To Create It Is Exists in Our School Data Pleas Edit it Instead Of Create New One", 200);
             }
             $new_text_book = new Text_book();
             $new_text_book->subject_id = $request->input('subject_id');
@@ -115,7 +116,7 @@ class LibrarianProcessController extends Controller
             $exist_book->save();
             event(new BookUpdate($exist_book, "textual"));
             DB::commit();
-            return  HelpersFunctions::success($exist_book, "edit Book Done", 200);
+            return  HelpersFunctions::success(null, "edit Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -137,6 +138,7 @@ class LibrarianProcessController extends Controller
             if ($text_book) {
                 $text_book->delete();
                 event(new BookDelete($text_book->id, "textual"));
+                return HelpersFunctions::success(null, "Deleting Done", "Book Not Found");
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -169,7 +171,7 @@ class LibrarianProcessController extends Controller
                 'type' => $request->input('type'),
             ])->first();
             if (!empty($exist_book)) {
-                return  HelpersFunctions::success("", "Book That You Want To Create It Is Exists in Our School Data Pleas Edit it Instead Of Create New One", 200);
+                return  HelpersFunctions::success(null, "Book That You Want To Create It Is Exists in Our School Data Pleas Edit it Instead Of Create New One", 200);
             }
             $newbook = new Cultural_book();
             $newbook->title = $request->input('title');
@@ -195,7 +197,7 @@ class LibrarianProcessController extends Controller
             $newbook->save();
             event(new BookAdded($newbook, "cultural"));
             DB::commit();
-            return  HelpersFunctions::success($newbook, "Adding Book Done", 200);
+            return  HelpersFunctions::success(null, "Adding Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -216,11 +218,14 @@ class LibrarianProcessController extends Controller
                 'id' => $request->Book_id,
                 'type' => 'Paper'
             ])->first();
+            if (empty($exist_book)) {
+                return  HelpersFunctions::success(null, "the Book That You Want to edit Is Not Found Or Not Paper Format", 200);
+            }
             $exist_book->copies_available = $exist_book->copies_available + $request->input('copies_available');
             $exist_book->save();
             event(new BookUpdate($exist_book, "cultural"));
             DB::commit();
-            return  HelpersFunctions::success($exist_book, "edit Book Done", 200);
+            return  HelpersFunctions::success(null, "edit Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -285,7 +290,7 @@ class LibrarianProcessController extends Controller
             $book->save();
             event(new BookUpdate($book, "cultural"));
             DB::commit();
-            return HelpersFunctions::success($book_loan, "Book Loan Register Done ", 200);
+            return HelpersFunctions::success(null, "Book Loan Register Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -295,6 +300,7 @@ class LibrarianProcessController extends Controller
 
         try {
             DB::beginTransaction();
+            // Validate Data
             $validator = Validator::make($request->all(), [
                 'textbook_id' => 'required|exists:text_books,id',
                 'student_id' => 'required|exists:students,id',
@@ -303,13 +309,14 @@ class LibrarianProcessController extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
+            // Fetch Book & Validate It  
             // 'student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price'
             $text_book = Text_book::find($request->input('textbook_id'));
             if ($text_book->available_quantity == 0) {
                 return HelpersFunctions::success("Quantity Finished", 400, "sorry you can not perform this Sale because the quantity is finished");
             }
 
-            // save sales book data and Book update data and send Events with data
+            // create &  save sales book data and Book update data and send Events with data
             $book_sale = new Student_textbook_sale();
             $book_sale->student_id = $request->input('student_id');
             $book_sale->textbook_id = $request->input('textbook_id');
@@ -337,7 +344,7 @@ class LibrarianProcessController extends Controller
             $message = "your son puy new book from shcoole with price : " . $book_sale->total_price;
             $parent_student->notify(new NewBookSale($message));
             DB::commit();
-            return HelpersFunctions::success($book_sale, "Book Loan Register Done ", 200);
+            return HelpersFunctions::success(null, "Book Loan Register Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -446,12 +453,22 @@ class LibrarianProcessController extends Controller
         }
     }
     //  Here We Maybe edit fetch user ****
-    public function get_loans_Sales_For_user($id)
+    public function get_loans_Sales_For_student(Request $request)
     {
         try {
-            $user = User::Find($id);
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id'
+            ]);
+            if ($validator->fails()) {
+                return HelpersFunctions::error("Bad Request", 400, $validator->fails());
+            }
+            $user = User::find($request->user_id);
+            // dd($user);
+            $student = null;
+            $sales   = collect();
             if ($user->role == 'student') {
                 $student = Student::where('user_id', $user->id)->first();
+                // dd($student);
                 $sales = Student_textbook_sale::where([
                     'student_id' => $student->id,
                 ])->get();
@@ -461,13 +478,13 @@ class LibrarianProcessController extends Controller
             ])->get();
             $all_data = [
                 'user_name' => $user->name,
-                'student_number' => $student->Student_number, //optional($student->Student_number),
+                'student_number'  => $student?->Student_number,
                 'loans' => $loans,
                 'sales' =>  $sales, // optional($sales),
             ];
             return HelpersFunctions::success($all_data, 'Getting Loans Done', 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error In " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function make_leave_demand(Request $request)
@@ -529,13 +546,39 @@ class LibrarianProcessController extends Controller
         }
     }
     // Extra Apis 
-    public function get_subjects()
+    public function get_subjects_and_education_level()
     {
         try {
             $subjects = Subject::all();
-            return HelpersFunctions::success($subjects, " Getting Subjects Done ", 200);
+            $educationlevels = Education_level::all();
+            $data = [
+                'education_levels' => $educationlevels,
+                'subjects' => $subjects,
+            ];
+            return HelpersFunctions::success($data, " Getting Subjects Done ", 200);
         } catch (Exception $e) {
             return  HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
+        }
+    }
+    public function get_users()
+    {
+        try {
+            $users = User::where(
+                [
+                    'role' => ['student', 'teacher']
+                ]
+            )->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'Name' => $user->name,
+                ];
+            })->get();
+            $data = [
+                'users' => $users,
+            ];
+            return HelpersFunctions::success($data, " Getting Users Done ", 200);
+        } catch (Exception $e) {
+            return  HelpersFunctions::error("Internal Users Error ", 500, $e->getMessage());
         }
     }
 }

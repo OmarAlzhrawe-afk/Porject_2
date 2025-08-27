@@ -98,7 +98,7 @@ class VisitorProcessController extends Controller
             \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
             // Create New Payment Intent By Stripe
             $paymentIntent = \Stripe\PaymentIntent::create([
-                'amount' => 1 * 100,
+                'amount' => $request->amount * 100,
                 'currency' => 'usd',
                 'description' => 'cost for School Registration Demand ',
             ]);
@@ -112,41 +112,41 @@ class VisitorProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
-    public function confirmPayment(Request $request)
-    {
-        try {
-            DB::beginTransaction();
-            $request->validate([
-                'payment_intent_id' => 'required|string',
-            ]);
-            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-            $paymentIntent = \Stripe\PaymentIntent::retrieve($request->payment_intent_id);
-            // $pre = Pre_registration::where('payment_reference', $request->payment_intent_id)->first();
-            // if ($pre) {
-            //     $pre->update(['payment_status' => true]);
-            // Make Transaction
-            $transaction =   Transaction::create([
-                'user_id' => null,
-                'payment_method' => 'visa',
-                'amount' => $paymentIntent->amount / 100,
-                'type' => 'in',
-                'transaction_source' => 'pre_registration',
-                'status' => 'paid',
-                'is_installment' => false,
-                'payment_reference' => $paymentIntent->id,
-            ]);
-            $user = User::where('role', 'admin')->first();
-            // $user->notify(new New_Pre_Regesteration($pre));
-            DB::commit();
-            return HelpersFunctions::success($transaction, "Store Payment Done", 200);
-            // } else {
-            //     return HelpersFunctions::error("Bad Request ", 400, "Demand Anexist In database");
-            // }
-            // }
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
-        }
-    }
+    // public function confirmPayment(Request $request)
+    // {
+    //     try {
+    //         DB::beginTransaction();
+    //         $request->validate([
+    //             'payment_intent_id' => 'required|string',
+    //         ]);
+    //         \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+    //         $paymentIntent = \Stripe\PaymentIntent::retrieve($request->payment_intent_id);
+    //         // $pre = Pre_registration::where('payment_reference', $request->payment_intent_id)->first();
+    //         // if ($pre) {
+    //         //     $pre->update(['payment_status' => true]);
+    //         // Make Transaction
+    //         $transaction =   Transaction::create([
+    //             'user_id' => null,
+    //             'payment_method' => 'visa',
+    //             'amount' => $paymentIntent->amount / 100,
+    //             'type' => 'in',
+    //             'transaction_source' => 'pre_registration',
+    //             'status' => 'paid',
+    //             'is_installment' => false,
+    //             'payment_reference' => $paymentIntent->id,
+    //         ]);
+    //         $user = User::where('role', 'admin')->first();
+    //         // $user->notify(new New_Pre_Regesteration($pre));
+    //         DB::commit();
+    //         return HelpersFunctions::success($transaction, "Store Payment Done", 200);
+    //         // } else {
+    //         //     return HelpersFunctions::error("Bad Request ", 400, "Demand Anexist In database");
+    //         // }
+    //         // }
+    //     } catch (Exception $e) {
+    //         return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+    //     }
+    // }
     public function view_posts()
     {
         try {
