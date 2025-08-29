@@ -18,7 +18,7 @@ class CulturalBookFactory extends Factory
             'author' => $this->faker->name(), // اسم المؤلف
             'publisher' => $this->faker->company(), // دار النشر
             'publication_year' => $this->faker->date('Y-m-d'), // سنة النشر
-            'type' => $this->faker->randomElement(['Paper', 'electronic', 'audio']), // نوع الكتاب
+            'type' => $this->faker->randomElement(['paper', 'pdf', 'audio']), // نوع الكتاب
             'format_url' => $this->faker->optional()->url(), // رابط الملف إن وجد
             'copies_available' => $this->faker->numberBetween(0, 50), // نسخ متاحة
             'avg_student_rating' => $this->faker->randomFloat(1, 0, 5), // متوسط تقييم الطلاب

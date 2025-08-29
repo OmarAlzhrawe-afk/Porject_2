@@ -169,11 +169,11 @@ class LibrarianProcessController extends Controller
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
-                'title' => 'required |string | max:50',
-                'author' => 'required |string | max:50',
+                'title' => 'required|string|max:50',
+                'author' => 'required|string|max:50',
                 'description' => 'required|string',
                 'publisher' => 'required|string|max:50',
-                'publication_year' => 'required|date',
+                'publication_year' => 'required|digits:4|integer|min:1500|max:' . date('Y'),
                 'type' => 'required|in:paper,pdf,audio',
                 'file' => 'nullable|file|mimes:pdf,mp4,mov,avi,wmv,mkv|max:102400',
                 'copies_available' => 'nullable|integer',
@@ -193,7 +193,7 @@ class LibrarianProcessController extends Controller
             $newbook->title = $request->input('title');
             $newbook->author = $request->input('author');
             $newbook->description = $request->input('description');
-            $newbook->publication_year = $request->input('publication_year');
+            $newbook->publication_year = $request->input('publication_year') . '-01-01';
             $newbook->publisher = $request->input('publisher');
             $newbook->avg_student_rating = 0;
             $newbook->avg_teacher_rating = 0;
