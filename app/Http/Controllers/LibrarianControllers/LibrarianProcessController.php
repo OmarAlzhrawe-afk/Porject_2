@@ -221,12 +221,11 @@ class LibrarianProcessController extends Controller
 
             return  HelpersFunctions::success(null, "Adding Book Done", 200);
         } catch (Exception $e) {
-            return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
     public function edit_cultural_book(Request $request)
     {
-
         try {
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
@@ -282,6 +281,7 @@ class LibrarianProcessController extends Controller
                     'Process_type' => "deleting Cultural Book",
                     'date' => now()->format('Y-m-d'),
                 ])->log("deleting Cultural Book");
+                return HelpersFunctions::success(null, "Deleting Cultural Book Done", 200);
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -311,6 +311,7 @@ class LibrarianProcessController extends Controller
             $book_loan->user_id = $user->id;
             $book_loan->cultural_book_id = $request->input('book_id');
             $book_loan->type = $request->input('type');
+            $book_loan->status = "unreturned";
             $book_loan->save();
             // Send Notification For User 
             $user = User::find($book_loan->user_id);
@@ -482,7 +483,7 @@ class LibrarianProcessController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'book_id' => 'required|exists:cultural_books,id',
-                'user_id' => 'required|exists:users,id',
+                'user_id' => 'required|exists:students,Student_number',
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, "Wrong User Or Book I dont Have Loan For This ");
@@ -491,24 +492,31 @@ class LibrarianProcessController extends Controller
             if ($book->type != "Paper") {
                 return HelpersFunctions::error("Bad Book", 400, "The Book You Are Entered Is not In Paper Formating");
             }
+            $student = Student::where('Student_number', $request->user_id)->first();
             $loan = Book_loan::where([
-                'user_id' => $request->user_id,
-                'cultural_book_id' => $request->cultural_book_id,
+                'user_id' => $student->user_id,
+                'cultural_book_id' => $request->book_id,
             ])->first();
-            $loan->status = 'returned';
-            $loan->save();
-            // update book cultural data  and send Event with updating data
-            $cultural_book = Cultural_book::find($request->book_id);
-            $cultural_book->copies_available = $cultural_book->copies_available + 1;
-            $cultural_book->save();
+            if ($loan) {
+                $loan->status = 'returned';
+                $loan->save();
+                // update book cultural data  and send Event with updating data
+                $cultural_book = Cultural_book::find($request->book_id);
+                $cultural_book->copies_available = $cultural_book->copies_available + 1;
+                $cultural_book->save();
+            } else {
+                return HelpersFunctions::error("Bad Loan", 400, "The Loan You Are Entered Is not Found");
+            }
+            // Broad Cast Real Time Event    
             event(new BookUpdate($cultural_book, "cultural"));
+            // Assign Activity
             $user = auth('sanctum')->user();
             activity()->causedBy($user)->withProperties([
                 'Process_type' => "Making Book Return",
                 'date' => now()->format('Y-m-d'),
             ])->log("Making Book Return");
 
-            return HelpersFunctions::success($loan, 'Getting Loans Done', 200);
+            return HelpersFunctions::success(null, 'Returning Book Done', 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -518,17 +526,18 @@ class LibrarianProcessController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'user_id' => 'required|exists:users,id'
+                'user_id' => 'required|exists:students,Student_number'
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->fails());
             }
-            $user = User::find($request->user_id);
+            $student = Student::where('Student_number', $request->user_id)->first();
+            $user = User::find($student->user_id);
             // dd($user);
-            $student = null;
+            // $student = null;
             $sales   = collect();
             if ($user->role == 'student') {
-                $student = Student::where('user_id', $user->id)->first();
+                // $student = Student::where('user_id', $user->id)->first();
                 // dd($student);
                 $sales = Student_textbook_sale::where([
                     'student_id' => $student->id,

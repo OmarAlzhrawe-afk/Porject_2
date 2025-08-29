@@ -14,7 +14,7 @@ return new class extends Migration
 			$table->integer('amount')->default('0');
 			$table->enum('type', ['deducation', 'Bonos']);
 			$table->text('reason');
-			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

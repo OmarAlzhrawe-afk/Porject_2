@@ -16,7 +16,7 @@ return new class extends Migration
 			$table->enum('leave_type', array('sick', 'personal', 'unpaid', 'emergency'));
 			$table->enum('status', array('pending', 'approved', 'rejected'));
 			$table->text('notes')->nullable();
-			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

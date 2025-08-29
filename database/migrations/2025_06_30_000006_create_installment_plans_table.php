@@ -17,7 +17,7 @@ return new class extends Migration
 			$table->tinyInteger('number_of_installments');
 			$table->tinyInteger('count_of_days_per_each_installment');
 			$table->text('description')->nullable();
-			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
+			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

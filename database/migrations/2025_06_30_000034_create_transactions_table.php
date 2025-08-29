@@ -21,7 +21,7 @@ return new class extends Migration
 			$table->integer('installment_number')->nullable();
 			$table->string('payment_reference')->nullable();
 			$table->boolean('is_installment');
-			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

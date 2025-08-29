@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('description');
             $table->string('homework_url');
             $table->dateTime('last_date');
-            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade');
-            $table->foreign('class_id')->references('id')->on('class_rooms')->onDelete('cascade');
+            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

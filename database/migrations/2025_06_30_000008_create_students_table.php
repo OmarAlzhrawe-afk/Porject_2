@@ -19,9 +19,9 @@ return new class extends Migration
 			$table->tinyInteger('installment_count')->nullable();
 			$table->tinyInteger('installment_interval_days')->nullable();
 			$table->enum('status', array('active', 'suspended', 'graduated', 'left'));
-			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-			$table->foreign('class_id')->references('id')->on('class_rooms')->onDelete('cascade');
-			$table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
+			$table->foreign('class_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
+			$table->foreign('parent_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

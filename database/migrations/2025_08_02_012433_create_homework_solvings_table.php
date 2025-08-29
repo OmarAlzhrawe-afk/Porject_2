@@ -18,8 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('homework_id');
             $table->unsignedBigInteger('student_id');
             $table->string('solve_url');
-            $table->foreign('homework_id')->references('id')->on('home_works')->onDelete('cascade');
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('homework_id')->references('id')->on('home_works')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

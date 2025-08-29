@@ -18,7 +18,7 @@ return new class extends Migration
 			$table->date('date');
 			$table->enum('status', array('paid', 'pending'));
 			$table->text('notes')->nullable();
-			$table->foreign('user_id')->references('id')->on('users');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

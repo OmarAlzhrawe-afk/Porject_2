@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/librarian')->name('librarian.')->group(function () {
     Route::prefix('/process')->name('process.')->middleware(['auth:sanctum', 'role:librarian'])->group(function () {
-        Route::post('/log_out', [LibrarianAuthController::class, 'logout']);
+        Route::get('/log_out', [LibrarianAuthController::class, 'logout']);
         Route::get('/get_last_activity', [LibrarianAuthController::class, 'get_last_activity']);
         // CRUD Textual_Books
         Route::post('/Add_Textual_book', [LibrarianProcessController::class, 'Add_Textual_book']);

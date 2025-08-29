@@ -21,8 +21,8 @@ return new class extends Migration
 			$table->string('phone_number', 50);
 			$table->enum('status', array('pending', 'accepted', 'rejected'))->default('pending');
 			$table->longText('documents');
-			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
-			$table->foreign('installment_plan_id')->references('id')->on('installment_plans')->onDelete('cascade');
+			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
+			$table->foreign('installment_plan_id')->references('id')->on('installment_plans')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

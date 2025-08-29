@@ -33,9 +33,9 @@ return new class extends Migration
             $table->longText('gallery_urls')->nullable();
             $table->longText('required_skills')->nullable();
             $table->boolean('auto_filter_participants');
-            $table->foreign('term_id')->references('id')->on('terms')->onDelete('cascade');
-            $table->foreign('class_room_id')->references('id')->on('class_rooms');
-            $table->foreign('education_level_id')->references('id')->on('education_levels');
+            $table->foreign('term_id')->references('id')->on('terms')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_room_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -21,8 +21,8 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('content_type', array('video', 'pdf', 'link', 'image', 'text', 'quiz'));
             $table->string('file_url', 500)->nullable();
-            $table->foreign('teacher_id')->references('id')->on('teachers');
-            $table->foreign('class_room_id')->references('id')->on('class_rooms');
+            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_room_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('capacity');
             $table->integer('current_count');
             $table->tinyInteger('floor');
-            $table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade');
+            $table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

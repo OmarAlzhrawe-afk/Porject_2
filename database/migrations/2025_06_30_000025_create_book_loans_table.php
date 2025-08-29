@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('type', array('monthly', 'weekly'));
             $table->enum('status', array('returned', 'unreturned'));
             $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('cultural_book_id')->references('id')->on('cultural_books');
+            $table->foreign('cultural_book_id')->references('id')->on('cultural_books')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

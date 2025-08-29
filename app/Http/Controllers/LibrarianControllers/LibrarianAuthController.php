@@ -17,23 +17,26 @@ use Spatie\Activitylog\Models\Activity as ActivityLog;
 
 class LibrarianAuthController extends Controller
 {
-
-    public function logout(Request $request)
+    public function logout()
     {
         try {
-            DB::beginTransaction();
-            $request->user()->currentAccessToken()->delete();
-            //Enrolling librarian Log in 
-            activity()->causedBy($request->user)->withProperties([
-                'Process_role' => "Librarian",
-                'Process_type' => "Log_Out Librarian",
-            ])->log("Librarian " . $request->user()->name .  "log Out");
-            DB::commit();
-            return HelpersFunctions::success($request->user()->name, "log out Done ", 201);
+            return HelpersFunctions::logout();
         } catch (Exception  $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
+    // public function logout(Request $request)
+    // {
+    //     try {
+    //         DB::beginTransaction();
+    //         $request->user()->currentAccessToken()->delete();
+    //         //Enrolling librarian Log in 
+    //         DB::commit();
+    //         return HelpersFunctions::success($request->user()->name, "log out Done ", 201);
+    //     } catch (Exception  $e) {
+    //         return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+    //     }
+    // }
     public function get_last_activity()
     {
         try {

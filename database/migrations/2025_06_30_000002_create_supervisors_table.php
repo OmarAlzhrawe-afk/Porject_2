@@ -13,7 +13,7 @@ return new class extends Migration
 			$table->id();
 			$table->unsignedBigInteger('user_id');
 			$table->enum('status', array('active', 'on_leave', 'resigned'));
-			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();
 		});
 	}

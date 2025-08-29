@@ -20,8 +20,8 @@ return new class extends Migration
             $table->text('notes');
             $table->boolean('is_primary_teacher')->nullable();
             $table->integer('weekly_lessons_count');
-            $table->foreign('teacher_id')->references('id')->on('teachers');
-            $table->foreign('class_room_id')->references('id')->on('class_rooms');
+            $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('class_room_id')->references('id')->on('class_rooms')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }
