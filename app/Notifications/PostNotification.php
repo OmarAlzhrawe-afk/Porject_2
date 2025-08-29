@@ -24,14 +24,14 @@ class PostNotification extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'Session Notification',
+            'type' => 'Adding new Post',
             'data' => $this->post
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Session Notification',
+            'type' => 'Adding new Post',
             'data' => $this->post
         ];
     }

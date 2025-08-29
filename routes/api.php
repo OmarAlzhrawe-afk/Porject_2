@@ -102,7 +102,9 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('/notifications/read/{id}', [AdminProcessController::class, 'markAsRead']);
         Route::get('/Get_Salaries_For_Users', [AdminProcessController::class, 'Get_Salaries_For_Users']);
         Route::get('/Paying_Salary/{user_id}', [AdminProcessController::class, 'Paying_Salary']);
+        Route::get('/get_reports', [AdminProcessController::class, 'get_reports']);
+
         // api for last activity for admin 
-        // Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
+        Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
     });
 });

@@ -48,6 +48,11 @@ trait SharedFunctionTrait
             $emloyee_attendance->nots = null;
             $emloyee_attendance->save();
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "making Scan For My Attendance",
+                'date' => now()->format('Y-m-h'),
+            ])->log("making Scan For My Attendance");
             return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
         }
     }
@@ -64,7 +69,8 @@ trait SharedFunctionTrait
             }
             activity()->causedBy($user)->withProperties([
                 'Process_type' => "surfing salary",
-            ])->log("Teacher "  . $user->name  . "surfing salary ");
+                'date' => now()->format('Y-m-h'),
+            ])->log("surfing salary");
             return HelpersFunctions::success($salary, "Getting Salary Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
@@ -77,8 +83,14 @@ trait SharedFunctionTrait
             $activities = ActivityLog::causedBy($user)
                 ->latest()
                 ->take(5)
-                ->get();
-            return HelpersFunctions::success($activities, "Getting Activity Done", 200);
+                ->get()
+                ->map(function ($activity) {
+                    return [
+                        'process_type' => $activity->properties['Process_type'] ?? null,
+                        'date' => $activity->properties['date'] ?? null,
+                    ];
+                });
+            return HelpersFunctions::success($activities, "Getting Activities Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -107,8 +119,12 @@ trait SharedFunctionTrait
             $leave->save();
             $admin = User::where('role', 'admin')->first();
             $user  = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Leave Demand",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Leave Demand");
             $admin->notify(new LeaveOrderNotification($user, $leave));
-            // Notification::send($users, new HomeworkAddedNotification($homwork));
+
             DB::commit();
             return HelpersFunctions::success("", "Leave Demand Done", 200);
         } catch (Exception $e) {

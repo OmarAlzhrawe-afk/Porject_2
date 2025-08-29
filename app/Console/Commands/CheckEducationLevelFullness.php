@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 class CheckEducationLevelFullness extends Command
 {
 
-    protected $signature = 'EducationLevel:checkFully';
+    protected $signature = 'educationlevel:checkfully';
 
     protected $description = 'Check if all classes in an education level are fully and mark the level as fully';
 

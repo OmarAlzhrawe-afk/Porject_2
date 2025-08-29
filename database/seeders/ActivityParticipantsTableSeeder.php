@@ -17,7 +17,7 @@ class ActivityParticipantsTableSeeder extends Seeder
         $activities = Activity::all();
         $users = User::all();
         if ($activities->count() == 0 || $users->count() == 0) {
-            $this->command->warn("⚠️ لا يوجد أنشطة أو مستخدمين لإنشاء مشاركين.");
+            $this->command->warn("لا يوجد أنشطة أو مستخدمين لإنشاء مشاركين.");
             return;
         }
         foreach ($activities as $activity) {

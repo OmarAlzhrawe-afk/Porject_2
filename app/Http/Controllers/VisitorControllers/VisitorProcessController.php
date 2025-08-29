@@ -259,7 +259,7 @@ class VisitorProcessController extends Controller
                     'wages_per_lesson' => $teacher->wages_per_lesson,
                     'classes' => $teacher->sessions->map(function ($session) {
                         return $session->class;
-                    })->filter()->unique('id')
+                    })->filter()->unique('id')->values()->toArray()
                 ];
                 $data = [
                     'token' =>  $token,

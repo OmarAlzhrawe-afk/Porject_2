@@ -56,6 +56,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Supervisor::class);
     }
+    public function leaves()
+    {
+        return $this->hasMany(Staff_leaves::class, 'user_id');
+    }
     public function activities()
     {
         return $this->belongsToMany(Activity::class, 'activity_participants', 'user_id', 'activity_id');

@@ -32,8 +32,8 @@ class GenerateLibraryReport extends Command
         ]);
 
         $loans = $loansModels->map(fn($loan) => [
-            'user' => $loan->user->name ?? 'غير معروف',
-            'book' => $loan->book_loan->title ?? 'غير معروف',
+            'user' => $loan->user->name ?? 'unKnown',
+            'book' => $loan->book_loan->title ?? 'unKnown',
             'notes' => '—',
             'duration' => '—',
         ]);
@@ -53,7 +53,7 @@ class GenerateLibraryReport extends Command
             'default_font_size' => 12
         ]);
 
-        $mpdf->SetDirectionality('rtl'); // ← مهم لدعم RTL
+        $mpdf->SetDirectionality('rtl');
         $mpdf->WriteHTML($html);
         // handle File path And store file in public path 
         $filename = 'Library_Report_' . now()->format('Y-m') . '.pdf';
@@ -71,21 +71,13 @@ class GenerateLibraryReport extends Command
         // Sending Notifications To Users 
         Notification::send($users, new LibraryReportNotification($relativeUrl));
         // store Report in DataBase 
-        /**
-         * 'term_id',
-        'report_type',
-        'report_url',
-        'report_description',
-        'report_date'
-         */
         $report = new Report();
         $report->report_type = 'library';
         $report->term_id = HelpersFunctions::getCurrentTermId();
         $report->report_url = $relativeUrl;
-        $report->report_description = " ";
+        $report->report_description = "Library Report For Year : " . now()->year() . " Month :  " . now()->month();
         $report->report_date = now()->format('Y-m'); // 'F Y'
         $report->save();
-
         // $mpdf->move(public_path('uploads/reprts/libraryreports'), $filename);
         $this->info("creating Report  " . $filename . "  Done ");
     }

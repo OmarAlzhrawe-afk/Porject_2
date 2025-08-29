@@ -69,7 +69,7 @@ class PublicContentCrud extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Validation Error Bad Request", 400, $validator->errors());
             } else {
-                $public_content = Public_content::find($request->content_id)->first();
+                $public_content = Public_content::find($request->content_id);
                 $public_content->content_type = $request->input('content_type');
                 $public_content->content = $request->input('content');
                 $public_content->save();

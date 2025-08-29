@@ -22,6 +22,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Helpers\HelpersFunctions;
 use App\Models\Installment_payment;
 use App\Models\Installment_Plan;
+use App\Models\Report;
 use App\Models\Salary;
 use App\Models\Transaction;
 use App\Notifications\LeaveNotification;
@@ -46,8 +47,9 @@ class AdminProcessController extends Controller
                 ->get();
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
-                'Process_type' => " Get_Salaries_For_Users",
-            ])->log("Get_Salaries_For_Users");
+                'Process_type' => " Get Salaries For Users",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Get Salaries For Users");
             return HelpersFunctions::success($salary, "Getting salaries Successfully ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -63,6 +65,7 @@ class AdminProcessController extends Controller
             if (!$salary) {
                 return HelpersFunctions::error("Empty Account", 400, "The User That You Entered dont Have Salary To Pay it ");
             }
+            DB::beginTransaction();
             $salary->status = "paid";
             $salary->save();
             $transaction = new Transaction();
@@ -73,6 +76,12 @@ class AdminProcessController extends Controller
             $transaction->type = "in";
             $transaction->is_installment = false;
             $transaction->save();
+            DB::commit();
+            $admin = auth('sanctum')->user();
+            activity()->causedBy($admin)->withProperties([
+                'Process_type' => "Paying Salary",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Paying Salary");
             return HelpersFunctions::success("", "Saving Paid Salary Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -83,10 +92,6 @@ class AdminProcessController extends Controller
     {
         try {
             $Registration_requests = Pre_registration::where('status', 'pending')->get();
-            $admin = auth('sanctum')->user();
-            activity()->causedBy($admin)->withProperties([
-                'Process_type' => " get_all_pre_registeration",
-            ])->log("get_all_pre_registeration");
             return HelpersFunctions::success($Registration_requests, "Getting data Successfully ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -153,6 +158,12 @@ class AdminProcessController extends Controller
             } else {
                 // dd("class Level : " . $class->education_level_id . "pre_level : " . $Registration->education_level_id . " class capacity : " . $class->capacity . " class current count : " . $class->current_count);
                 DB::commit();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => "Accept pre registeration",
+                    'date' => now()->format('Y-m-h'),
+                ])->log("Accept pre registeration");
+
                 return HelpersFunctions::error("Bad Request", 400, "Class That You Entered Is Invalid");
             }
             // $student->Student_number = '5'; Auto
@@ -177,8 +188,10 @@ class AdminProcessController extends Controller
             // Mail::to($Registration->parent_email)->send(new RejectedSchoolMail("Rejected Student : " . $Registration->student_name));
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
-                'Process_type' => " Reject_pre_registeration",
-            ])->log("Reject_pre_registeration");
+                'Process_type' => "reject pre registeration",
+                'date' => now()->format('Y-m-h'),
+            ])->log("reject pre registeration");
+
             return HelpersFunctions::success('', "student Rejected successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -190,10 +203,6 @@ class AdminProcessController extends Controller
         try {
             $leaves = Staff_leaves::where('status', 'pending')->with('employee')->get();
             if ($leaves) {
-                $admin = auth('sanctum')->user();
-                activity()->causedBy($admin)->withProperties([
-                    'Process_type' => " get_all_Leaves_order",
-                ])->log("get_all_Leaves_order");
                 return HelpersFunctions::success($leaves, "Getting Leaves Successfully", 200);
             } else {
                 return HelpersFunctions::error("Bad Request", 400, 'Unfound Leaves Order');
@@ -202,7 +211,6 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-
     public function Accept_Leave(Request $request)
     {
         try {
@@ -231,8 +239,9 @@ class AdminProcessController extends Controller
             $user->notify(new LeaveNotification($deducation ?? null, $leave));
             $admin = auth('sanctum')->user();
             activity()->causedBy($admin)->withProperties([
-                'Process_type' => " Accept_Leave",
-            ])->log("Accept_Leave");
+                'Process_type' => " Accept Leave",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Accept Leave");
             DB::commit();
             return HelpersFunctions::success("", "Accept Leave Successfully", 200);
         } catch (Exception $e) {
@@ -252,8 +261,10 @@ class AdminProcessController extends Controller
                 $user->notify(new RejectLeaveNotification($leave));
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([
-                    'Process_type' => " Reject_Leave",
-                ])->log("Reject_Leave");
+                    'Process_type' => " Reject Leave",
+                    'date' => now()->format('Y-m-h'),
+                ])->log("Reject Leave");
+
                 DB::commit();
                 return HelpersFunctions::success("", "Reject Leave Successfully", 200);
             } else {
@@ -263,7 +274,6 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
-
     public function Generate_QR_For_Specific_Class(Request $request)
     {
         try {
@@ -273,6 +283,7 @@ class AdminProcessController extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("bad Request", 400, $validator->errors());
             } else {
+                DB::beginTransaction();
                 $class = Class_room::find($request->class_id);
                 Qr_Code::where('class_id', $class->id)->delete();
                 $code = Str::uuid();
@@ -309,6 +320,12 @@ class AdminProcessController extends Controller
                 // Storage::disk('public')->put($fileName, $svgWithText);
                 // // Public URL
                 // $publicUrl = asset("storage/{$fileName}");
+                DB::commit();
+                $admin = auth('sanctum')->user();
+                activity()->causedBy($admin)->withProperties([
+                    'Process_type' => "Generate QR For Specific Class",
+                    'date' => now()->format('Y-m-h'),
+                ])->log("Generate QR For Specific Class");
                 return HelpersFunctions::success($data, "updating Qr Code For Class  " . $class->name  . " Done ", 200);
             }
         } catch (Exception $e) {
@@ -429,6 +446,24 @@ class AdminProcessController extends Controller
     }
     public function get_last_activity()
     {
-        $this->get_last_activity_for_all();
+        return $this->get_last_activity_for_all();
+    }
+    public function get_reports()
+    {
+        try {
+            $reports = Report::where('term_id', HelpersFunctions::getCurrentTermId())
+                ->get()
+                ->map(function ($report) {
+                    return [
+                        'report_type' => $report->report_type,
+                        'report_url' => $report->report_url = url($report->report_url),
+                        'report_description' => $report->report_description,
+                        'report_date' => $report->report_date
+                    ];
+                });
+            return HelpersFunctions::success($reports, "getting Reports Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("INternal Server Error", 500, $e->getMessage());
+        }
     }
 }

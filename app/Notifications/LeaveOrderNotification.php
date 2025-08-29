@@ -24,7 +24,7 @@ class LeaveOrderNotification extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'Leave Order Notification',
+            'title' => 'Leave Order Notification',
             'leave' =>  $this->leave,
             'user' =>  $this->user
         ];
@@ -32,7 +32,7 @@ class LeaveOrderNotification extends Notification
     public function toBroadcast()
     {
         return [
-            'type' => 'Leave Order Notification',
+            'title' => 'Leave Order Notification',
             'leave' =>  $this->leave,
             'user' =>  $this->user
         ];

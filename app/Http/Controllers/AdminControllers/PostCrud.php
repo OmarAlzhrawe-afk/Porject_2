@@ -51,11 +51,7 @@ class PostCrud extends Controller
                 $post->title = $request->input('title');
                 $post->description = $request->input('description');
                 $post->post_type = $request->input('post_type');
-                if ($request->input('is_public' == 'true')) {
-                    $post->is_public = true;
-                } else {
-                    $post->is_public = false;
-                }
+                $post->is_public = $request->is_public ? true : false;
                 if ($request->hasFile('file_url')) {
                     $file = $request->file('file_url');
                     $file_Name = time() . '_' . $file->getClientOriginalName();
@@ -65,7 +61,7 @@ class PostCrud extends Controller
                 $post->save();
                 // Send notification For all users in System when Add Post Or Update  
                 $users = User::all()->except(['role', 'admin']);
-                Notification::send($users, new PostNotification($post));
+                // Notification::send($users, new PostNotification($post));
                 // Broad Cast
                 event(new PostCreated($post));
                 $user = auth('sanctum')->user();
@@ -119,8 +115,8 @@ class PostCrud extends Controller
                 $post->save();
                 // Send notification For all users in System when Add Post Or Update  
                 $users = User::all()->except(['role', 'admin']);
-                Notification::send($users, new PostNotification($post));
-                // Broad Cast
+                // Notification::send($users, new PostNotification($post));
+                // // Broad Cast
                 event(new Postupdated($post));
 
                 $user = auth('sanctum')->user();

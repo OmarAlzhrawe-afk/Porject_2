@@ -60,15 +60,15 @@ class SupervisorProcessesController extends Controller
     }
     public function leave_demand(Request $request)
     {
-        return   $this->leave_demand_for_all($request);
+        return $this->leave_demand_for_all($request);
     }
     public function surfing_salary()
     {
-        $this->surfing_salary_for_all();
+        return $this->surfing_salary_for_all();
     }
     public function get_last_activity()
     {
-        $this->get_last_activity_for_all();
+        return  $this->get_last_activity_for_all();
     }
     public function Add_Activity(StoreActivityRequest $request)
     {
@@ -153,6 +153,11 @@ class SupervisorProcessesController extends Controller
             event(new AddedActivityEvent($activity));
 
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Adding Activity",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Adding Activity");
             return HelpersFunctions::success($activity, "Activity Add Done", 200);
         } catch (Exception  $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
@@ -262,6 +267,11 @@ class SupervisorProcessesController extends Controller
             event(new updatedActivityEvent($activity));
 
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Editing Activity",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Editing Activity");
             return HelpersFunctions::success($activity, "Activity Add Done", 200);
         } catch (Exception  $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
@@ -275,6 +285,12 @@ class SupervisorProcessesController extends Controller
                 return HelpersFunctions::error("bad Request", 400, "Activity Not Found");
             }
             $activity->delete();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "deleteing Activity",
+                'date' => now()->format('Y-m-h'),
+            ])->log("deleteing Activity");
+
             return HelpersFunctions::success("", "deleting  Activity Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
@@ -290,6 +306,11 @@ class SupervisorProcessesController extends Controller
                 return HelpersFunctions::error("Access Diened", 403, "you dont have permission to update this user ");
             }
             $profile  = Student_profile::create($request->validated());
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Add student profile data",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Add_student_profile_data");
             return HelpersFunctions::success($profile, "Added Student_Profile Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage() . $e->getLine());
@@ -333,6 +354,11 @@ class SupervisorProcessesController extends Controller
                     }
                 }
                 DB::commit();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "Add Daily Absences",
+                    'date' => now()->format('Y-m-h'),
+                ])->log("Add Daily Absences");
                 return HelpersFunctions::success("", "regester Absence Students Done", 200);
             } catch (Exception $e) {
                 return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -360,6 +386,12 @@ class SupervisorProcessesController extends Controller
                         ]
                     ];
                 });
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Show Reports For Students",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Show Reports For Students");
+
             return HelpersFunctions::success($reports, "Getting Students Data Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -497,8 +529,12 @@ class SupervisorProcessesController extends Controller
             $transaction->is_installment = true;
             $transaction->user_id = auth('sanctum')->user()->id;
             $transaction->save();
-
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Pay Installment",
+                'date' => now()->format('Y-m-h'),
+            ])->log("Pay Installment");
             return HelpersFunctions::success("", "pay Installment successfully", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());

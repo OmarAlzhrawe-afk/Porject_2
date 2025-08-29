@@ -38,9 +38,6 @@ class SupervisorAuth extends Controller
                 $code->save();
                 // Send Code To Supervisor Email
                 // Mail::to($request->email)->send(new PasswordCodeMail($code->code));
-                activity()->causedBy($user)->withProperties([
-                    'Process_type' => "Send Login Code",
-                ])->log("Admin Send Login Code");
                 return HelpersFunctions::success("", "Sending Password Code  Successfully ", 201);
             }
         } catch (Exception  $e) {
@@ -74,9 +71,6 @@ class SupervisorAuth extends Controller
             'admin data' =>  $user,
         ];
         //Enrolling Admin Log
-        activity()->causedBy($user)->withProperties([
-            'Process_type' => "Log_In Supervisor",
-        ])->log("Admin Loged In");
         return HelpersFunctions::success($data, " Login Done ", 200);
     }
     public function logout(Request $request)

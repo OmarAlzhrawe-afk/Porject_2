@@ -17,7 +17,10 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('report:library')->monthlyOn(1, '12:00');
-        $schedule->command('EducationLevel:checkFully')->dailyAt('08:00');
+        $schedule->command('report:financial')->monthlyOn(1, '12:00');
+        $schedule->command('report:students')->monthlyOn(1, '12:00');
+        $schedule->command('report:teacher')->monthlyOn(1, '12:00');
+        $schedule->command('educationlevel:checkfully')->dailyAt('08:00');
         $schedule->command('activities:check-seats')->dailyAt('08:00');
         $schedule->command('salaries:generate')->monthlyOn(1, '12:00');
     }

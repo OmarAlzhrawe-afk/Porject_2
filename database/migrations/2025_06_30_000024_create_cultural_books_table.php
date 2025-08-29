@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('author', 50);
             $table->string('publisher', 50);
             $table->date('publication_year');
-            $table->enum('type', array('Paper', 'electronic', 'audio'));
+            $table->enum('type', array('paper', 'pdf', 'audio'));
             $table->text('format_url')->nullable();
             $table->integer('copies_available')->nullable();
             $table->decimal('avg_student_rating')->default(0);

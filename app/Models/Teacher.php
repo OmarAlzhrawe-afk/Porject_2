@@ -45,7 +45,6 @@ class Teacher extends Model
 	{
 		return $this->belongsTo(User::class, 'user_id');
 	}
-
 	public function subject()
 	{
 		return $this->belongsTo(Subject::class);

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('term_id');
 
-            $table->enum('report_type', ['library']);
+            $table->enum('report_type', ['library', 'teachers', 'students', 'financial_transactions']);
             $table->longText('report_url');
             $table->text('report_description')->nullable();
             $table->text('report_date');

@@ -45,15 +45,15 @@ class LibrarianProcessController extends Controller
     use SharedFunctionTrait;
     public function leave_demand(Request $request)
     {
-        $this->leave_demand_for_all($request);
+        return  $this->leave_demand_for_all($request);
     }
     public function get_last_activity()
     {
-        $this->get_last_activity_for_all();
+        return $this->get_last_activity_for_all();
     }
     public function surfing_salary()
     {
-        $this->surfing_salary_for_all();
+        return  $this->surfing_salary_for_all();
     }
     // CRUD Textual_Books
     public function Add_Textual_book(Request $request)
@@ -89,6 +89,11 @@ class LibrarianProcessController extends Controller
             $new_text_book->save();
             event(new BookAdded($new_text_book, "textual"));
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Adding Textual Book",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Adding Textual Book");
             return  HelpersFunctions::success($new_text_book, "Adding Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -116,6 +121,12 @@ class LibrarianProcessController extends Controller
             $exist_book->save();
             event(new BookUpdate($exist_book, "textual"));
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Editing Textual Book",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Editing Textual Book");
+
             return  HelpersFunctions::success(null, "edit Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -134,11 +145,16 @@ class LibrarianProcessController extends Controller
     {
 
         try {
-            $text_book = Text_book::findOrfail($id);
+            $text_book = Text_book::find($id);
             if ($text_book) {
                 $text_book->delete();
                 event(new BookDelete($text_book->id, "textual"));
-                return HelpersFunctions::success(null, "Deleting Done", "Book Not Found");
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "deleting Textual Book",
+                    'date' => now()->format('Y-m-d'),
+                ])->log("deleting Textual Book");
+                return HelpersFunctions::success(null, "Deleting Done", 200);
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -158,7 +174,7 @@ class LibrarianProcessController extends Controller
                 'description' => 'required|string',
                 'publisher' => 'required|string|max:50',
                 'publication_year' => 'required|date',
-                'type' => 'required|in:Paper,electronic,audio',
+                'type' => 'required|in:paper,pdf,audio',
                 'file' => 'nullable|file|mimes:pdf,mp4,mov,avi,wmv,mkv|max:102400',
                 'copies_available' => 'nullable|integer',
             ]);
@@ -197,6 +213,12 @@ class LibrarianProcessController extends Controller
             $newbook->save();
             event(new BookAdded($newbook, "cultural"));
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Adding Cultural Book",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Adding Cultural");
+
             return  HelpersFunctions::success(null, "Adding Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -225,6 +247,13 @@ class LibrarianProcessController extends Controller
             $exist_book->save();
             event(new BookUpdate($exist_book, "cultural"));
             DB::commit();
+
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Editing Cultural Book",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Editing Cultural Book");
+
             return  HelpersFunctions::success(null, "edit Book Done", 200);
         } catch (Exception $e) {
             return     HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -248,6 +277,11 @@ class LibrarianProcessController extends Controller
             if ($text_book) {
                 $text_book->delete();
                 event(new BookDelete($text_book->id, "cultural"));
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "deleting Cultural Book",
+                    'date' => now()->format('Y-m-d'),
+                ])->log("deleting Cultural Book");
             } else {
                 return HelpersFunctions::error("Invalid Book ", 400, "Book Not Found");
             }
@@ -262,14 +296,19 @@ class LibrarianProcessController extends Controller
             DB::beginTransaction();
             $validator = Validator::make($request->all(), [
                 'book_id' => 'required|exists:cultural_books,id',
-                'user_id' => 'required|exists:users,id',
+                'user_id' => 'required|exists:students,Student_number',
                 'type' => 'required|in:monthly,weekly'
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
             $book_loan = new Book_loan();
-            $book_loan->user_id = $request->input('user_id');
+            $student = Student::where('Student_number', $request->user_id)->first();
+            if (!$student) {
+                return HelpersFunctions::error("Bad Request", 400, "Student not found");
+            }
+            $user = User::find($student->user_id);
+            $book_loan->user_id = $user->id;
             $book_loan->cultural_book_id = $request->input('book_id');
             $book_loan->type = $request->input('type');
             $book_loan->save();
@@ -290,6 +329,11 @@ class LibrarianProcessController extends Controller
             $book->save();
             event(new BookUpdate($book, "cultural"));
             DB::commit();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Making Book Loan",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Making Book Loan");
             return HelpersFunctions::success(null, "Book Loan Register Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -303,14 +347,13 @@ class LibrarianProcessController extends Controller
             // Validate Data
             $validator = Validator::make($request->all(), [
                 'textbook_id' => 'required|exists:text_books,id',
-                'student_id' => 'required|exists:students,id',
+                'student_id' => 'required|exists:students,Student_number',
                 'quantity' => 'required|integer'
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
             // Fetch Book & Validate It  
-            // 'student_id', 'textbook_id', 'sale_date', 'quantity', 'total_price'
             $text_book = Text_book::find($request->input('textbook_id'));
             if ($text_book->available_quantity == 0) {
                 return HelpersFunctions::success("Quantity Finished", 400, "sorry you can not perform this Sale because the quantity is finished");
@@ -318,7 +361,9 @@ class LibrarianProcessController extends Controller
 
             // create &  save sales book data and Book update data and send Events with data
             $book_sale = new Student_textbook_sale();
-            $book_sale->student_id = $request->input('student_id');
+            $student = Student::where('Student_number', $request->student_id)->first();
+
+            $book_sale->student_id = $student->id;
             $book_sale->textbook_id = $request->input('textbook_id');
             $book_sale->sale_date = now();
             $book_sale->quantity = $request->input('quantity');
@@ -326,7 +371,7 @@ class LibrarianProcessController extends Controller
             $book_sale->save();
             event(new BookSaleEvent($book_sale));
             $text_book->available_quantity = $text_book->available_quantity - $book_sale->quantity;
-            $text_book->sold_quantity = $text_book->sold_quantity + $book_sale->sold_quantity;
+            $text_book->sold_quantity = $text_book->sold_quantity + $book_sale->quantity;
             $text_book->save();
             // Send Event with Book updated 
             event(new BookUpdate($text_book, "textual"));
@@ -344,14 +389,20 @@ class LibrarianProcessController extends Controller
             $message = "your son puy new book from shcoole with price : " . $book_sale->total_price;
             $parent_student->notify(new NewBookSale($message));
             DB::commit();
-            return HelpersFunctions::success(null, "Book Loan Register Done ", 200);
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Making Book Buy",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Making Book Buy");
+
+            return HelpersFunctions::success(null, "Book Buy Done ", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
     }
     public function Verify_Qr_Code(Request $request)
     {
-        $this->verifyQrCodeRequest($request, 'employee');
+        return $this->verifyQrCodeRequest($request, 'employee');
     }
     public function get_students()
     {
@@ -436,6 +487,10 @@ class LibrarianProcessController extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, "Wrong User Or Book I dont Have Loan For This ");
             }
+            $book = Cultural_book::find($request->book_id);
+            if ($book->type != "Paper") {
+                return HelpersFunctions::error("Bad Book", 400, "The Book You Are Entered Is not In Paper Formating");
+            }
             $loan = Book_loan::where([
                 'user_id' => $request->user_id,
                 'cultural_book_id' => $request->cultural_book_id,
@@ -447,6 +502,12 @@ class LibrarianProcessController extends Controller
             $cultural_book->copies_available = $cultural_book->copies_available + 1;
             $cultural_book->save();
             event(new BookUpdate($cultural_book, "cultural"));
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Making Book Return",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Making Book Return");
+
             return HelpersFunctions::success($loan, 'Getting Loans Done', 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -525,21 +586,24 @@ class LibrarianProcessController extends Controller
                     return Carbon::parse($report->report_date)->format('Y-m');
                 });
 
-            // ❺ إعادة تنسيق البيانات لتكون على شكل: شهر => مجموعة تقارير
             $formatted = $reports->map(function ($items, $month) {
                 return [
-                    'month' => $month, // ❻ مفتاح المجموعة (مثلاً "2025-07")
+                    'month' => $month,
                     'reports' => $items->map(function ($report) {
-                        // ❼ لكل تقرير، أعدّ مصفوفة تحتوي التفاصيل التالية:
                         return [
-                            'id' => $report->id, // رقم التقرير
-                            'url' => url($report->report_url), // تحويل المسار النسبي إلى رابط كامل
-                            'description' => $report->report_description, // وصف التقرير (إن وُجد)
-                            'report_type' => $report->report_type // تحويل التاريخ إلى نص قابل للعرض
+                            'id' => $report->id,
+                            'url' => url($report->report_url),
+                            'description' => $report->report_description,
+                            'report_type' => $report->report_type
                         ];
-                    })->values() // ❽ إعادة ترتيب عناصر المجموعة (حتى نزيل المفاتيح التلقائية)
+                    })->values()
                 ];
             })->values();
+            $user = auth('sanctum')->user();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Getting Library Report",
+                'date' => now()->format('Y-m-d'),
+            ])->log("Getting Library Report");
             return HelpersFunctions::success($formatted, "Getting Reports Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -567,12 +631,13 @@ class LibrarianProcessController extends Controller
                 [
                     'role' => ['student', 'teacher']
                 ]
-            )->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'Name' => $user->name,
-                ];
-            })->get();
+            )->get()
+                ->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'Name' => $user->name,
+                    ];
+                });
             $data = [
                 'users' => $users,
             ];
