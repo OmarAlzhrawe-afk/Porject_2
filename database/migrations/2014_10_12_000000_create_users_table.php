@@ -18,7 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50);
             $table->string('email', 100);
-            $table->string('password', 50)->nullable();
+            $table->text('password', 50)->nullable();
             $table->enum('role', array('admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'));
             $table->date('hire_date')->nullable();
             $table->longText('ID_documents')->nullable();

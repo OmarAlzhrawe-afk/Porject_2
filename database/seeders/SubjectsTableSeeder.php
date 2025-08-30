@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\Subject;
 use Illuminate\Database\Seeder;
 
 class SubjectsTableSeeder extends Seeder
@@ -15,6 +14,28 @@ class SubjectsTableSeeder extends Seeder
      */
     public function run()
     {
-        Subject::factory()->count(10)->create();
+        
+
+        \DB::table('subjects')->delete();
+        
+        \DB::table('subjects')->insert(array (
+            0 => 
+            array (
+                'id' => 1,
+                'name' => 'math',
+            ),
+            1 => 
+            array (
+                'id' => 2,
+                'name' => 'scince',
+            ),
+            2 => 
+            array (
+                'id' => 3,
+                'name' => 'physics',
+            ),
+        ));
+        
+        
     }
 }

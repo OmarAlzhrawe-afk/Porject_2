@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class UsersTableSeeder extends Seeder
 {
@@ -15,23 +15,277 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        User::factory(1)->admin()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
-        User::factory(200)->student()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
-        User::factory(10)->teacher()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
-        User::factory(5)->supervisor()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
-        User::factory(200)->parent()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
-        User::factory(1)->librarian()->create()->each(function ($user) {
-            $user->createToken('faker-token');
-        });
+
+
+        // \DB::table('users')->delete();
+
+        DB::table('users')->insert(array(
+            0 =>
+            array(
+                'id' => 1,
+                'name' => 'System Admin',
+                'email' => 'admin@school.com',
+                'password' => '$2y$10$0bndUYNxao6nNTB.j4o5eOwzVLvq1r6g9YS76r8djboM0i8lzzV3q',
+                'role' => 'admin',
+                'hire_date' => NULL,
+                'ID_documents' => NULL,
+                'phone_number' => '123456789',
+                'salary' => NULL,
+                'birth_date' => NULL,
+                'gender' => NULL,
+                'email_verified_at' => NULL,
+                'address' => 'Head Office',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:27:51',
+                'updated_at' => '2025-08-30 19:27:51',
+            ),
+            1 =>
+            array(
+                'id' => 2,
+                'name' => 'supervisor1',
+                'email' => 'supervisor1@gmail.com',
+                'password' => NULL,
+                'role' => 'supervisor',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/2\\/17565714020_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/2\\/17565714021_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/2\\/17565714022_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => 2000,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:30:02',
+                'updated_at' => '2025-08-30 19:30:02',
+            ),
+            2 =>
+            array(
+                'id' => 3,
+                'name' => 'parent1',
+                'email' => 'parent1@gmail.com',
+                'password' => NULL,
+                'role' => 'parent',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/3\\/17565717900_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/3\\/17565717901_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/3\\/17565717902_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:36:30',
+                'updated_at' => '2025-08-30 19:36:30',
+            ),
+            3 =>
+            array(
+                'id' => 4,
+                'name' => 'student1',
+                'email' => 'student1@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/4\\/17565720450_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/4\\/17565720451_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/4\\/17565720452_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:40:45',
+                'updated_at' => '2025-08-30 19:40:45',
+            ),
+            4 =>
+            array(
+                'id' => 5,
+                'name' => 'student2',
+                'email' => 'student2@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/5\\/17565720610_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/5\\/17565720611_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/5\\/17565720612_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:41:01',
+                'updated_at' => '2025-08-30 19:41:01',
+            ),
+            5 =>
+            array(
+                'id' => 6,
+                'name' => 'student3',
+                'email' => 'student3@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/6\\/17565720710_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/6\\/17565720711_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/6\\/17565720712_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:41:11',
+                'updated_at' => '2025-08-30 19:41:11',
+            ),
+            6 =>
+            array(
+                'id' => 7,
+                'name' => 'student4',
+                'email' => 'student4@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/7\\/17565720820_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/7\\/17565720821_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/7\\/17565720822_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:41:22',
+                'updated_at' => '2025-08-30 19:41:22',
+            ),
+            7 =>
+            array(
+                'id' => 8,
+                'name' => 'student5',
+                'email' => 'student5@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/8\\/17565720920_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/8\\/17565720921_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/8\\/17565720922_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:41:32',
+                'updated_at' => '2025-08-30 19:41:32',
+            ),
+            8 =>
+            array(
+                'id' => 9,
+                'name' => 'student6',
+                'email' => 'student6@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/9\\/17565721010_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/9\\/17565721011_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/9\\/17565721012_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:41:41',
+                'updated_at' => '2025-08-30 19:41:41',
+            ),
+            9 =>
+            array(
+                'id' => 10,
+                'name' => 'student7',
+                'email' => 'student7@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/10\\/17565721260_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/10\\/17565721261_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/10\\/17565721262_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:42:06',
+                'updated_at' => '2025-08-30 19:42:06',
+            ),
+            10 =>
+            array(
+                'id' => 11,
+                'name' => 'student8',
+                'email' => 'student8@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/11\\/17565721330_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/11\\/17565721331_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/11\\/17565721332_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:42:13',
+                'updated_at' => '2025-08-30 19:42:13',
+            ),
+            11 =>
+            array(
+                'id' => 12,
+                'name' => 'student9',
+                'email' => 'student9@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/12\\/17565721420_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/12\\/17565721421_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/12\\/17565721422_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:42:22',
+                'updated_at' => '2025-08-30 19:42:22',
+            ),
+            12 =>
+            array(
+                'id' => 13,
+                'name' => 'student10',
+                'email' => 'student10@gmail.com',
+                'password' => NULL,
+                'role' => 'student',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/13\\/17565721550_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/13\\/17565721551_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/13\\/17565721552_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => NULL,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:42:35',
+                'updated_at' => '2025-08-30 19:42:35',
+            ),
+            13 =>
+            array(
+                'id' => 14,
+                'name' => 'librarianbase',
+                'email' => 'librarianbase@gmail.com',
+                'password' => NULL,
+                'role' => 'librarian',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/14\\/17565721640_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/14\\/17565721641_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/14\\/17565721642_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => 2000,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 19:42:44',
+                'updated_at' => '2025-08-30 19:42:44',
+            ),
+        ));
     }
 }

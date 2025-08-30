@@ -10,6 +10,7 @@ use App\Models\Login_code;
 use App\Models\User;
 use Exception;
 use Faker\Extension\Helper;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
@@ -35,7 +36,7 @@ class AdminAuth extends Controller
             return HelpersFunctions::error('Failed Login Invalid Data', 400, 'You Do Not Have Permission To Login As Admin Please Login As ' . $user->role);
         }
         // Verify The Password Admin
-        if ($user->password != $request->input('password')) {
+        if (!Hash::check($request->input('password'), $user->password)) {
             return HelpersFunctions::error('Failed Login Invalid Data', 400, 'Your Password Is Incorrect');
         } else {
             $token = $user->createToken($user->name)->plainTextToken;

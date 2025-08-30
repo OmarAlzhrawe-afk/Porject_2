@@ -50,15 +50,64 @@ class TeacherProcessController extends Controller
     {
         try {
             $teacher = auth('sanctum')->user()->teacher;
-            $class_sessions = Class_session::where('teacher_id', $teacher->id)
-                ->with('class.students.profile')
-                ->with('class.students.user')
-                ->get();
-            $students = $class_sessions->pluck('class.students')
-                ->flatten()
+            $class_ids = Class_session::where('teacher_id', $teacher->id)
+                ->pluck('class_room_id')
+                ->unique();
+            $students = Student::whereIn('class_id', $class_ids)
+                ->with([
+                    'profile',
+                    'marks' => function ($query) use ($teacher) {
+                        $query->where('teacher_id', $teacher->id);
+                    },
+                    'user',
+                    'class',
+                    'intstallments',
+                ])
+                ->get()
                 ->unique('id')
                 ->values();
-            return HelpersFunctions::success($students, "Getting Students Done", 200);
+            $result = $students->map(function ($student) use ($teacher) {
+                $profile = $student->profile;
+                $feedbacks = $profile?->teacher_feedback ?? [];
+                $teacherNote = $feedbacks[$teacher->user->name] ?? null;
+                return [
+                    // User Data
+                    'student_number' => $student->student_number,
+                    'student_name'   => $student->user?->name,
+                    'phone_number'   => $student->user?->phone_number,
+                    'class_name'     => $student->class?->name,
+                    // Installment data
+                    'installment_total_amount'  => $student->installment_total_amount,
+                    'installment_count'         => $student->installment_count,
+                    'installment_interval_days' => $student->installment_interval_days,
+                    'status'                    => $student->status,
+                    // Profile data
+                    'total_absences'   => $profile?->total_absences,
+                    'behavior_notes'   => $profile?->behavior_notes,
+                    'health_notes'     => $profile?->health_notes,
+                    'interests'        => $profile?->interests,
+                    'guardian_feedback' => $profile?->guardian_feedback,
+                    'teacher_feedback' => $teacherNote,
+                    // marks Data
+                    'marks' => $student->marks->map(function ($mark) {
+                        return [
+                            'exam_type' => $mark->exam_type,
+                            'score'     => $mark->score,
+                            'max_score' => $mark->max_score,
+                            'date'      => $mark->date,
+                        ];
+                    }),
+                ];
+            });
+            // $class_sessions = Class_session::where('teacher_id', $teacher->id)
+            //     ->with('class.students.profile')
+            //     ->with('class.students.user')
+            //     ->get();
+            // $students = $class_sessions->pluck('class.students')
+            //     ->flatten()
+            //     ->unique('id')
+            // ->values();
+            return HelpersFunctions::success($result, "Getting Students Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN  : " . $e->getLine(), 500, $e->getMessage());
         }
@@ -188,6 +237,26 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
+    public function view_my_education_content()
+    {
+        try {
+            $user = auth('sanctum')->user();
+            $education_contents = Education_content::where('teacher_id', $user->teacher->id)->get()->map(function ($education_content) use ($user) {
+                return [
+                    'teacher_name' => $user->name,
+                    'class_name' => Class_room::where('id', $education_content->class_id)->pluck('name')->first(),
+                    'title' => $education_content?->title,
+                    'description' => $education_content?->description,
+                    'content_type' => $education_content->content_type,
+                    'date' => $education_content->created_at->format('Y-m-d'),
+                    'file_url' => url($education_content?->file_url)
+                ];
+            });
+            return HelpersFunctions::success($education_contents, "Getting Salary Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+        }
+    }
     public function enter_marks(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -220,7 +289,7 @@ class TeacherProcessController extends Controller
                 ->user;
             $user->notify(new MarkNotification($mark));
             DB::commit();
-            return HelpersFunctions::success($mark, "Getting Salary Done", 200);
+            return HelpersFunctions::success($mark, "Enterring Mark Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }
@@ -239,7 +308,6 @@ class TeacherProcessController extends Controller
             $user =  User::find(auth('sanctum')->user()->id);
             $student_profile = Student_profile::where('student_id', $request->student_id)->first();
             $feedback = $student_profile->teacher_feedback ?? [];
-
             $feedback[$user->name][] = $request->teacher_feedback;
             $student_profile->teacher_feedback = $feedback;
 

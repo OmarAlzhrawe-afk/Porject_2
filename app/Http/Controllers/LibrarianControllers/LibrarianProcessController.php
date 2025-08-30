@@ -40,6 +40,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\SharedFunctionTrait;
 use Dompdf\Helpers;
 
+use function PHPUnit\Framework\isEmpty;
+
 class LibrarianProcessController extends Controller
 {
     use SharedFunctionTrait;
@@ -175,7 +177,7 @@ class LibrarianProcessController extends Controller
                 'publisher' => 'required|string|max:50',
                 'publication_year' => 'required|digits:4|integer|min:1500|max:' . date('Y'),
                 'type' => 'required|in:paper,pdf,audio',
-                'file' => 'nullable|file|mimes:pdf,mp4,mov,avi,wmv,mkv|max:102400',
+                'file' => 'nullable|file|mimes:pdf,mp4,mp3,mov,avi,wmv,mkv|max:102400',
                 'copies_available' => 'nullable|integer',
             ]);
             if ($validator->fails()) {
@@ -302,12 +304,21 @@ class LibrarianProcessController extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
-            $book_loan = new Book_loan();
             $student = Student::where('Student_number', $request->user_id)->first();
+            $user = User::find($student->user_id);
+
+            // Validate If Student Have Been Loan This Book In Last And Dont Return It Yet ]
+            $last_loan = Book_loan::where([
+                'user_id' => $user->id,
+                'cultural_book_id' => $request->input('book_id'),
+            ])->first();
+            if ($last_loan != null) {
+                return HelpersFunctions::success(null, "You Have Been Loan This Book And Dont Return It yet", 200);
+            }
+            $book_loan = new Book_loan();
             if (!$student) {
                 return HelpersFunctions::error("Bad Request", 400, "Student not found");
             }
-            $user = User::find($student->user_id);
             $book_loan->user_id = $user->id;
             $book_loan->cultural_book_id = $request->input('book_id');
             $book_loan->type = $request->input('type');
@@ -489,7 +500,7 @@ class LibrarianProcessController extends Controller
                 return HelpersFunctions::error("Bad Request", 400, "Wrong User Or Book I dont Have Loan For This ");
             }
             $book = Cultural_book::find($request->book_id);
-            if ($book->type != "Paper") {
+            if ($book->type != "paper") {
                 return HelpersFunctions::error("Bad Book", 400, "The Book You Are Entered Is not In Paper Formating");
             }
             $student = Student::where('Student_number', $request->user_id)->first();
@@ -529,7 +540,7 @@ class LibrarianProcessController extends Controller
                 'user_id' => 'required|exists:students,Student_number'
             ]);
             if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", 400, $validator->fails());
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
             $student = Student::where('Student_number', $request->user_id)->first();
             $user = User::find($student->user_id);

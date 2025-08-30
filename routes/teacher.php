@@ -12,6 +12,7 @@ Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sa
     Route::get('/surfing_salary', [TeacherProcessController::class, 'surfing_salary']);
     Route::get('/view_schedul_table', [TeacherProcessController::class, 'view_schedul_table']);
     Route::post('/enter_education_content', [TeacherProcessController::class, 'enter_education_content']);
+    Route::get('/view_my_education_content', [TeacherProcessController::class, 'view_my_education_content']);
     //  WE will add dont add mark if it exist in same type and same year
     Route::post('/enter_marks', [TeacherProcessController::class, 'enter_marks']);
     // we will test add nots for more than one teacher 

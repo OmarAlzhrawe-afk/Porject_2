@@ -20,7 +20,8 @@ class Education_content extends Model
 		'title',
 		'description',
 		'content_type',
-		'file_url'
+		'file_url',
+		'created_at'
 	);
 
 	protected static function newFactory()

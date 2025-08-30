@@ -151,7 +151,7 @@ class ManageUsers extends Controller
                         return HelpersFunctions::error("Bad Request Invalid data", 400, $validatorstudent->errors());
                     } else {
                         $class = Class_room::findOrFail($request->class_id);
-                        if ($class->current_count < $class->capacity) {
+                        if ($class->current_count < $class->capacity && $class->education_level->installment_plans->contains('id', $request->plan_id)) {
                             //  Store Student Data
                             $student = new Student();
                             $student->user_id = $user->id;
@@ -174,7 +174,7 @@ class ManageUsers extends Controller
                                 $installment_payment->save();
                             }
                         } else {
-                            return HelpersFunctions::error("Sorry Class Is Fully", 200, "");
+                            return HelpersFunctions::error("Sorry Class Is Fully Or Education Level Dont Have This Plne Installment", 200, "");
                         }
                     }
                 }

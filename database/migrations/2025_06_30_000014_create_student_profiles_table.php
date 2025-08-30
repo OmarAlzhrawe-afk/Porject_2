@@ -23,13 +23,12 @@ return new class extends Migration
 			$table->json('achievements')->nullable();
 			$table->text('guardian_feedback')->nullable();
 			$table->text('teacher_feedback')->nullable();
+			$table->json('skills')->nullable();
 			$table->foreign('student_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
 			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
-			$table->json('skills')->nullable();
 			$table->timestamps();
 		});
 	}
-
 	public function down()
 	{
 		Schema::drop('student_profiles');

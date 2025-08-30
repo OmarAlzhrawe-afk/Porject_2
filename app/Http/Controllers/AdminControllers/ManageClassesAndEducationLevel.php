@@ -34,6 +34,8 @@ use Illuminate\Support\Facades\Notification as FacadesNotification;
 use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity as ActivityLogs;
 
+use function PHPUnit\Framework\isEmpty;
+
 class ManageClassesAndEducationLevel extends Controller
 {
     public function store_academic_year(Request $request)
@@ -200,7 +202,11 @@ class ManageClassesAndEducationLevel extends Controller
     public function get_education_level_data($id)
     {
 
-        $el = Education_level::findOrFail($id);
+        $el = Education_level::find($id);
+        // dd($el);
+        if (isEmpty($el)) {
+            return HelpersFunctions::success(null, "The Selected Education Level Not Found", 200);
+        }
         $subjects = $el->subjects;
         $Regesterations = $el->Regesterations;
         $classes = Class_room::where('education_level_id', $id)->get();
@@ -437,7 +443,8 @@ class ManageClassesAndEducationLevel extends Controller
                 foreach ($teacher_sessions as $session) {
                     if (
                         $session->session_day === $request->input('day') &&
-                        $session->start_time == Carbon::parse($request->input('start_time'))->format('H:i:s')
+                        Carbon::parse($request->input('start_time'))->lt(Carbon::parse($session->end_time)) &&
+                        Carbon::parse($request->input('end_time'))->gt(Carbon::parse($session->start_time)) //->format('H:i:s')
                     ) {
                         $teacher_Av = false;
                         break;
@@ -450,7 +457,8 @@ class ManageClassesAndEducationLevel extends Controller
                 foreach ($class_sessions as $session) {
                     if (
                         $session->session_day ==  $request->input('day') &&
-                        $session->start_time == Carbon::parse($request->input('start_time'))->format('H:i:s')
+                        Carbon::parse($request->input('start_time'))->lt(Carbon::parse($session->end_time)) &&
+                        Carbon::parse($request->input('end_time'))->gt(Carbon::parse($session->start_time))
                     ) {
                         $class_Av = false;
                         break;

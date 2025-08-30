@@ -75,7 +75,7 @@ class GenerateLibraryReport extends Command
         $report->report_type = 'library';
         $report->term_id = HelpersFunctions::getCurrentTermId();
         $report->report_url = $relativeUrl;
-        $report->report_description = "Library Report For Year : " . now()->year() . " Month :  " . now()->month();
+        $report->report_description = "Library Report For Year \n: " . now()->format('Y') . " Month : " . now()->format('m');
         $report->report_date = now()->format('Y-m'); // 'F Y'
         $report->save();
         // $mpdf->move(public_path('uploads/reprts/libraryreports'), $filename);
