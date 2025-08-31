@@ -18,6 +18,8 @@ Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sa
     // we will test add nots for more than one teacher 
     Route::post('/add_nots_for_student', [TeacherProcessController::class, 'add_nots_for_student']);
     Route::post('/add_homework', [TeacherProcessController::class, 'add_homework']);
+    Route::post('/get_homeworks_solvings', [TeacherProcessController::class, 'get_homeworks_solvings']);
+    Route::post('/solve_homework', [TeacherProcessController::class, 'solve_homework']);
     // Here we will add prevent to add more tahn one demand in same date or prevent conflicts for leaves demand in date     
     Route::post('/leave_demand', [TeacherProcessController::class, 'leave_demand']);
     // Here We wil add correct solution And pass Notification to student for it & edit solving table for that 

@@ -17,7 +17,8 @@ class Staff_attendance extends Model
 		'QR_id',
 		'user_id',
 		'Attendance_status',
-		'nots'
+		'nots',
+		'created_at'
 	);
 	protected static function newFactory()
 	{

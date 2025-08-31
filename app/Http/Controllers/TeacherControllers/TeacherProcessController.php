@@ -118,7 +118,62 @@ class TeacherProcessController extends Controller
     }
     public function verify_attendance_for_session(Request $request)
     {
-        $this->verifyQrCodeRequest($request, 'teacher');
+        $validator = Validator::make($request->all(), [
+            'unique_code' => 'required|exists:qr_codes,Unique_code',
+            'class_id' => 'required|exists:class_rooms,id',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+        }
+        $qr = Qr_Code::where([
+            'Unique_code' => $request->input('unique_code'),
+            'Code_type' => 'teacher',
+        ])->first();
+        if ($qr->expires_at < Carbon::now()) {
+            return HelpersFunctions::error("Sorry Qr Code Is Expired", 400, "Qr that you Entered is Expired");
+        } else {
+            // Fetching Session data 
+            $teacher = auth('sanctum')->user()->teacher;
+            $sessions = $teacher->sessions;
+            // processing logical  validation for teacher session 
+            // condition 1 : if teacher have session in this day 
+            // condition 2 : if class Id For Session is Equal to Class Id That Entered With Qr Code   
+            // condition 3 : if Start Time Of Session Is Equal To Now Time Or less it 10 minutes
+            $dayName = Carbon::now()->format('l');
+            $timeNow = Carbon::now();
+            $have_session = false;
+            foreach ($sessions as $session) {
+                $sessionStartTime = Carbon::createFromFormat('H:i:s', $session->start_time);
+                if (
+                    $session->session_day == $dayName &&
+                    $session->class_room_id == $request->class_id &&
+                    $timeNow->between($sessionStartTime, $sessionStartTime->copy()->addMinutes(10))
+                ) {
+                    $have_session = true;
+                } else {
+                    continue;
+                }
+            }
+            // If Validation True Register Attendance For Teacher
+            if ($have_session) {
+                DB::beginTransaction();
+                $emloyee_attendance = new  Staff_attendance();
+                $emloyee_attendance->QR_id = $qr->id;
+                $emloyee_attendance->user_id = auth('sanctum')->user()->id;
+                $emloyee_attendance->Attendance_status = 'present';
+                $emloyee_attendance->nots = null;
+                $emloyee_attendance->save();
+                DB::commit();
+                $user = auth('sanctum')->user();
+                activity()->causedBy($user)->withProperties([
+                    'Process_type' => "making Scan For My Attendance",
+                    'date' => now()->format('Y-m-h'),
+                ])->log("making Scan For My Attendance");
+                return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
+            } else {
+                return HelpersFunctions::success("", "Oooh You Are wrong Our teacher Today IS your Holiday Or You are Too late to the session  ", 200);
+            }
+        }
     }
     public function surfing_available_activity()
     {
@@ -202,7 +257,7 @@ class TeacherProcessController extends Controller
             'title' => 'nullable|string|max:50',
             'description' => 'nullable|string|max:2048',
             'content_type' => 'required|in:video,pdf,link,image,text,quiz',
-            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,mp4',
+            'file' => 'nullable|file|mimes:jpg,jpeg,png,pdf,mp4|max:20480',
         ]);
         if ($validator->fails()) {
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
@@ -306,12 +361,17 @@ class TeacherProcessController extends Controller
         }
         try {
             $user =  User::find(auth('sanctum')->user()->id);
-            $student_profile = Student_profile::where('student_id', $request->student_id)->first();
+            $education_level_id = Student::find($request->student_id)->class->education_level->id;
+            $student_profile = Student_profile::firstOrCreate(
+                ['student_id' => $request->student_id],
+                [
+                    'teacher_feedback' => [],
+                    'education_level_id' => $education_level_id,
+                ]
+            );
             $feedback = $student_profile->teacher_feedback ?? [];
             $feedback[$user->name][] = $request->teacher_feedback;
             $student_profile->teacher_feedback = $feedback;
-
-
             $student_profile->save();
             // Broadcast Event
             event(new StudentProfileUpdatedEvent($student_profile));
@@ -354,6 +414,51 @@ class TeacherProcessController extends Controller
             Notification::send($users, new HomeworkAddedNotification($homwork));
             DB::commit();
             return HelpersFunctions::success("", "adding Home work Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function get_homeworks_solvings(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            '   ' => 'required|exists:home_works,id',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+        }
+        try {
+
+            $homeworks = Homeworksolving::where([
+                'homework_id' => $request->homework_id,
+                'solved' => false
+            ])
+                ->get()
+                ->map(function ($homwork) {
+                    return [
+                        'student_id' => Student::find($homwork->student_id),
+                        'solve_url' => url($homwork->solve_url),
+                    ];
+                });
+            return HelpersFunctions::success($homeworks, "Getting Homeworks Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function solve_homework(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'homework_solving_id' => 'required|exists:homework_solvings,id',
+            'nots' => 'nullable|string',
+        ]);
+        if ($validator->fails()) {
+            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+        }
+        try {
+            $homework_solving = Homeworksolving::find($request->homework_solving_id);
+            $homework_solving->nots = $request->nots ?? null;
+            $homework_solving->solved = true;
+            $homework_solving->save();
+            return HelpersFunctions::success("", "Solving Homework Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }

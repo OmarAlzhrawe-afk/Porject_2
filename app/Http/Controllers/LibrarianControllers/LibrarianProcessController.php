@@ -447,6 +447,7 @@ class LibrarianProcessController extends Controller
                     'user_data' => [
                         'id' => $loan->user->id,
                         'name' => $loan->user->name,
+                        'Student_number' => $loan->user->student->Student_number,
                         'role' => $loan->user->role,
                     ],
                     'book_data' => [
@@ -490,7 +491,6 @@ class LibrarianProcessController extends Controller
     }
     public function return_book(Request $request)
     {
-
         try {
             $validator = Validator::make($request->all(), [
                 'book_id' => 'required|exists:cultural_books,id',

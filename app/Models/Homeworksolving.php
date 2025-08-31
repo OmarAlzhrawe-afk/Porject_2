@@ -14,7 +14,9 @@ class Homeworksolving extends Model
         'id',
         'homework_id',
         'student_id',
-        'solve_url'
+        'solve_url',
+        'solved',
+        'nots'
 
     );
     protected static function newFactory()

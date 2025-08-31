@@ -47,7 +47,11 @@ class DatabaseSeeder extends Seeder
         // $roles = ['admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'];
         // foreach ($roles as $role) {
         //     Role::firstOrCreate(['name' => $role]);
-        // }
+        //     $this->call(EducationContentsTableSeeder::class);
+        $this->call(ClassSessionsTableSeeder::class);
+        $this->call(MarksTableSeeder::class);
+        $this->call(StudentProfilesTableSeeder::class);
+    }
         // $user = User::create([
         //     'name' => 'System Admin',
         //     'email' => 'admin@school.com',

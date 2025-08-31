@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class UsersTableSeeder extends Seeder
 {
@@ -15,13 +14,13 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
+        
 
-
-        // \DB::table('users')->delete();
-
-        DB::table('users')->insert(array(
-            0 =>
-            array(
+        \DB::table('users')->delete();
+        
+        \DB::table('users')->insert(array (
+            0 => 
+            array (
                 'id' => 1,
                 'name' => 'System Admin',
                 'email' => 'admin@school.com',
@@ -39,8 +38,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:27:51',
                 'updated_at' => '2025-08-30 19:27:51',
             ),
-            1 =>
-            array(
+            1 => 
+            array (
                 'id' => 2,
                 'name' => 'supervisor1',
                 'email' => 'supervisor1@gmail.com',
@@ -58,8 +57,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:30:02',
                 'updated_at' => '2025-08-30 19:30:02',
             ),
-            2 =>
-            array(
+            2 => 
+            array (
                 'id' => 3,
                 'name' => 'parent1',
                 'email' => 'parent1@gmail.com',
@@ -77,8 +76,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:36:30',
                 'updated_at' => '2025-08-30 19:36:30',
             ),
-            3 =>
-            array(
+            3 => 
+            array (
                 'id' => 4,
                 'name' => 'student1',
                 'email' => 'student1@gmail.com',
@@ -96,8 +95,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:40:45',
                 'updated_at' => '2025-08-30 19:40:45',
             ),
-            4 =>
-            array(
+            4 => 
+            array (
                 'id' => 5,
                 'name' => 'student2',
                 'email' => 'student2@gmail.com',
@@ -115,8 +114,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:41:01',
                 'updated_at' => '2025-08-30 19:41:01',
             ),
-            5 =>
-            array(
+            5 => 
+            array (
                 'id' => 6,
                 'name' => 'student3',
                 'email' => 'student3@gmail.com',
@@ -134,8 +133,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:41:11',
                 'updated_at' => '2025-08-30 19:41:11',
             ),
-            6 =>
-            array(
+            6 => 
+            array (
                 'id' => 7,
                 'name' => 'student4',
                 'email' => 'student4@gmail.com',
@@ -153,8 +152,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:41:22',
                 'updated_at' => '2025-08-30 19:41:22',
             ),
-            7 =>
-            array(
+            7 => 
+            array (
                 'id' => 8,
                 'name' => 'student5',
                 'email' => 'student5@gmail.com',
@@ -172,8 +171,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:41:32',
                 'updated_at' => '2025-08-30 19:41:32',
             ),
-            8 =>
-            array(
+            8 => 
+            array (
                 'id' => 9,
                 'name' => 'student6',
                 'email' => 'student6@gmail.com',
@@ -191,8 +190,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:41:41',
                 'updated_at' => '2025-08-30 19:41:41',
             ),
-            9 =>
-            array(
+            9 => 
+            array (
                 'id' => 10,
                 'name' => 'student7',
                 'email' => 'student7@gmail.com',
@@ -210,8 +209,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:42:06',
                 'updated_at' => '2025-08-30 19:42:06',
             ),
-            10 =>
-            array(
+            10 => 
+            array (
                 'id' => 11,
                 'name' => 'student8',
                 'email' => 'student8@gmail.com',
@@ -229,8 +228,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:42:13',
                 'updated_at' => '2025-08-30 19:42:13',
             ),
-            11 =>
-            array(
+            11 => 
+            array (
                 'id' => 12,
                 'name' => 'student9',
                 'email' => 'student9@gmail.com',
@@ -248,8 +247,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:42:22',
                 'updated_at' => '2025-08-30 19:42:22',
             ),
-            12 =>
-            array(
+            12 => 
+            array (
                 'id' => 13,
                 'name' => 'student10',
                 'email' => 'student10@gmail.com',
@@ -267,8 +266,8 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:42:35',
                 'updated_at' => '2025-08-30 19:42:35',
             ),
-            13 =>
-            array(
+            13 => 
+            array (
                 'id' => 14,
                 'name' => 'librarianbase',
                 'email' => 'librarianbase@gmail.com',
@@ -286,6 +285,27 @@ class UsersTableSeeder extends Seeder
                 'created_at' => '2025-08-30 19:42:44',
                 'updated_at' => '2025-08-30 19:42:44',
             ),
+            14 => 
+            array (
+                'id' => 15,
+                'name' => 'teacher1',
+                'email' => 'teacher1@gmail.com',
+                'password' => NULL,
+                'role' => 'teacher',
+                'hire_date' => NULL,
+                'ID_documents' => '{"father_id":"uploads\\/users\\/IDs\\/15\\/17565854010_SE2_2022-2023-2.pdf","mother_id":"uploads\\/users\\/IDs\\/15\\/17565854011_SE2_2022-2023-2.pdf","family_id":"uploads\\/users\\/IDs\\/15\\/17565854012_SE2_2022-2023-2.pdf"}',
+                'phone_number' => '0968339198',
+                'salary' => 2000,
+                'birth_date' => '2025-07-01',
+                'gender' => 'male',
+                'email_verified_at' => NULL,
+                'address' => 'damascus , Barzeh',
+                'remember_token' => NULL,
+                'created_at' => '2025-08-30 23:23:21',
+                'updated_at' => '2025-08-30 23:23:21',
+            ),
         ));
+        
+        
     }
 }

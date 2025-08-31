@@ -23,6 +23,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('educationlevel:checkfully')->dailyAt('08:00');
         $schedule->command('activities:check-seats')->dailyAt('08:00');
         $schedule->command('salaries:generate')->monthlyOn(1, '12:00');
+        $schedule->command('attendance:check_teachers_attendance')->everyFifteenMinutes();
     }
 
     /**

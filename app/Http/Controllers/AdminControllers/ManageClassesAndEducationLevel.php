@@ -435,9 +435,14 @@ class ManageClassesAndEducationLevel extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error('Bad Request', 400, $validator->errors());
             } else {
+                // Check If Teacher is  have fully slessons 
+                $Teacher = Teacher::where('id', $request->input('teacher_id'))->first();
+                $count_lessons = $Teacher->sessions->count();
+                if ($Teacher->number_of_lesson_in_week <= $count_lessons) {
+                    return HelpersFunctions::success(null, "I dont Add The Session Because Teacher Have Fully Sessions", 200);
+                }
                 // Chech If Teacher Is Available At Same (Time && day)
                 $teacher_Av = true;
-                $Teacher = Teacher::where('id', $request->input('teacher_id'))->first();
                 $teacher_sessions = $Teacher->sessions;
                 // dd($teacher_sessions);
                 foreach ($teacher_sessions as $session) {
