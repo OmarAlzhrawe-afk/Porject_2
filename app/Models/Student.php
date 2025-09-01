@@ -80,6 +80,6 @@ class Student extends Model
 
 	public function intstallments()
 	{
-		return $this->hasMany(Installment_payment::class);
+		return $this->hasMany(Installment_payment::class, 'student_id');
 	}
 }

@@ -556,6 +556,7 @@ class LibrarianProcessController extends Controller
             }
             $loans = Book_loan::where([
                 'user_id' => $user->id,
+                'status' => "unreturned",
             ])->get();
             $all_data = [
                 'user_name' => $user->name,

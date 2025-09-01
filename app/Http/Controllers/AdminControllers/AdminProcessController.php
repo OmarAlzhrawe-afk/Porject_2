@@ -470,4 +470,46 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("INternal Server Error", 500, $e->getMessage());
         }
     }
+    public function get_Qr_codes()
+    {
+        // getting Qrs For al classes 
+        try {
+            $classes = Class_room::all();
+            $qrList = [];
+            foreach ($classes as $class) {
+                // Delete The Old Records Qr Codes From DataBase
+                $code = Str::uuid();
+                $qr_code = Qr_Code::where('class_id', $class->id)
+                    ->where('is_Active', true)
+                    ->where('Code_type', 'teacher')
+                    ->first();
+                $qr_code->class_id = $class->id;
+                $qr_code->Unique_code = $code;
+                $qr_code->expires_at = now()->addDays(7);
+                $qr_code->Code_type = 'teacher';
+                $qr_code->user_id = auth()->user()->id;
+                $qr_code->save();
+                $qrList[] = [
+                    'Class_Name' => $class->name,
+                    'Class_ID' => $class->id,
+                    'qr_data' => [
+                        'QR_code' => $qr_code->Unique_code,
+                        'Expird_at' => $qr_code->expires_at,
+                        'Code_type' => $qr_code->Code_type,
+                    ],
+                ];
+            }
+            $qr_code_for_employee = Qr_Code::where('class_id', $class->id)
+                ->where('is_Active', true)
+                ->where('Code_type', 'employee')
+                ->first();
+            $response_data = [
+                'QR_for_classes' => $qrList,
+                'QR_for_employee' => $qr_code_for_employee,
+            ];
+            return HelpersFunctions::success($response_data, "Creating Qr_codes Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("internal server error", 500, $e->getMessage());
+        }
+    }
 }

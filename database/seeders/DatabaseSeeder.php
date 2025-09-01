@@ -42,6 +42,11 @@ class DatabaseSeeder extends Seeder
         $this->call(TextBooksTableSeeder::class);
         $this->call(BookLoansTableSeeder::class);
         $this->call(StudentTextbookSalesTableSeeder::class);
+        $this->call(TeachersTableSeeder::class);
+        $this->call(InstallmentPaymentsTableSeeder::class);
+        $this->call(StudentAttendancesTableSeeder::class);
+        $this->call(MarksTableSeeder::class);
+
         // $this->call(::class);
 
         // $roles = ['admin', 'teacher', 'librarian', 'supervisor', 'student', 'parent'];
@@ -51,6 +56,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ClassSessionsTableSeeder::class);
         // $this->call(MarksTableSeeder::class);
         // $this->call(StudentProfilesTableSeeder::class);
+        $this->call(StudentAttendancesTableSeeder::class);
     }
     // $user = User::create([
     //     'name' => 'System Admin',

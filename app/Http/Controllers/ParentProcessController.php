@@ -12,11 +12,11 @@ use Illuminate\Http\Request;
 
 class ParentProcessController extends Controller
 {
-    public function Show_installment_for_my_students(Request $request)
+    public function Show_installment_for_my_students()
     {
         try {
             $mychildren = Student::where('parent_id', auth('sanctum')->user()->id)->get();
-            $installments = [];;
+            $installments = [];
             foreach ($mychildren as $student) {
                 $student_id  = $student->id;
                 $student_name  = $student->user->name;

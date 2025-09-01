@@ -279,7 +279,7 @@ class VisitorProcessController extends Controller
             ])->log($user->role . $user->name . " Loged In");
             return HelpersFunctions::success($data, " Login Done ", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error IN : " . $e->getMessage(), 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
 }

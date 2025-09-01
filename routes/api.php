@@ -111,5 +111,6 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
 
         // api for last activity for admin 
         Route::get('/get_last_activity', [AdminProcessController::class, 'get_last_activity']);
+        Route::get('/get_Qr_codes', [AdminProcessController::class, 'get_Qr_codes']);
     });
 });
