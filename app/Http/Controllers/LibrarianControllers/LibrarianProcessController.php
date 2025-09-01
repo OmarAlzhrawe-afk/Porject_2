@@ -666,4 +666,19 @@ class LibrarianProcessController extends Controller
             return  HelpersFunctions::error("Internal Users Error ", 500, $e->getMessage());
         }
     }
+    public function notifications()
+    {
+        $notifications = auth('sanctum')->user()->notifications;
+        return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
+    }
+    public function markAsRead($id)
+    {
+        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+
+        if (!$notification) {
+            return HelpersFunctions::error("bad Request", 400, "Notification not found");
+        }
+        $notification->markAsRead();
+        return HelpersFunctions::success("", "Admin Notification mark As Read Done");
+    }
 }

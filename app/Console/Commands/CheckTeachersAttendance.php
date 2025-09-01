@@ -28,10 +28,8 @@ class CheckTeachersAttendance extends Command
         // looping IN Sessions To check Them 
         foreach ($sessions as $session) {
             $user_id = $session->teacher->user_id;
-
             $sessionStart = Carbon::parse($session->start_time);
             $allowedUntil = $sessionStart->copy()->addMinutes(10);
-
             //check teacher Register attendance
             $attendance = Staff_attendance::where('user_id', $user_id)
                 ->whereDate('created_at', Carbon::today())
@@ -40,15 +38,15 @@ class CheckTeachersAttendance extends Command
                 ->first();
             // check teacher Have Leave
             $alreadyAbsent = Staff_leaves::where('user_id', $user_id)
-                ->where('leave_date', now()->date)
+                ->where('leave_date', Carbon::today())
                 ->exists();
             if (!$attendance && !$alreadyAbsent) {
-                // $teacher_attendance = new Staff_attendance();
                 // Creating teacher Leave record For fully Day 
                 $teacher_leave = new Staff_leaves();
-                $teacher_leave->leave_date = now()->date;
+                $teacher_leave->leave_date = Carbon::today();
                 $teacher_leave->period = 'day';
                 $teacher_leave->leave_type = 'unpaid';
+                $teacher_leave->user_id = $user_id;
                 $teacher_leave->status = 'approved';
                 $teacher_leave->save();
                 // Creating Deducation 0.5 from salary For Teacher Because  Absent 
@@ -59,5 +57,6 @@ class CheckTeachersAttendance extends Command
                 $this->info("Teacher {$user_id} marked absent for session {$session->id}");
             }
         }
+        $this->info("Checking Attendance For Teachers Done");
     }
 }

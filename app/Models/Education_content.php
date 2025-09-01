@@ -16,7 +16,7 @@ class Education_content extends Model
 	protected $fillable = array(
 		'id',
 		'teacher_id',
-		'class_id',
+		'class_room_id',
 		'title',
 		'description',
 		'content_type',
@@ -35,6 +35,6 @@ class Education_content extends Model
 
 	public function class()
 	{
-		return $this->belongsTo(Class_room::class, 'class_id');
+		return $this->belongsTo(Class_room::class, 'class_room_id');
 	}
 }

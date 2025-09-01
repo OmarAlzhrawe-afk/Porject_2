@@ -176,6 +176,7 @@ trait SharedFunctionTrait
                     'payment_reference' => $paymentIntent->id
                 ]);
                 $register_in_activity->save();
+                // Checing if Activity still Available
                 Artisan::call('activities:check-seats');
                 $data = [
                     'client_secret' => $paymentIntent->client_secret,

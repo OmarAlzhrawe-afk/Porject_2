@@ -15,6 +15,7 @@ use App\Helpers\HelpersFunctions;
 use App\Models\Class_room;
 use App\Models\Installment_payment;
 use App\Models\Installment_Plan;
+use App\Models\Student_profile;
 use Carbon\Carbon;
 
 class ManageUsers extends Controller
@@ -152,15 +153,22 @@ class ManageUsers extends Controller
                     } else {
                         $class = Class_room::findOrFail($request->class_id);
                         if ($class->current_count < $class->capacity && $class->education_level->installment_plans->contains('id', $request->plan_id)) {
-                            //  Store Student Data
+                            //  creating Student record
                             $student = new Student();
                             $student->user_id = $user->id;
                             $student->class_id =  $request->class_id;
                             $student->parent_id =  $request->parent_id;
                             $student->status = $request->status;
                             $student->save();
+                            //Creating Student_profile record
+                            $student_prfile = new Student_profile();
+                            $student_prfile->student_id = $student->id;
+                            $student_prfile->education_level_id =   $class->education_level->id;
+                            $student_prfile->save();
+                            // Increasing class Student number
                             $class->current_count++;
                             $class->save();
+                            // fetch plan that student need and making installment for independent on it
                             $plan = Installment_Plan::where('id', $request->plan_id)->first();
                             $start_date = Carbon::now()->addDays(30);
                             for ($i = 1; $i <= $plan->number_of_installments; $i++) {

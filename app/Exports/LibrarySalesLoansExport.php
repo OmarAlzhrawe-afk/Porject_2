@@ -25,7 +25,6 @@ class LibrarySalesLoansExport implements
 
     public function collection()
     {
-        // 🟢 إحضار مبيعات الكتب
         $sales = Student_textbook_sale::with(['student.user', 'book'])->get();
 
         $salesData = $sales->map(function ($sale) {
@@ -38,7 +37,6 @@ class LibrarySalesLoansExport implements
             ];
         });
 
-        // 🟢 إحضار إعارات الكتب
         $loans = Book_loan::with(['user', 'book_loan'])->get();
 
         $loansData = $loans->map(function ($loan) {
@@ -99,7 +97,7 @@ class LibrarySalesLoansExport implements
     }
     public function title(): string
     {
-        return '📚 Report For Library Activity IN Date :  ' . now()->format('Y-m-d');
+        return 'Report For Library Activity IN Date :  ' . now()->format('Y-m-d');
     }
 
     public function drawings()
@@ -107,9 +105,9 @@ class LibrarySalesLoansExport implements
         $drawing = new Drawing();
         $drawing->setName(' Al-Awael ');
         $drawing->setDescription('School Logo');
-        $drawing->setPath(public_path('appLogo.png')); // مسار الصورة
-        $drawing->setHeight(60); // ارتفاع الصورة
-        $drawing->setCoordinates('A1'); // مكان الصورة (الزاوية العلوية)
+        $drawing->setPath(public_path('appLogo.png'));
+        $drawing->setHeight(60);
+        $drawing->setCoordinates('A1');
 
         return [$drawing];
     }

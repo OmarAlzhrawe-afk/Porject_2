@@ -16,7 +16,8 @@ class Home_work extends Model
         'class_id',
         'description',
         'homework_url',
-        'last_date'
+        'last_date',
+        'created_at'
     );
     protected static function newFactory()
     {

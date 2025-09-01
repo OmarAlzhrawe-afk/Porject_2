@@ -30,10 +30,12 @@ class Student_profile extends Model
 	);
 	protected $casts = [
 		'interests' => 'array',
+		'health_notes' => 'array',
 		'activities_participated' => 'array',
 		'achievements' => 'array',
 		'skills' => 'array',
 		'teacher_feedback' => 'array',
+		'guardian_feedback' => 'array',
 	];
 	protected static function newFactory()
 	{

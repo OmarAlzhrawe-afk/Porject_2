@@ -18,12 +18,12 @@ return new class extends Migration
 			$table->decimal('score')->nullable();
 			$table->text('behavior_notes')->nullable();
 			$table->text('health_notes')->nullable();
-			$table->json('interests')->nullable();
-			$table->json('activities_participated')->nullable();
-			$table->json('achievements')->nullable();
+			$table->text('interests')->nullable();
+			$table->text('activities_participated')->nullable();
+			$table->text('achievements')->nullable();
 			$table->text('guardian_feedback')->nullable();
 			$table->text('teacher_feedback')->nullable();
-			$table->json('skills')->nullable();
+			$table->text('skills')->nullable();
 			$table->foreign('student_id')->references('id')->on('students')->onDelete('cascade')->onUpdate('cascade');
 			$table->foreign('education_level_id')->references('id')->on('education_levels')->onDelete('cascade')->onUpdate('cascade');
 			$table->timestamps();

@@ -188,7 +188,7 @@ class ManageClassesAndEducationLevel extends Controller
     public function get_All_education_level()
     {
         try {
-            $el = Education_level::all();
+            $el = Education_level::where('academic_year_id', HelpersFunctions::getCurrentAcademicYearId())->get();
             // Add Process To Recent 
             $user = auth('sanctum')->user();
             activity()->causedBy($user)->withProperties([

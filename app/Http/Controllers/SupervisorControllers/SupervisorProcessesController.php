@@ -219,10 +219,9 @@ class SupervisorProcessesController extends Controller
                     $file->move(public_path('uploads/Activity/gallery_urls/'), $file_name);
                     $gallery_urls[$key] = 'uploads/Activity/gallery_urls/' .  $file_name;
                 }
+                $activity->gallery_urls = $gallery_urls;
             }
             // dd($gallery_urls);
-
-            $activity->gallery_urls = $gallery_urls;
             $activity->save();
             // $activity->required_skills = $request->has('required_skills')
             //     ? $request->required_skills
@@ -299,13 +298,26 @@ class SupervisorProcessesController extends Controller
     public function Add_student_profile_data(StoreStudentProfileRequest $request)
     {
         try {
-            $supervisor = Supervisor::where('user_id', auth()->id())->first();
-            $educationLevel = Education_level::findOrFail($request->education_level_id);
+            $supervisor = Supervisor::where('user_id', auth('sanctum')->id())->first();
+            $student = Student::find($request->student_id);
+            // $educationLevel = Education_level::findOrFail($request->education_level_id);
             // dd($user . $supervisor  . $educationLevel);
-            if ($educationLevel->supervisor_id != $supervisor->id) {
-                return HelpersFunctions::error("Access Diened", 403, "you dont have permission to update this user ");
+            if ($student->profile->education_level_id != $supervisor->education_level->id) {
+                return HelpersFunctions::success("Access Diened", "you dont have permission to update this user", 200);
             }
-            $profile  = Student_profile::create($request->validated());
+            // updating data IN student profile record 
+            $profile = Student_profile::updateOrCreate(
+                ['student_id' => $request->student_id],
+                [
+                    'behavior_notes' => $request->behavior_notes,
+                    'health_notes' => $request->health_notes,
+                    'interests' => $request->interests,
+                    'activities_participated' => $request->activities_participated,
+                    'achievements' => $request->achievements,
+                    'skills' => $request->skills,
+                    'education_level_id' => $student->profile->education_level_id, // تضمن بقاء المستوى كما هو
+                ]
+            );
             $user = auth('sanctum')->user();
             activity()->causedBy($user)->withProperties([
                 'Process_type' => "Add student profile data",

@@ -24,6 +24,7 @@ use App\Models\Installment_payment;
 use App\Models\Installment_Plan;
 use App\Models\Report;
 use App\Models\Salary;
+use App\Models\Student_profile;
 use App\Models\Transaction;
 use App\Notifications\LeaveNotification;
 use App\Notifications\RejectLeaveNotification;
@@ -109,41 +110,51 @@ class AdminProcessController extends Controller
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             }
+            // Checking and editing pre_registeration 
             $Registration = Pre_registration::where('id', $request->pre_id)->first();
             if (!$Registration->status == "pending") {
                 return HelpersFunctions::error("Bad Registeration", 403, "Registeration that you Entered Not Pending Status");
             }
             $Registration->status = 'accepted';
             $Registration->save();
-            $studentuser = new User();
-            $studentuser->name = $Registration->student_name;
-            $studentuser->email = $Registration->student_email;
-            $studentuser->role = 'student';
-            $studentuser->hire_date = now();
-            $studentuser->phone_number = $Registration->phone_number;
-            // Store Id Files
-            $studentuser->ID_documents = $Registration->documents;
-            $studentuser->save();
-            $studentuser->assignRole('student');
-
-            $parentuser = new User();
-            $parentuser->name = $Registration->parent_name;
-            $parentuser->email = $Registration->parent_email;
-            $parentuser->role = 'parent';
-            $parentuser->hire_date = now();
-            $parentuser->phone_number = $Registration->phone_number;
-            $parentuser->save();
-            $studentuser->assignRole('parent');
+            // Checking of Class Is comfrortable with Education Level ID and Clas IS Not Fully
             $class = Class_room::find($request->class_id);
             if ($class->education_level_id == $Registration->education_level_id && $class->capacity > $class->current_count) {
+                // Createing Student User
+                $studentuser = new User();
+                $studentuser->name = $Registration->student_name;
+                $studentuser->email = $Registration->student_email;
+                $studentuser->role = 'student';
+                $studentuser->phone_number = $Registration->phone_number;
+                // Store Id Files
+                $studentuser->ID_documents = $Registration->documents;
+                $studentuser->save();
+                $studentuser->assignRole('student');
+                // Createing parent user
+                $parentuser = new User();
+                $parentuser->name = $Registration->parent_name;
+                $parentuser->email = $Registration->parent_email;
+                $parentuser->role = 'parent';
+                $parentuser->hire_date = now();
+                $parentuser->phone_number = $Registration->phone_number;
+                $parentuser->save();
+                $studentuser->assignRole('parent');
+                // Createing student record
                 $student = new Student();
                 $student->class_id = $class->id;
                 $student->user_id = $studentuser->id;
                 $student->parent_id = $parentuser->id;
                 $student->status = 'active';
                 $student->save();
+                // Createing student_profile record
+                $student_profile = new Student_profile();
+                $student_profile->student_id = $student->id;
+                $student_profile->education_level_id = $Registration->education_level_id;
+                $student_profile->save();
+                // fetching Plan
                 $plan = Installment_Plan::where('id', $request->plan_id)->first();
-                $start_date = Carbon::now()->addDays(30);
+                // making installment Recods For user Independent In hsi plan
+                $start_date = Carbon::now();
                 for ($i = 1; $i <= $plan->number_of_installments; $i++) {
                     $due_date = $start_date->copy()->addDays($i * $plan->count_of_days_per_each_installment);
                     $installment_payment = new Installment_payment();
@@ -154,19 +165,12 @@ class AdminProcessController extends Controller
                     $installment_payment->amount = $plan->total_amount / $plan->number_of_installments;
                     $installment_payment->save();
                 }
+                // Increasing Student Count IN Class 
                 $class->current_count++;
+                $class->save();
             } else {
-                // dd("class Level : " . $class->education_level_id . "pre_level : " . $Registration->education_level_id . " class capacity : " . $class->capacity . " class current count : " . $class->current_count);
-                DB::commit();
-                $admin = auth('sanctum')->user();
-                activity()->causedBy($admin)->withProperties([
-                    'Process_type' => "Accept pre registeration",
-                    'date' => now()->format('Y-m-h'),
-                ])->log("Accept pre registeration");
-
                 return HelpersFunctions::error("Bad Request", 400, "Class That You Entered Is Invalid");
             }
-            // $student->Student_number = '5'; Auto
             $admin = auth('sanctum')->user();
             // Mail::to($Registration->student_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
             // Mail::to($Registration->parent_email)->send(new AcceptedSchoolMail("Accepted Student : " . $Registration->student_name));
@@ -432,7 +436,7 @@ class AdminProcessController extends Controller
     public function notifications()
     {
         $notifications = auth('sanctum')->user()->notifications;
-        return HelpersFunctions::success($notifications, "Getting Notifications Done ", 200);
+        return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
     }
     public function markAsRead($id)
     {
@@ -442,7 +446,7 @@ class AdminProcessController extends Controller
             return HelpersFunctions::error("bad Request", 400, "Notification not found");
         }
         $notification->markAsRead();
-        return HelpersFunctions::success("", "Notification mark As Read Done");
+        return HelpersFunctions::success("", "Admin Notification mark As Read Done");
     }
     public function get_last_activity()
     {

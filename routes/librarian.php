@@ -41,6 +41,10 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
         Route::post('/leave_demand', [LibrarianProcessController::class, 'leave_demand']);
 
 
+        // Notifications Process 
+        Route::get('/notifications', [LibrarianProcessController::class, 'notifications']);
+        Route::get('/notifications/read/{id}', [LibrarianProcessController::class, 'markAsRead']);
+
         // Extra Apis 
         Route::get('/get_subjects_and_education_level', [LibrarianProcessController::class, 'get_subjects_and_education_level']);
         Route::get('/get_users', [LibrarianProcessController::class, 'get_users']);

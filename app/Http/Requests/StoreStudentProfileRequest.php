@@ -16,18 +16,12 @@ class StoreStudentProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'student_id' => 'required|exists:students,id|unique:student_profiles,student_id',
-            'education_level_id' => 'required|exists:education_levels,id',
-            'total_absences' => 'nullable|integer|min:0',
-            'unexcused_absences' => 'nullable|integer|min:0',
-            'score' => 'nullable|numeric|min:0|max:100',
+            'student_id' => 'required|exists:students,id|exists:student_profiles,student_id',
             'behavior_notes' => 'nullable|string',
             'health_notes' => 'nullable|string',
             'interests' => 'nullable|array',
             'activities_participated' => 'nullable|array',
             'achievements' => 'nullable|array',
-            'guardian_feedback' => 'nullable|string',
-            'teacher_feedback' => 'nullable|string',
             'skills' => 'nullable|array',
         ];
     }

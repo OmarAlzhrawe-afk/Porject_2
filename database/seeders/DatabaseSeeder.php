@@ -48,18 +48,17 @@ class DatabaseSeeder extends Seeder
         // foreach ($roles as $role) {
         //     Role::firstOrCreate(['name' => $role]);
         //     $this->call(EducationContentsTableSeeder::class);
-        $this->call(ClassSessionsTableSeeder::class);
-        $this->call(MarksTableSeeder::class);
-        $this->call(StudentProfilesTableSeeder::class);
+        // $this->call(ClassSessionsTableSeeder::class);
+        // $this->call(MarksTableSeeder::class);
+        // $this->call(StudentProfilesTableSeeder::class);
     }
-        // $user = User::create([
-        //     'name' => 'System Admin',
-        //     'email' => 'admin@school.com',
-        //     'password' => Hash::make('password123'), // استخدم هاش للباسورد
-        //     'role' => 'admin',
-        //     'phone_number' => '123456789',
-        //     'address' => 'Head Office',
-        // ]);
-        // $user->assignRole('admin');
-    }
+    // $user = User::create([
+    //     'name' => 'System Admin',
+    //     'email' => 'admin@school.com',
+    //     'password' => Hash::make('password123'), // استخدم هاش للباسورد
+    //     'role' => 'admin',
+    //     'phone_number' => '123456789',
+    //     'address' => 'Head Office',
+    // ]);
+    // $user->assignRole('admin');
 }

@@ -190,7 +190,7 @@ class TeacherProcessController extends Controller
     }
     public function register_in_activity(Request $request)
     {
-        $this->register_in_activity_for_all($request);
+        return  $this->register_in_activity_for_all($request);
     }
     public function confirm_payment_register_in_avtivity(Request $request)
     {
@@ -421,7 +421,7 @@ class TeacherProcessController extends Controller
     public function get_homeworks_solvings(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            '   ' => 'required|exists:home_works,id',
+            'homework_id' => 'required|exists:home_works,id',
         ]);
         if ($validator->fails()) {
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
@@ -475,5 +475,20 @@ class TeacherProcessController extends Controller
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
+    }
+    public function notifications()
+    {
+        $notifications = auth('sanctum')->user()->notifications;
+        return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
+    }
+    public function markAsRead($id)
+    {
+        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+
+        if (!$notification) {
+            return HelpersFunctions::error("bad Request", 400, "Notification not found");
+        }
+        $notification->markAsRead();
+        return HelpersFunctions::success("", "Admin Notification mark As Read Done");
     }
 }

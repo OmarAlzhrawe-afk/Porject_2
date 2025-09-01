@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\StudentController;
+use App\Http\Controllers\StudentControllers\StudentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminProcessController;
@@ -23,28 +23,33 @@ use App\Http\Controllers\LoginController;
 
 Route::get('/student/subject/{id}', [StudentController::class, 'getSubjectCountForStudent']);
 
-Route::post('/sendemail', [StudentController::class, 'sendEmail']);
-Route::post('/loginCode', [StudentController::class, 'loginWithCode']);
-Route::middleware('auth:sanctum')->name('student')->group(function () {
-  Route::get('/student/profile', [StudentController::class, 'getProfile']);
-  Route::get('/student/schedule', [StudentController::class, 'getSchedule']);
-  Route::get('/subjects/books', [StudentController::class, 'studentBooks']);
-  Route::get('/student/books-by-subject', [StudentController::class, 'studentBooksBySubject']);
-  Route::post('/search/books', [StudentController::class, 'studentBooksByTitle']);
-  Route::get('/student/contents', [StudentController::class, 'index']);
-  Route::get('/student/type', [StudentController::class, 'indexEduction']);
-  Route::get('/student/subject', [StudentController::class, 'getStudentSubjects']);
-  Route::get('/student/subject/{id}', [StudentController::class, 'getSubjectsForClass']);
-  Route::get('/student/teacher', [StudentController::class, 'studentSubjectsWithTeacher']);
-  Route::get('/dashBord', [StudentController::class, 'dashboard']);
-  Route::post('/homework/submit', [StudentController::class, 'submit']);
-  Route::get('/student/marks', [StudentController::class, 'getMyMarks']);
-  Route::get('/student/books/purchased', [StudentController::class, 'getPurchasedBooks']);
-  Route::get('/student/books/borrowed', [StudentController::class, 'getBorrowedBooks']);
-  Route::get('/student/upcoming-tasks', [StudentController::class, 'upcomingTasks']);
+Route::prefix('/student')->name('student.')->group(function () {
+  Route::prefix('/process')->name('process.')->middleware(['auth:sanctum', 'role:student'])->group(function () {
+    Route::get('profile', [StudentController::class, 'getProfile']);
+    Route::get('/schedule', [StudentController::class, 'getSchedule']); //
+    Route::get('/contents', [StudentController::class, 'contents']); //
+    Route::get('/get_text_books', [StudentController::class, 'get_text_books']); //
+    Route::get('/get_activities', [StudentController::class, 'get_activities']); //
+    Route::post('/register_in_activity', [StudentController::class, 'register_in_activity']); // here creating Transaction after stripe process
+    Route::get('/get_daily_homwork', [StudentController::class, 'get_daily_homwork']); // 
+    Route::post('/solve_homwork', [StudentController::class, 'solve_homwork']); // 
 
-  Route::get('/student/Absence', [StudentController::class, 'getAbsenceSummary']);
-  Route::get('/student/achievements', [StudentController::class, 'getAchievements']);
+    // Route::get('/student/books-by-subject', [StudentController::class, 'studentBooksBySubject']);
+    // Route::post('/search/books', [StudentController::class, 'studentBooksByTitle']);
+    // Route::get('/student/type', [StudentController::class, 'indexEduction']);
+    // Route::get('/student/subject', [StudentController::class, 'getStudentSubjects']);
+    // Route::get('/student/subject/{id}', [StudentController::class, 'getSubjectsForClass']);
+    // Route::get('/student/teacher', [StudentController::class, 'studentSubjectsWithTeacher']);
+    // Route::get('/dashBord', [StudentController::class, 'dashboard']);
+    // Route::post('/homework/submit', [StudentController::class, 'submit']);
+    // Route::get('/student/marks', [StudentController::class, 'getMyMarks']);
+    // Route::get('/student/books/purchased', [StudentController::class, 'getPurchasedBooks']);
+    // Route::get('/student/books/borrowed', [StudentController::class, 'getBorrowedBooks']);
+    // Route::get('/student/upcoming-tasks', [StudentController::class, 'upcomingTasks']);
 
-  Route::get('/student/submissions-activities', [StudentController::class, 'submittedHomeworksAndActivities']);
+    // Route::get('/student/Absence', [StudentController::class, 'getAbsenceSummary']);
+    // Route::get('/student/achievements', [StudentController::class, 'getAchievements']);
+
+    // Route::get('/student/submissions-activities', [StudentController::class, 'submittedHomeworksAndActivities']);
+  });
 });

@@ -84,8 +84,8 @@ class PostCrud extends Controller
                 'title' =>  'required',
                 'description' =>  'required',
                 'post_type' =>  'required|in:lesson,news,event',
-                'file_url' =>  'required|file|mimes:jpg,jpeg,png,pdf,docx,mp4,mov,avi,wmv|max:2048 ',
-                'is_public' =>  'required|in:true,false',
+                'file_url' =>  'nullable|file|mimes:jpg,jpeg,png,pdf,docx,mp4,mov,avi,wmv|max:2048 ',
+                'is_public' =>  'nullable|in:true,false',
             ]);
             if ($validator->fails()) {
                 return HelpersFunctions::error("Bad Request", $validator->errors(), 400);
@@ -94,8 +94,8 @@ class PostCrud extends Controller
                 $post = School_post::find($request->post_id)->first();
                 $post->title = $request->input('title');
                 $post->description = $request->input('description');
-                $post->post_type = $request->input('post_type');
-                if ($request->input('is_public' == 'true')) {
+                $post->post_type = $request->input('post_type') ?? $post->post_type;
+                if ($request->input('is_public') == true) {
                     $post->is_public = true;
                 } else {
                     $post->is_public = false;

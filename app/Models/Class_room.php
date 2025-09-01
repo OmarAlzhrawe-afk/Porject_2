@@ -41,6 +41,10 @@ class Class_room extends Model
 	{
 		return $this->hasMany(Activity::class, 'class_room_id');
 	}
+	public function home_work()
+	{
+		return $this->hasMany(Home_work::class, 'class_id');
+	}
 	public function students()
 	{
 		return $this->hasMany(Student::class, 'class_id', 'id');
