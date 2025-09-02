@@ -73,7 +73,7 @@ class TeacherProcessController extends Controller
                 return [
                     // User Data
                     'student_ID' => $student->id,
-                    'student_number' => $student->student_number,
+                    'student_number' => $student->Student_number,
                     'student_name'   => $student->user?->name,
                     'phone_number'   => $student->user?->phone_number,
                     'class_name'     => $student->class?->name,
