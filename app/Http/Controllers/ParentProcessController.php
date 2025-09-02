@@ -100,4 +100,8 @@ class ParentProcessController extends Controller
         $notification->markAsRead();
         return HelpersFunctions::success("", "Admin Notification mark As Read Done");
     }
+    public function logout()
+    {
+        return HelpersFunctions::logout();
+    }
 }

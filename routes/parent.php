@@ -9,6 +9,8 @@ Route::prefix('/parent/process')->name('parent.process')->middleware(['auth:sanc
     Route::get('Show_installment_for_my_students', [ParentProcessController::class, 'Show_installment_for_my_students']);
     Route::get('Show_attendance_for_my_students', [ParentProcessController::class, 'Show_attendance_for_my_students']);
     Route::get('Show_marks_for_my_students', [ParentProcessController::class, 'Show_marks_for_my_students']);
+    Route::get('/log_out', [ParentProcessController::class, 'logout']);
+
     // Notifications Process 
     Route::get('/notifications', [TeacherProcessController::class, 'notifications']);
     Route::get('/notifications/read/{id}', [TeacherProcessController::class, 'markAsRead']);
