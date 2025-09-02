@@ -11,10 +11,171 @@
 			"name": "Admiin_API",
 			"item": [
 				{
-					"name": "Post_CRUD",
+					"name": "Admin_Auth",
 					"item": [
 						{
-							"name": "add_Post",
+							"name": "Admin_login",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "admin@school.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "password123",
+											"type": "text"
+										},
+										{
+											"key": "role",
+											"value": "admin",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{local}}/admin/login",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"admin",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SendForgetPasswordCodeAdmin",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "admin@example.com",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/admin/SendForgetPasswordCodeAdmin",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"SendForgetPasswordCodeAdmin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "VerifyPasswordCodeAdmin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "admin@example.com",
+											"type": "text"
+										},
+										{
+											"key": "code",
+											"value": "359945",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/admin/VerifyPasswordCodeAdmin",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"VerifyPasswordCodeAdmin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UpdatePasswordAdmin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "admin@example.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "80008000",
+											"type": "text"
+										},
+										{
+											"key": "password_confirmation",
+											"value": "80008000",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/admin/UpdatePasswordAdmin",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"UpdatePasswordAdmin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "log_out",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -26,6 +187,171 @@
 										}
 									]
 								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{local}}/admin/process/logout",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"admin",
+										"process",
+										"logout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_reports",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admintoken1}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "{{local}}/admin/process/get_reports",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"admin",
+										"process",
+										"get_reports"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Admin_Notifications",
+					"item": [
+						{
+							"name": "notifications",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/admin/process/notifications",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"process",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "notificationsRead",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/admin/process/notifications/read/a486603b-c4f7-4cc0-8a23-8a506d928d6d",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"admin",
+										"process",
+										"notifications",
+										"read",
+										"a486603b-c4f7-4cc0-8a23-8a506d928d6d"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Post_CRUD",
+					"item": [
+						{
+							"name": "add_Post",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admintoken1}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -33,12 +359,12 @@
 									"formdata": [
 										{
 											"key": "title",
-											"value": "new competition",
+											"value": "post1",
 											"type": "text"
 										},
 										{
 											"key": "description",
-											"value": "new competition",
+											"value": "post1",
 											"type": "text"
 										},
 										{
@@ -80,7 +406,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{token1}}",
+											"value": "{{admintoken1}}",
 											"type": "string"
 										}
 									]
@@ -97,28 +423,28 @@
 										},
 										{
 											"key": "title",
-											"value": "oamr",
+											"value": "oamrpost1",
 											"type": "text"
 										},
 										{
 											"key": "description",
-											"value": "omar",
+											"value": "oamrpost1",
 											"type": "text"
 										},
 										{
 											"key": "post_type",
-											"value": "event",
+											"value": "news",
 											"type": "text"
 										},
 										{
 											"key": "is_public",
-											"value": "true",
+											"value": "false",
 											"type": "text"
 										},
 										{
 											"key": "file_url",
 											"type": "file",
-											"src": "postman-cloud:///1f02318f-3767-47a0-9614-8f68b4262145"
+											"src": "postman-cloud:///1f02318f-7d8c-4050-acbf-9a9e1454840e"
 										}
 									]
 								},
@@ -186,7 +512,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "1|A4ASUOqyUmq4Twwj7NmlGFxZ4hRUWv3vYECvNW1s87c76f9b",
+											"value": "{{admintoken1}}",
 											"type": "string"
 										}
 									]
@@ -238,33 +564,28 @@
 									"formdata": [
 										{
 											"key": "name",
-											"value": "",
+											"value": "third_plan",
 											"type": "text"
 										},
 										{
 											"key": "education_level_id",
-											"value": "",
+											"value": "1",
 											"type": "text"
 										},
 										{
 											"key": "number_of_installments",
-											"value": "",
+											"value": "5",
 											"type": "text"
 										},
 										{
 											"key": "count_of_days_per_each_installment",
-											"value": "",
+											"value": "15",
 											"type": "text"
 										},
 										{
 											"key": "description",
-											"value": "",
+											"value": "very_easy_plan",
 											"type": "text"
-										},
-										{
-											"key": "file_url",
-											"type": "file",
-											"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
 										}
 									]
 								},
@@ -396,7 +717,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "1|A4ASUOqyUmq4Twwj7NmlGFxZ4hRUWv3vYECvNW1s87c76f9b",
+											"value": "{{admintoken1}}",
 											"type": "string"
 										}
 									]
@@ -436,7 +757,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "1|A4ASUOqyUmq4Twwj7NmlGFxZ4hRUWv3vYECvNW1s87c76f9b",
+											"value": "418|SyBJVAQnbDp2brLsPE4UiooIygthOKUI3OZYikLW0787d5db",
 											"type": "string"
 										}
 									]
@@ -453,7 +774,7 @@
 										},
 										{
 											"key": "content",
-											"value": "plaplapla",
+											"value": "q1",
 											"type": "text"
 										},
 										{
@@ -504,7 +825,7 @@
 									"formdata": [
 										{
 											"key": "content_id",
-											"value": "1",
+											"value": "22",
 											"type": "text"
 										},
 										{
@@ -514,7 +835,7 @@
 										},
 										{
 											"key": "content",
-											"value": "omar",
+											"value": "q22",
 											"type": "text"
 										},
 										{
@@ -632,7 +953,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{token1}}",
+													"value": "{{admintoken1}}",
 													"type": "string"
 												}
 											]
@@ -929,12 +1250,12 @@
 											"formdata": [
 												{
 													"key": "name",
-													"value": "student3Class_First",
+													"value": "student12",
 													"type": "text"
 												},
 												{
 													"key": "email",
-													"value": "student3Class_First@gmail.com",
+													"value": "student12@gmail.com",
 													"type": "text"
 												},
 												{
@@ -968,28 +1289,28 @@
 													"type": "text"
 												},
 												{
-													"key": "ID_documents[father_id]",
+													"key": "ID_documents[father]",
 													"type": "file",
 													"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
 												},
 												{
-													"key": "ID_documents[mother_id]",
+													"key": "ID_documents[mother]",
 													"type": "file",
 													"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
 												},
 												{
-													"key": "ID_documents[family_id]",
+													"key": "ID_documents[healthy]",
 													"type": "file",
 													"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
 												},
 												{
 													"key": "class_id",
-													"value": "251",
+													"value": "2",
 													"type": "text"
 												},
 												{
 													"key": "parent_id",
-													"value": "4",
+													"value": "1",
 													"type": "text"
 												},
 												{
@@ -1027,7 +1348,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{token1}}",
+													"value": "{{admintoken1}}",
 													"type": "string"
 												}
 											]
@@ -1039,12 +1360,12 @@
 											"formdata": [
 												{
 													"key": "name",
-													"value": "teacher1",
+													"value": "teacher2",
 													"type": "text"
 												},
 												{
 													"key": "email",
-													"value": "teacher1@gmail.com",
+													"value": "teacher2@gmail.com",
 													"type": "text"
 												},
 												{
@@ -1433,7 +1754,7 @@
 											"bearer": [
 												{
 													"key": "token",
-													"value": "{{token1}}",
+													"value": "{{admintoken1}}",
 													"type": "string"
 												}
 											]
@@ -1445,17 +1766,17 @@
 											"formdata": [
 												{
 													"key": "user_id",
-													"value": "2",
+													"value": "4",
 													"type": "text"
 												},
 												{
 													"key": "email",
-													"value": "updatedstudent@gmail.com",
+													"value": "student11@gmail.com",
 													"type": "text"
 												},
 												{
 													"key": "phone_number",
-													"value": "0968339198",
+													"value": "096833919888",
 													"type": "text"
 												},
 												{
@@ -1465,7 +1786,7 @@
 												},
 												{
 													"key": "address",
-													"value": "damascus , Barzeh",
+													"value": "damascus , Mazeh",
 													"type": "text"
 												},
 												{
@@ -1640,7 +1961,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{token1}}",
+											"value": "{{admintoken1}}",
 											"type": "string"
 										}
 									]
@@ -1775,12 +2096,12 @@
 									"formdata": [
 										{
 											"key": "class_id",
-											"value": "93",
+											"value": "1",
 											"type": "text"
 										},
 										{
 											"key": "pre_id",
-											"value": "7",
+											"value": "2",
 											"type": "text"
 										},
 										{
@@ -1997,876 +2318,697 @@
 					]
 				},
 				{
-					"name": "Admin_Auth",
-					"item": [
-						{
-							"name": "Admin_login",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "email",
-											"value": "wthiel@yahoo.com",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "Admin123Admin",
-											"type": "text"
-										},
-										{
-											"key": "role",
-											"value": "admin",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "{{local}}/admin/login",
-									"host": [
-										"{{local}}"
-									],
-									"path": [
-										"admin",
-										"login"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "SendForgetPasswordCodeAdmin",
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "email",
-											"value": "admin@example.com",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/SendForgetPasswordCodeAdmin",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"SendForgetPasswordCodeAdmin"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "VerifyPasswordCodeAdmin",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "email",
-											"value": "admin@example.com",
-											"type": "text"
-										},
-										{
-											"key": "code",
-											"value": "359945",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/VerifyPasswordCodeAdmin",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"VerifyPasswordCodeAdmin"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "UpdatePasswordAdmin",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "email",
-											"value": "admin@example.com",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "80008000",
-											"type": "text"
-										},
-										{
-											"key": "password_confirmation",
-											"value": "80008000",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/UpdatePasswordAdmin",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"UpdatePasswordAdmin"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "log_out",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": []
-								},
-								"url": {
-									"raw": "{{local}}/admin/process/logout",
-									"host": [
-										"{{local}}"
-									],
-									"path": [
-										"admin",
-										"process",
-										"logout"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
 					"name": "Education_level",
 					"item": [
 						{
-							"name": "create_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
+							"name": "Crud_ education_level",
+							"item": [
+								{
+									"name": "create_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "second",
+													"type": "text"
+												},
+												{
+													"key": "description",
+													"value": "this is the second_primaryLevel Education",
+													"type": "text"
+												},
+												{
+													"key": "supervisor_id",
+													"value": "1",
+													"type": "text"
+												},
+												{
+													"key": "price",
+													"value": "200",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/create_education_level",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"create_education_level"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "name",
-											"value": "third_primary_for_supervisor1",
-											"type": "text"
+								{
+									"name": "get_education_level_data",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
 										},
-										{
-											"key": "description",
-											"value": "this is the third_primaryLevel Education",
-											"type": "text"
-										},
-										{
-											"key": "supervisor_id",
-											"value": "7",
-											"type": "text"
-										},
-										{
-											"key": "price",
-											"value": "200",
-											"type": "text"
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/get_education_level_data/1",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"get_education_level_data",
+												"1"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/create_education_level",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"create_education_level"
-									]
+								{
+									"name": "get_All_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/get_All_education_level",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"get_All_education_level"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/delete_education_level/287",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"delete_education_level",
+												"287"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "delete_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
+							"name": "Crud_class_room",
+							"item": [
+								{
+									"name": "delete_class",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "level_id",
+													"value": "3",
+													"type": "text"
+												},
+												{
+													"key": "name",
+													"value": "1\\3",
+													"type": "text"
+												},
+												{
+													"key": "capacity",
+													"value": "40",
+													"type": "text"
+												},
+												{
+													"key": "current_count",
+													"value": "20",
+													"type": "text"
+												},
+												{
+													"key": "floor",
+													"value": "2",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/delete_class/1",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"delete_class",
+												"1"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/delete_education_level/287",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"delete_education_level",
-										"287"
-									]
+								{
+									"name": "get_classes",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "level_id",
+													"value": "3",
+													"type": "text"
+												},
+												{
+													"key": "name",
+													"value": "1\\3",
+													"type": "text"
+												},
+												{
+													"key": "capacity",
+													"value": "40",
+													"type": "text"
+												},
+												{
+													"key": "current_count",
+													"value": "20",
+													"type": "text"
+												},
+												{
+													"key": "floor",
+													"value": "2",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/get_classes",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"get_classes"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add_class_for_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "level_id",
+													"value": "1",
+													"type": "text"
+												},
+												{
+													"key": "name",
+													"value": "first_primary3",
+													"type": "text"
+												},
+												{
+													"key": "capacity",
+													"value": "10",
+													"type": "text"
+												},
+												{
+													"key": "current_count",
+													"value": "0",
+													"type": "text"
+												},
+												{
+													"key": "floor",
+													"value": "1",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/add_class_for_education_level",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"add_class_for_education_level"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "get_education_level_data",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
+							"name": "Crud_sessions",
+							"item": [
+								{
+									"name": "delete_session_by_session_id",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/delete_session/1",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"delete_session",
+												"1"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/get_education_level_data/286",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"get_education_level_data",
-										"286"
-									]
+								{
+									"name": "get_all_sessions",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/get_all_sessions",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"get_all_sessions"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "add_session_for_class_room",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "teacher_id",
+													"value": "2",
+													"type": "text"
+												},
+												{
+													"key": "class_id",
+													"value": "1",
+													"type": "text"
+												},
+												{
+													"key": "start_time",
+													"value": "05:20",
+													"type": "text"
+												},
+												{
+													"key": "end_time",
+													"value": "05:50",
+													"type": "text"
+												},
+												{
+													"key": "day",
+													"value": "Sunday",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/add_session_for_class_room",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"add_session_for_class_room"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "get_All_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "1|N0n6U0pvYRDJniTlV2DxUL8t08bex4JOoHV2ghpdb3cf90a6",
-											"type": "string"
+							"name": "Subject_Crud",
+							"item": [
+								{
+									"name": "get_all_subjects_with_his_data",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{token1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/get_all_subjects_with_his_data",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"get_all_subjects_with_his_data"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/get_All_education_level",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"get_All_education_level"
-									]
+								{
+									"name": "add_subject_for_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "name",
+													"value": "physics",
+													"type": "text"
+												},
+												{
+													"key": "level_id",
+													"value": "1",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/add_subject_for_education_level",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"add_subject_for_education_level"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete_subject",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://127.0.0.1:8000/api/admin/process/delete_subject/23",
+											"protocol": "http",
+											"host": [
+												"127",
+												"0",
+												"0",
+												"1"
+											],
+											"port": "8000",
+											"path": [
+												"api",
+												"admin",
+												"process",
+												"delete_subject",
+												"23"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete_subject_from_education_level",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{admintoken1}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "subject_id",
+													"value": "22",
+													"type": "text"
+												},
+												{
+													"key": "education_level_id",
+													"value": "286",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{local}}/admin/process/delete_subject_from_education_level",
+											"host": [
+												"{{local}}"
+											],
+											"path": [
+												"admin",
+												"process",
+												"delete_subject_from_education_level"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
-						},
-						{
-							"name": "get_all_subjects_with_his_data",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/get_all_subjects_with_his_data",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"get_all_subjects_with_his_data"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "add_class_for_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "level_id",
-											"value": "288",
-											"type": "text"
-										},
-										{
-											"key": "name",
-											"value": "first",
-											"type": "text"
-										},
-										{
-											"key": "capacity",
-											"value": "40",
-											"type": "text"
-										},
-										{
-											"key": "current_count",
-											"value": "0",
-											"type": "text"
-										},
-										{
-											"key": "floor",
-											"value": "2",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/add_class_for_education_level",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"add_class_for_education_level"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "delete_class",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "level_id",
-											"value": "3",
-											"type": "text"
-										},
-										{
-											"key": "name",
-											"value": "1\\3",
-											"type": "text"
-										},
-										{
-											"key": "capacity",
-											"value": "40",
-											"type": "text"
-										},
-										{
-											"key": "current_count",
-											"value": "20",
-											"type": "text"
-										},
-										{
-											"key": "floor",
-											"value": "2",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/delete_class/1",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"delete_class",
-										"1"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "get_classes",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "level_id",
-											"value": "3",
-											"type": "text"
-										},
-										{
-											"key": "name",
-											"value": "1\\3",
-											"type": "text"
-										},
-										{
-											"key": "capacity",
-											"value": "40",
-											"type": "text"
-										},
-										{
-											"key": "current_count",
-											"value": "20",
-											"type": "text"
-										},
-										{
-											"key": "floor",
-											"value": "2",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/get_classes",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"get_classes"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "add_subject_for_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "name",
-											"value": "since",
-											"type": "text"
-										},
-										{
-											"key": "level_id",
-											"value": "288",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/add_subject_for_education_level",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"add_subject_for_education_level"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "delete_subject",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/delete_subject/23",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"delete_subject",
-										"23"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "delete_subject_from_education_level",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{admintoken1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "subject_id",
-											"value": "22",
-											"type": "text"
-										},
-										{
-											"key": "education_level_id",
-											"value": "286",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "{{local}}/admin/process/delete_subject_from_education_level",
-									"host": [
-										"{{local}}"
-									],
-									"path": [
-										"admin",
-										"process",
-										"delete_subject_from_education_level"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "add_session_for_class_room",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "teacher_id",
-											"value": "1",
-											"type": "text"
-										},
-										{
-											"key": "class_id",
-											"value": "2",
-											"type": "text"
-										},
-										{
-											"key": "start_time",
-											"value": "05:00",
-											"type": "text"
-										},
-										{
-											"key": "end_time",
-											"value": "06:00",
-											"type": "text"
-										},
-										{
-											"key": "day",
-											"value": "Saturday",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/add_session_for_class_room",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"add_session_for_class_room"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "get_all_sessions",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/get_all_sessions",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"get_all_sessions"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "delete_session_by_session_id",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{token1}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/admin/process/delete_session/1",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"admin",
-										"process",
-										"delete_session",
-										"1"
-									]
-								}
-							},
-							"response": []
+							]
 						}
 					]
 				},
@@ -2984,17 +3126,17 @@
 									"formdata": [
 										{
 											"key": "name",
-											"value": "2024-2025",
+											"value": "2025-2026",
 											"type": "text"
 										},
 										{
 											"key": "start_date",
-											"value": "2024-01-01",
+											"value": "2025-01-01",
 											"type": "text"
 										},
 										{
 											"key": "end_date",
-											"value": "2024-01-01",
+											"value": "2026-01-01",
 											"type": "text"
 										}
 									]
@@ -3021,7 +3163,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "{{token1}}",
+											"value": "{{admintoken1}}",
 											"type": "string"
 										}
 									]
@@ -3102,7 +3244,7 @@
 							"response": []
 						},
 						{
-							"name": "Get_Salaries_For_Users Copy",
+							"name": "Paying_Salary",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -3130,67 +3272,37 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "get_reports",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{admintoken1}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{local}}/admin/process/get_reports",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"admin",
+										"process",
+										"get_reports"
+									]
+								}
+							},
+							"response": []
 						}
 					]
-				},
-				{
-					"name": "make_installment_plan",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token1}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "second_plan",
-									"type": "text"
-								},
-								{
-									"key": "education_level_id",
-									"value": "1",
-									"type": "text"
-								},
-								{
-									"key": "number_of_installments",
-									"value": "6",
-									"type": "text"
-								},
-								{
-									"key": "count_of_days_per_each_installment",
-									"value": "40",
-									"type": "text"
-								},
-								{
-									"key": "description",
-									"value": "extrem_installment",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{local}}/admin/process/make_installment_plan",
-							"host": [
-								"{{local}}"
-							],
-							"path": [
-								"admin",
-								"process",
-								"make_installment_plan"
-							]
-						}
-					},
-					"response": []
 				},
 				{
 					"name": "Generate_QR_For_Specific_Class",
@@ -3338,6 +3450,41 @@
 								"admin",
 								"process",
 								"Get_dash_data"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_Qr_codes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admintoken1}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/admin/process/get_Qr_codes",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"admin",
+								"process",
+								"get_Qr_codes"
 							]
 						}
 					},
@@ -3571,7 +3718,7 @@
 									"formdata": [
 										{
 											"key": "code",
-											"value": "209689",
+											"value": "280246",
 											"type": "text"
 										},
 										{
@@ -3609,10 +3756,6 @@
 								},
 								"method": "POST",
 								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": []
-								},
 								"url": {
 									"raw": "http://127.0.0.1:8000/api/supervisor/process/log_out",
 									"protocol": "http",
@@ -3803,7 +3946,7 @@
 										},
 										{
 											"key": "Description",
-											"value": "visit tourism places in damascus",
+											"value": "omaroamr",
 											"type": "text"
 										},
 										{
@@ -3834,7 +3977,8 @@
 										{
 											"key": "cost",
 											"value": "25000",
-											"type": "text"
+											"type": "text",
+											"disabled": true
 										},
 										{
 											"key": "seats_limit",
@@ -3859,17 +4003,17 @@
 										{
 											"key": "gallery[0]",
 											"type": "file",
-											"src": "postman-cloud:///1f02318f-7d8c-4050-acbf-9a9e1454840e"
+											"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3"
 										},
 										{
 											"key": "gallery[1]",
 											"type": "file",
-											"src": "postman-cloud:///1f02318f-7d8c-4050-acbf-9a9e1454840e"
+											"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3"
 										},
 										{
 											"key": "gallery[2]",
 											"type": "file",
-											"src": "postman-cloud:///1f02318f-3767-47a0-9614-8f68b4262145"
+											"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3"
 										},
 										{
 											"key": "required_skills[]",
@@ -3975,6 +4119,78 @@
 					]
 				},
 				{
+					"name": "Attendance_processes",
+					"item": [
+						{
+							"name": "Check_if_attendance_student_done",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{local}}/supervisor/process/Check_if_attendance_student_done",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"supervisor",
+										"process",
+										"Check_if_attendance_student_done"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add_daily_student_absences",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"1\": [\r\n    { \"student_id\": 1, \"excused\": true },\r\n    { \"student_id\": 2, \"excused\": true },\r\n    { \"student_id\": 3, \"excused\": true },\r\n    { \"student_id\": 4, \"excused\": false },\r\n    { \"student_id\": 5, \"excused\": false },\r\n    { \"student_id\": 6, \"excused\": false }\r\n     ] ,\r\n    \"2\": [\r\n    { \"student_id\": 2, \"excused\": true },\r\n    { \"student_id\": 2, \"excused\": false },\r\n    { \"student_id\": 2, \"excused\": false },\r\n    { \"student_id\": 2, \"excused\": true }\r\n     ]     \r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{local}}/supervisor/process/Add_daily_student_absences",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"supervisor",
+										"process",
+										"Add_daily_student_absences"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "Add_student_profile_data",
 					"request": {
 						"auth": {
@@ -3994,22 +4210,7 @@
 							"formdata": [
 								{
 									"key": "student_id",
-									"value": "2",
-									"type": "text"
-								},
-								{
-									"key": "total_absences",
-									"value": "0",
-									"type": "text"
-								},
-								{
-									"key": "unexcused_absences",
-									"value": "0",
-									"type": "text"
-								},
-								{
-									"key": "score",
-									"value": "92.5",
+									"value": "13",
 									"type": "text"
 								},
 								{
@@ -4058,16 +4259,6 @@
 									"type": "text"
 								},
 								{
-									"key": "guardian_feedback",
-									"value": "perfect",
-									"type": "text"
-								},
-								{
-									"key": "teacher_feedback",
-									"value": "perfect",
-									"type": "text"
-								},
-								{
 									"key": "skills[]",
 									"value": "swimming",
 									"type": "text"
@@ -4075,11 +4266,6 @@
 								{
 									"key": "skills[]",
 									"value": "speaking",
-									"type": "text"
-								},
-								{
-									"key": "education_level_id",
-									"value": "288",
 									"type": "text"
 								}
 							]
@@ -4105,7 +4291,7 @@
 					"response": []
 				},
 				{
-					"name": "Add_daily_student_absences",
+					"name": "pay_Installment",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -4117,26 +4303,18 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"252\": [\r\n    { \"student_id\": 231, \"excused\": true },\r\n    { \"student_id\": 232, \"excused\": true },\r\n    { \"student_id\": 233, \"excused\": true },\r\n    { \"student_id\": 234, \"excused\": false }\r\n     ]\r\n     \r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{local}}/supervisor/process/Add_daily_student_absences",
+							"raw": "{{local}}/supervisor/process/pay_Installment/3",
 							"host": [
 								"{{local}}"
 							],
 							"path": [
 								"supervisor",
 								"process",
-								"Add_daily_student_absences"
+								"pay_Installment",
+								"3"
 							]
 						}
 					},
@@ -4162,7 +4340,7 @@
 							"formdata": [
 								{
 									"key": "unique_code",
-									"value": "3d80cdc2-3cc8-4e93-98fc-79ca4ad94876",
+									"value": "S52Y3O39X5",
 									"type": "text"
 								}
 							]
@@ -4249,9 +4427,6 @@
 				},
 				{
 					"name": "Show_Reports_For_Students",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -4265,15 +4440,6 @@
 						},
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"1\": [\r\n    { \"student_id\": 1, \"excused\": true }\r\n    { \"student_id\": 2, \"excused\": false }\r\n    { \"student_id\": 3, \"excused\": false }\r\n    { \"student_id\": 4, \"excused\": true }\r\n  ],\r\n  \"2\": [\r\n    { \"student_id\": 5, \"excused\": false }\r\n  ],\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "http://127.0.0.1:8000/api/supervisor/process/Show_Reports_For_Students",
 							"protocol": "http",
@@ -4386,65 +4552,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "pay_Installment",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{supervisortoken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{local}}/supervisor/process/pay_Installment/3",
-							"host": [
-								"{{local}}"
-							],
-							"path": [
-								"supervisor",
-								"process",
-								"pay_Installment",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Check_if_attendance_student_done",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{supervisortoken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{local}}/supervisor/process/Check_if_attendance_student_done",
-							"host": [
-								"{{local}}"
-							],
-							"path": [
-								"supervisor",
-								"process",
-								"Check_if_attendance_student_done"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -4474,7 +4581,7 @@
 									"formdata": [
 										{
 											"key": "subject_id",
-											"value": "4",
+											"value": "1",
 											"type": "text"
 										},
 										{
@@ -4539,17 +4646,17 @@
 									"formdata": [
 										{
 											"key": "Book_id",
-											"value": "3",
+											"value": "1",
 											"type": "text"
 										},
 										{
 											"key": "Increase_quantity",
-											"value": "100",
+											"value": "50",
 											"type": "text"
 										},
 										{
 											"key": "price",
-											"value": "30",
+											"value": "300",
 											"type": "text"
 										}
 									]
@@ -4590,7 +4697,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://127.0.0.1:8000/api/librarian/process/delete_Textual_book/3",
+									"raw": "http://127.0.0.1:8000/api/librarian/process/delete_Textual_book/2",
 									"protocol": "http",
 									"host": [
 										"127",
@@ -4604,7 +4711,7 @@
 										"librarian",
 										"process",
 										"delete_Textual_book",
-										"3"
+										"2"
 									]
 								}
 							},
@@ -4670,7 +4777,7 @@
 									"formdata": [
 										{
 											"key": "title",
-											"value": "book4",
+											"value": "الكفاح",
 											"type": "text"
 										},
 										{
@@ -4690,18 +4797,19 @@
 										},
 										{
 											"key": "publication_year",
-											"value": "1990-2-2",
+											"value": "1990",
 											"type": "text"
 										},
 										{
 											"key": "type",
-											"value": "Paper",
+											"value": "paper",
 											"type": "text"
 										},
 										{
 											"key": "file",
 											"type": "file",
-											"src": "/C:/Users/amrza/OneDrive/سطح المكتب/Noor-Book.com  55 مشكلة حب.pdf"
+											"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3",
+											"disabled": true
 										},
 										{
 											"key": "copies_available",
@@ -4751,12 +4859,12 @@
 									"formdata": [
 										{
 											"key": "Book_id",
-											"value": "1",
+											"value": "4",
 											"type": "text"
 										},
 										{
 											"key": "copies_available",
-											"value": "20",
+											"value": "32",
 											"type": "text"
 										}
 									]
@@ -4782,7 +4890,7 @@
 							"response": []
 						},
 						{
-							"name": "delete_Textual_book",
+							"name": "delete_cultural_book",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -4797,7 +4905,7 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "http://127.0.0.1:8000/api/librarian/process/delete_cultural_book/1",
+									"raw": "http://127.0.0.1:8000/api/librarian/process/delete_cultural_book/18",
 									"protocol": "http",
 									"host": [
 										"127",
@@ -4811,7 +4919,7 @@
 										"librarian",
 										"process",
 										"delete_cultural_book",
-										"1"
+										"18"
 									]
 								}
 							},
@@ -4865,7 +4973,7 @@
 					"name": "Extra_apis",
 					"item": [
 						{
-							"name": "get_subjects",
+							"name": "get_subjects_and_education_level",
 							"protocolProfileBehavior": {
 								"disableBodyPruning": true
 							},
@@ -4887,14 +4995,134 @@
 									"formdata": []
 								},
 								"url": {
-									"raw": "{{local}}/librarian/process/get_subjects",
+									"raw": "{{local}}/librarian/process/get_subjects_and_education_level",
 									"host": [
 										"{{local}}"
 									],
 									"path": [
 										"librarian",
 										"process",
-										"get_subjects"
+										"get_subjects_and_education_level"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_users",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{librarianToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{local}}/librarian/process/get_users",
+									"host": [
+										"{{local}}"
+									],
+									"path": [
+										"librarian",
+										"process",
+										"get_users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "librarian_Notifications",
+					"item": [
+						{
+							"name": "notifications",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/librarian/process/notifications",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"librarian",
+										"process",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "notificationsRead",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/librarian/process/notifications/read/a486603b-c4f7-4cc0-8a23-8a506d928d6d",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"librarian",
+										"process",
+										"notifications",
+										"read",
+										"a486603b-c4f7-4cc0-8a23-8a506d928d6d"
 									]
 								}
 							},
@@ -5043,9 +5271,6 @@
 				},
 				{
 					"name": "get_loans_Sales_For_user",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -5057,14 +5282,20 @@
 								}
 							]
 						},
-						"method": "GET",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "formdata",
-							"formdata": []
+							"formdata": [
+								{
+									"key": "user_id",
+									"value": "1002",
+									"type": "text"
+								}
+							]
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/librarian/process/get_loans_Sales_For_user/11",
+							"raw": "http://127.0.0.1:8000/api/librarian/process/get_loans_Sales_For_student",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -5077,8 +5308,7 @@
 								"api",
 								"librarian",
 								"process",
-								"get_loans_Sales_For_user",
-								"11"
+								"get_loans_Sales_For_student"
 							]
 						}
 					},
@@ -5109,7 +5339,7 @@
 								},
 								{
 									"key": "user_id",
-									"value": "1",
+									"value": "1003",
 									"type": "text"
 								}
 							]
@@ -5135,7 +5365,7 @@
 					"response": []
 				},
 				{
-					"name": "make_leave_demand",
+					"name": "leave_demand",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -5154,7 +5384,7 @@
 							"formdata": [
 								{
 									"key": "leave_date",
-									"value": "3-2-2025",
+									"value": "2025-2-2",
 									"type": "text"
 								},
 								{
@@ -5175,7 +5405,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/librarian/process/make_leave_demand",
+							"raw": "http://127.0.0.1:8000/api/librarian/process/leave_demand",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -5188,7 +5418,7 @@
 								"api",
 								"librarian",
 								"process",
-								"make_leave_demand"
+								"leave_demand"
 							]
 						}
 					},
@@ -5264,7 +5494,7 @@
 								},
 								{
 									"key": "user_id",
-									"value": "10",
+									"value": "1007",
 									"type": "text"
 								},
 								{
@@ -5314,12 +5544,12 @@
 							"formdata": [
 								{
 									"key": "textbook_id",
-									"value": "2",
+									"value": "1",
 									"type": "text"
 								},
 								{
 									"key": "student_id",
-									"value": "4",
+									"value": "1008",
 									"type": "text"
 								},
 								{
@@ -5403,6 +5633,9 @@
 				},
 				{
 					"name": "log_out",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -5414,7 +5647,7 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "formdata",
@@ -5471,12 +5704,12 @@
 									"formdata": [
 										{
 											"key": "email",
-											"value": "librarianbase@gmail.com",
+											"value": "parent1@gmail.com",
 											"type": "text"
 										},
 										{
 											"key": "role",
-											"value": "librarian",
+											"value": "parent",
 											"type": "text"
 										}
 									]
@@ -5508,12 +5741,12 @@
 									"formdata": [
 										{
 											"key": "code",
-											"value": "634363",
+											"value": "797463",
 											"type": "text"
 										},
 										{
 											"key": "email",
-											"value": "librarianbase@gmail.com",
+											"value": "parent1@gmail.com",
 											"type": "text"
 										}
 									]
@@ -5547,7 +5780,7 @@
 									"formdata": [
 										{
 											"key": "amount",
-											"value": "12",
+											"value": "223",
 											"type": "text"
 										}
 									]
@@ -5565,44 +5798,6 @@
 								}
 							},
 							"response": []
-						},
-						{
-							"name": "confirm_payment",
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "formdata",
-									"formdata": [
-										{
-											"key": "payment_intent_id",
-											"value": "pi_3S0Lx2B58mDwVXQQ1K33zibi",
-											"type": "text"
-										}
-									]
-								},
-								"url": {
-									"raw": "http://127.0.0.1:8000/api/visitor/process/confirm_payment",
-									"protocol": "http",
-									"host": [
-										"127",
-										"0",
-										"0",
-										"1"
-									],
-									"port": "8000",
-									"path": [
-										"api",
-										"visitor",
-										"process",
-										"confirm_payment"
-									]
-								}
-							},
-							"response": []
 						}
 					]
 				},
@@ -5615,9 +5810,54 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "amount",
-									"value": "12",
+									"key": "student_name",
+									"value": "student14",
 									"type": "text"
+								},
+								{
+									"key": "student_email",
+									"value": "student14@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "parent_name",
+									"value": "parent3",
+									"type": "text"
+								},
+								{
+									"key": "parent_email",
+									"value": "parent3@gmail.com",
+									"type": "text"
+								},
+								{
+									"key": "phone_number",
+									"value": "09658992662",
+									"type": "text"
+								},
+								{
+									"key": "education_level_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "installment_plan_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "documents[healthy]",
+									"type": "file",
+									"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3"
+								},
+								{
+									"key": "documents[father]",
+									"type": "file",
+									"src": "postman-cloud:///1f02318f-7d8c-4050-acbf-9a9e1454840e"
+								},
+								{
+									"key": "documents[mother]",
+									"type": "file",
+									"src": "postman-cloud:///1f02318f-3767-47a0-9614-8f68b4262145"
 								}
 							]
 						},
@@ -5636,41 +5876,6 @@
 								"visitor",
 								"process",
 								"pre_register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "confirm_payment",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "payment_intent_id",
-									"value": "pi_3RraGvB58mDwVXQQ0qCk7o2u",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/visitor/process/confirm_payment",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"visitor",
-								"process",
-								"confirm_payment"
 							]
 						}
 					},
@@ -5735,9 +5940,16 @@
 				},
 				{
 					"name": "view_education_level",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
 						"url": {
 							"raw": "http://127.0.0.1:8000/api/visitor/process/view_education_level",
 							"protocol": "http",
@@ -5761,8 +5973,355 @@
 			]
 		},
 		{
+			"name": "Parent_API",
+			"item": [
+				{
+					"name": "parent_Notifications",
+					"item": [
+						{
+							"name": "notifications",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/parent/process/notifications",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"parent",
+										"process",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "notificationsRead",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/parent/process/notifications/read/a486603b-c4f7-4cc0-8a23-8a506d928d6d",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"parent",
+										"process",
+										"notifications",
+										"read",
+										"a486603b-c4f7-4cc0-8a23-8a506d928d6d"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "log_out",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{parentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "code",
+									"value": "313333",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "email",
+									"value": "supervisr@gmail.com",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/parent/process/log_out",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"parent",
+								"process",
+								"log_out"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show_installment_for_my_students",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{parentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/parent/process/Show_installment_for_my_students",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"parent",
+								"process",
+								"Show_installment_for_my_students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show_attendance_for_my_students",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{parentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/parent/process/Show_attendance_for_my_students",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"parent",
+								"process",
+								"Show_attendance_for_my_students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show_marks_for_my_students",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{parentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/parent/process/Show_marks_for_my_students",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"parent",
+								"process",
+								"Show_marks_for_my_students"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Teacher_API",
 			"item": [
+				{
+					"name": "Teacehr_Notifications",
+					"item": [
+						{
+							"name": "notifications",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{teacherToken2}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/teacher/process/notifications",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"teacher",
+										"process",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "notificationsRead",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{supervisortoken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": []
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/teacher/process/notifications/read/a486603b-c4f7-4cc0-8a23-8a506d928d6d",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"teacher",
+										"process",
+										"notifications",
+										"read",
+										"a486603b-c4f7-4cc0-8a23-8a506d928d6d"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
 				{
 					"name": "verify_attendance_for_session",
 					"request": {
@@ -5771,7 +6330,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{teacherToken}}",
+									"value": "{{teacherToken2}}",
 									"type": "string"
 								}
 							]
@@ -5783,7 +6342,12 @@
 							"formdata": [
 								{
 									"key": "unique_code",
-									"value": "7a51fce0-da26-4fb9-85db-e668218e5828",
+									"value": "2fcaaee2-6cc5-4f75-a3b2-95f92c63b21e",
+									"type": "text"
+								},
+								{
+									"key": "class_id",
+									"value": "1",
 									"type": "text"
 								}
 							]
@@ -5846,32 +6410,19 @@
 				},
 				{
 					"name": "get_my_student",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{teacherToken}}",
+									"value": "{{teacherToken2}}",
 									"type": "string"
 								}
 							]
 						},
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "unique_code",
-									"value": "1",
-									"type": "text"
-								}
-							]
-						},
 						"url": {
 							"raw": "{{local}}/teacher/process/get_my_student",
 							"host": [
@@ -6020,7 +6571,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{teacherToken}}",
+									"value": "{{teacherToken2}}",
 									"type": "string"
 								}
 							]
@@ -6071,6 +6622,35 @@
 					"response": []
 				},
 				{
+					"name": "view_my_education_content",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{local}}/teacher/process/view_my_education_content",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"teacher",
+								"process",
+								"view_my_education_content"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "enter_education_content",
 					"request": {
 						"auth": {
@@ -6090,28 +6670,28 @@
 							"formdata": [
 								{
 									"key": "class_room_id",
-									"value": "1",
+									"value": "2",
 									"type": "text"
 								},
 								{
 									"key": "title",
-									"value": "lesson",
+									"value": "explining vedio",
 									"type": "text"
 								},
 								{
 									"key": "description",
-									"value": "scince lesson",
+									"value": "vedio 1",
 									"type": "text"
 								},
 								{
 									"key": "content_type",
-									"value": "pdf",
+									"value": "video",
 									"type": "text"
 								},
 								{
 									"key": "file",
 									"type": "file",
-									"src": "postman-cloud:///1f023191-5d01-4b80-bfa0-683cd2d514b3"
+									"src": "/C:/Users/amrza/Videos/4K Video Downloader/GOALKEEPER SKILLS 🔥⚽️🤯 #football #respect #shorts ⬇️ SUBSCRIBE ⬇️.mp4"
 								}
 							]
 						},
@@ -6137,7 +6717,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{teacherToken}}",
+									"value": "{{teacherToken2}}",
 									"type": "string"
 								}
 							]
@@ -6154,12 +6734,12 @@
 								},
 								{
 									"key": "exam_type",
-									"value": "midterm",
+									"value": "final",
 									"type": "text"
 								},
 								{
 									"key": "score",
-									"value": "9",
+									"value": "7",
 									"type": "text"
 								},
 								{
@@ -6196,7 +6776,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{teacherToken}}",
+									"value": "{{teacherToken2}}",
 									"type": "string"
 								}
 							]
@@ -6208,7 +6788,7 @@
 							"formdata": [
 								{
 									"key": "teacher_feedback",
-									"value": "weak in math",
+									"value": "is soo doncy",
 									"type": "text"
 								},
 								{
@@ -6281,6 +6861,89 @@
 								"teacher",
 								"process",
 								"add_homework"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "solve_homework",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "homework_solving_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "nots",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/teacher/process/solve_homework",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"teacher",
+								"process",
+								"solve_homework"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_homeworks_solvings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "homework_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{local}}/teacher/process/get_homeworks_solvings",
+							"host": [
+								"{{local}}"
+							],
+							"path": [
+								"teacher",
+								"process",
+								"get_homeworks_solvings"
 							]
 						}
 					},
@@ -6382,6 +7045,335 @@
 								"teacher",
 								"process",
 								"view_home_work_solution"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/schedule",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"schedule"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/contents",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"contents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_text_books",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/get_text_books",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"get_text_books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_activities",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/get_activities",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"get_activities"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register_in_activity",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "activity_id",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/register_in_activity",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"register_in_activity"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get_daily_homwork",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/get_daily_homwork",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"get_daily_homwork"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "solve_homwork",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "homework_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "solve_url",
+									"type": "file",
+									"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
+								},
+								{
+									"key": "nots",
+									"value": "good",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/solve_homwork",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"solve_homwork"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "profile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{StudentToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "homework_id",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "solve_url",
+									"type": "file",
+									"src": "postman-cloud:///1f023191-1512-4310-a1b4-a426b48b21be"
+								},
+								{
+									"key": "nots",
+									"value": "good",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/student/process/profile",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"student",
+								"process",
+								"profile"
 							]
 						}
 					},

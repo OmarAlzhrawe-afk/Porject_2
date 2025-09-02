@@ -478,17 +478,17 @@ class AdminProcessController extends Controller
             $qrList = [];
             foreach ($classes as $class) {
                 // Delete The Old Records Qr Codes From DataBase
-                $code = Str::uuid();
+                // $code = Str::uuid();
                 $qr_code = Qr_Code::where('class_id', $class->id)
                     ->where('is_Active', true)
                     ->where('Code_type', 'teacher')
                     ->first();
-                $qr_code->class_id = $class->id;
-                $qr_code->Unique_code = $code;
-                $qr_code->expires_at = now()->addDays(7);
-                $qr_code->Code_type = 'teacher';
-                $qr_code->user_id = auth()->user()->id;
-                $qr_code->save();
+                // $qr_code->class_id = $class->id;
+                // $qr_code->Unique_code = $code;
+                // $qr_code->expires_at = now()->addDays(7);
+                // $qr_code->Code_type = 'teacher';
+                // $qr_code->user_id = auth()->user()->id;
+                // $qr_code->save();
                 $qrList[] = [
                     'Class_Name' => $class->name,
                     'Class_ID' => $class->id,
@@ -499,17 +499,16 @@ class AdminProcessController extends Controller
                     ],
                 ];
             }
-            $qr_code_for_employee = Qr_Code::where('class_id', $class->id)
-                ->where('is_Active', true)
+            $qr_code_for_employee = Qr_Code::where('is_Active', true)
                 ->where('Code_type', 'employee')
                 ->first();
             $response_data = [
                 'QR_for_classes' => $qrList,
                 'QR_for_employee' => $qr_code_for_employee,
             ];
-            return HelpersFunctions::success($response_data, "Creating Qr_codes Done", 200);
+            return HelpersFunctions::success($response_data, "getting Qr_codes Done", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("internal server error", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal server error IN Line" . $e->getLine(), 500, $e->getMessage());
         }
     }
 }
