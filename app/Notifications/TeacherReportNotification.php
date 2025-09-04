@@ -20,21 +20,21 @@ class TeacherReportNotification extends Notification
     {
         return ['database', 'broadcast'];
     }
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => ' New admin,supervisor Notification',
+            'title' => 'new Report For Teachers',
             'message' => ' monthly Teachers  Report',
-            'reporturl' =>  $this->reporturl
+            'reporturl' => url($this->reporturl)
         ];
     }
     public function toBroadcast()
     {
 
         return [
-            'type' => ' New admin,supervisor Notification',
+            'title' => 'new Report For Teachers',
             'message' => ' monthly Teachers  Report',
-            'reporturl' =>  $this->reporturl
+            'reporturl' =>  url($this->reporturl)
         ];
     }
 }

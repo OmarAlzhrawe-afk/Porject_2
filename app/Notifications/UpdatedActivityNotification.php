@@ -2,15 +2,16 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class UpdatedActivityNotification extends Notification
 {
     use Queueable;
-    protected $message;
     protected $activity;
     public function __construct($activity)
     {
@@ -24,17 +25,23 @@ class UpdatedActivityNotification extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'Specefic Notification',
-            'message' => "Activity Updated",
-            'SenderName' => $this->activity
+            'title' => 'updating activity',
+            'Message' => 'Adding New  Activity  For' . $this->activity->activity_type . 'If You Want to join to it ',
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => 'Specefic Notification',
-            'message' => "Activity Updated",
-            'SenderName' => $this->activity
-        ];
+        return new BroadcastMessage([
+            'title' => 'Attendance',
+            'Message' => 'Adding New  Activity  For' . $this->activity->activity_type . 'If You Want to join to it ',
+        ]);
+    }
+    public function broadcastOn()
+    {
+        return new Channel('school-channel');
+    }
+    public function broadcastAs()
+    {
+        return 'new-notification';
     }
 }

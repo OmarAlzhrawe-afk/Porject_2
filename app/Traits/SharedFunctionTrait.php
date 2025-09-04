@@ -135,7 +135,7 @@ trait SharedFunctionTrait
     {
         $validator = Validator::make($request->all(), [
             'activity_id' => 'required|exists:activities,id',
-            'notes' => 'nullable|exists:activities,id'
+            'nots' => 'nullable|string'
         ]);
         if ($validator->fails()) {
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
@@ -143,6 +143,7 @@ trait SharedFunctionTrait
         try {
             DB::beginTransaction();
             $user = User::find(auth('sanctum')->user()->id);
+            // $user = auth('sanctum')->user();
             if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
                 return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
             }
@@ -153,15 +154,17 @@ trait SharedFunctionTrait
             $register_in_activity->activity_id = $request->activity_id;
             if ($activity->is_paid) {
                 $register_in_activity->payment_status = 'pending';
+                $register_in_activity->payment_method = 'OnLine';
             } else {
-                $register_in_activity->payment_status = 'free_activity';
+                $register_in_activity->payment_status = 'free_activity'; // cash
+                $register_in_activity->payment_method = 'cash';
             }
             $register_in_activity->attendance = false;
-            $register_in_activity->payment_method = 'OnLine';
             if ($request->notes) {
                 $register_in_activity->notes = $request->notes  ?? null;
             }
             $register_in_activity->save();
+            // Code For Stripe paying
             if ($activity->is_paid) {
                 Stripe::setApiKey(config('services.stripe.secret'));
                 $paymentIntent = PaymentIntent::create([
@@ -176,18 +179,21 @@ trait SharedFunctionTrait
                     'payment_reference' => $paymentIntent->id
                 ]);
                 $register_in_activity->save();
-                // Checing if Activity still Available
-                Artisan::call('activities:check-seats');
                 $data = [
                     'client_secret' => $paymentIntent->client_secret,
                     'message' => 'Creating Registering in Activity Done Please Process Payment cost',
                 ];
                 DB::commit();
                 return HelpersFunctions::success($data, "please Continue Payment", 200);
-            } else {
+            }
+            // code if paying is cash 
+            else {
+
                 DB::commit();
                 return HelpersFunctions::success($register_in_activity, "register_in_activity done", 200);
             }
+            // Checing if Activity still Available
+            Artisan::call('activities:check-seats');
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
         }

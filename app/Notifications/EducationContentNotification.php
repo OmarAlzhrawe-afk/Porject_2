@@ -20,17 +20,17 @@ class EducationContentNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Enrolling homwork Notification',
+            'title' => 'Enrolling homwork Notification',
             'homwork' => $this->homwork,
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Enrolling homwork Notification',
+            'title' => 'Enrolling homwork Notification',
             'homwork' => $this->homwork,
         ];
     }

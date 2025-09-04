@@ -26,7 +26,7 @@ class GenerateLibraryReport extends Command
 
         $sales = $salesModels->map(fn($sale) => [
             'student' => $sale->student->user->name ?? '-',
-            'book' => $sale->textbook->title ?? '-',
+            'book' => $sale->book->title ?? '-',
             'price' => $sale->total_price,
             'date' => $sale->sale_date,
         ]);
@@ -34,8 +34,8 @@ class GenerateLibraryReport extends Command
         $loans = $loansModels->map(fn($loan) => [
             'user' => $loan->user->name ?? 'unKnown',
             'book' => $loan->book_loan->title ?? 'unKnown',
-            'notes' => '—',
-            'duration' => '—',
+            'Loan_Status' => $loan->status,
+            'duration' => $loan->type,
         ]);
 
         $totalSales = $salesModels->sum('total_price');

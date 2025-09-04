@@ -88,7 +88,7 @@ class GenerateTeachersReport extends Command
         // save pdf file in public 
         file_put_contents($file_path, $mpdf->Output('', 'S'));
         // getting related User 
-        $users = User::whereIn('role', ['admin', 'supervisor'])->get();
+        $users = User::where('role', 'admin')->get();
         // Save Url  
         $relativeUrl = 'reports/TeacherReports/' . $filename;
         // Sending Notifications To Users 
@@ -101,5 +101,6 @@ class GenerateTeachersReport extends Command
         $report->report_description = "teachers Report For Year : " . now()->year() . " Month :  " . now()->month();
         $report->report_date = now()->format('Y-m'); // 'F Y'
         $report->save();
+        $this->info("Generating Reports For Teachers");
     }
 }

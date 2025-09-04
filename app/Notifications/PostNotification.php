@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -24,15 +26,24 @@ class PostNotification extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'Adding new Post',
-            'data' => $this->post
+            'title' => 'Post',
+            'message' => 'there Are New Post',
+            // 'data' => $this->post
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => 'Adding new Post',
-            'data' => $this->post
-        ];
+        return new BroadcastMessage([
+            'title' => 'Post',
+            'message' => 'there Are New Post',
+        ]);
+    }
+    public function broadcastOn()
+    {
+        return new Channel('school-channel');
+    }
+    public function broadcastAs()
+    {
+        return 'new-notification';
     }
 }

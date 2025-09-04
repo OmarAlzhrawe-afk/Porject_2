@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -23,15 +25,24 @@ class NewBookSale extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'New Book Sale Notification',
+            'title' => 'Book Sale',
             'message' =>  $this->message
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => 'New Book Sale Notification',
+        return new BroadcastMessage([
+            'title' => 'Book Sale',
             'message' =>  $this->message
-        ];
+
+        ]);
+    }
+    public function broadcastOn()
+    {
+        return new Channel('school-channel');
+    }
+    public function broadcastAs()
+    {
+        return 'new-notification';
     }
 }

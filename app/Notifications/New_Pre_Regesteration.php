@@ -19,17 +19,17 @@ class New_Pre_Regesteration extends Notification
     {
         return ['database', 'broadcast'];
     }
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Leave Accepted Notification',
+            'title' => 'New Order registeration',
             'data' =>  $this->pre
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Session Notification',
+            'title' => 'New Order registeration',
             'leave' => $this->pre
         ];
     }

@@ -42,7 +42,7 @@ class AdminAuth extends Controller
             $token = $user->createToken($user->name)->plainTextToken;
             $data = [
                 'token' =>  $token,
-                'admin data' =>  $user,
+                'admin_data' =>  $user,
             ];
             //Enrolling Admin Log
             activity()->causedBy($user)->withProperties([

@@ -19,10 +19,10 @@ class LibraryReportNotification extends Notification
     {
         return ['database', 'broadcast'];
     }
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => ' New Library  Notification',
+            'title' => ' New Library  Notification',
             'message' => ' monthly Library  Report',
             'reporturl' =>  $this->reporturl
         ];
@@ -30,9 +30,9 @@ class LibraryReportNotification extends Notification
     public function toBroadcast()
     {
         return [
-            'type' => ' New Library  Notification',
+            'title' => ' New Library  Notification',
             'message' => ' monthly Library  Report',
-            'reporturl' =>  $this->reporturl
+            'reporturl' =>  url($this->reporturl)
         ];
     }
 }

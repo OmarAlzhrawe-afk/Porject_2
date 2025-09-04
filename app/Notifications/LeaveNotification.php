@@ -23,17 +23,18 @@ class LeaveNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Leave Accepted Notification',
-            'data' =>  $this->leave
+            'title' => 'Leave Accepted Notification',
+            'leave' => $this->leave,
+            'deducation' => $this->deducation
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Session Notification',
+            'title' => 'Leave Accepted Notification',
             'leave' => $this->leave,
             'deducation' => $this->deducation
         ];

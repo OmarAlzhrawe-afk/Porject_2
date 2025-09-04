@@ -68,7 +68,7 @@ class SupervisorAuth extends Controller
         $token = $user->createToken($user->name)->plainTextToken;
         $data = [
             'token' =>  $token,
-            'admin data' =>  $user,
+            'supervisor_data' =>  $user,
         ];
         //Enrolling Admin Log
         return HelpersFunctions::success($data, " Login Done ", 200);

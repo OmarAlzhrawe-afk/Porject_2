@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -20,18 +22,38 @@ class SalaryReadyNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Salary Redy Notification',
-            'data' =>  $this->salary
+            'title' => 'Your Salary Ready',
+            'message' => 'Your Salary Ready and This with BaseSalary : ' . $this->salary->Base_salary .
+                '\n bonus : ' . $this->salary->bonus .
+                '\n deducations : ' . $this->salary->deductions
+            // 'data' =>  $this->salary
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => 'Salary Redy Notification',
-            'salary' => $this->salary,
-        ];
+        return new BroadcastMessage([
+            'title' => 'Your Salary Ready',
+            'message' => 'Your Salary Ready and This with BaseSalary : ' . $this->salary->Base_salary .
+                '\n bonus : ' . $this->salary->bonus .
+                '\n deducations : ' . $this->salary->deductions
+            // 'data' =>  $this->salary
+        ]);
+    }
+    public function broadcastOn()
+    {
+        return new Channel('school-channel');
+    }
+    public function broadcastAs()
+    {
+        return 'new-notification';
     }
 }
+
+/**
+ * 
+ * 
+  
+ */

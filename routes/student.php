@@ -29,11 +29,15 @@ Route::prefix('/student')->name('student.')->group(function () {
     Route::get('/schedule', [StudentController::class, 'getSchedule']); //
     Route::get('/contents', [StudentController::class, 'contents']); //
     Route::get('/get_text_books', [StudentController::class, 'get_text_books']); //
+    Route::get('/getCulturalBooks', [StudentController::class, 'getCulturalBooks']); //
+    // Route::get('/get_cultural_books', [StudentController::class, 'get_cultural_books']); //
     Route::get('/get_activities', [StudentController::class, 'get_activities']); //
     Route::post('/register_in_activity', [StudentController::class, 'register_in_activity']); // here creating Transaction after stripe process
     Route::get('/get_daily_homwork', [StudentController::class, 'get_daily_homwork']); // 
     Route::post('/solve_homwork', [StudentController::class, 'solve_homwork']); // 
-
+    // Notifications Process 
+    Route::get('/notifications', [StudentController::class, 'notifications']);
+    Route::get('/notifications/read/{id}', [StudentController::class, 'markAsRead']);
     // Route::get('/student/books-by-subject', [StudentController::class, 'studentBooksBySubject']);
     // Route::post('/search/books', [StudentController::class, 'studentBooksByTitle']);
     // Route::get('/student/type', [StudentController::class, 'indexEduction']);

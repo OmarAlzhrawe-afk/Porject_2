@@ -2,8 +2,10 @@
 
 namespace App\Notifications;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,28 +13,37 @@ class StudentAbsencesNotification extends Notification
 {
     use Queueable;
 
-    protected $absence;
-    public function __construct($absence)
+    protected $attendance;
+    protected $user_name;
+    public function __construct($attendance, $user_name)
     {
-        $this->absence = $absence;
+        $this->attendance = $attendance;
+        $this->user_name = $user_name;
     }
     public function via()
     {
         return ['database', 'broadcast'];
     }
-
     public function todatabase()
     {
         return [
-            'type' => 'Student Absence Notification',
-            'data' => $this->absence
+            'title' => 'Attendance',
+            'message' => 'Your Children :' . $this->user_name . 'Attendance IS : ' . $this->attendance,
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => 'Student Absence Notification',
-            'data' => $this->absence
-        ];
+        return new BroadcastMessage([
+            'title' => 'Attendance',
+            'message' => 'Your Children :' . $this->user_name . 'Attendance IS : ' . $this->attendance,
+        ]);
+    }
+    public function broadcastOn()
+    {
+        return new Channel('school-channel');
+    }
+    public function broadcastAs()
+    {
+        return 'new-notification';
     }
 }

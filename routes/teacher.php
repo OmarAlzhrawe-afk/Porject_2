@@ -17,13 +17,15 @@ Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sa
     Route::post('/enter_marks', [TeacherProcessController::class, 'enter_marks']);
     // we will test add nots for more than one teacher 
     Route::post('/add_nots_for_student', [TeacherProcessController::class, 'add_nots_for_student']);
+    // Home_Work Processes  
     Route::post('/add_homework', [TeacherProcessController::class, 'add_homework']);
     Route::post('/get_homeworks_solvings', [TeacherProcessController::class, 'get_homeworks_solvings']);
+    Route::get('/get_my_homeworks', [TeacherProcessController::class, 'get_my_homeworks']);
     Route::post('/solve_homework', [TeacherProcessController::class, 'solve_homework']);
     // Here we will add prevent to add more tahn one demand in same date or prevent conflicts for leaves demand in date     
     Route::post('/leave_demand', [TeacherProcessController::class, 'leave_demand']);
-    // Here We wil add correct solution And pass Notification to student for it & edit solving table for that 
-    Route::get('/view_home_work_solution', [TeacherProcessController::class, 'view_home_work_solution']);
+    // // Here We wil add correct solution And pass Notification to student for it & edit solving table for that 
+    // Route::get('/view_home_work_solution', [TeacherProcessController::class, 'view_home_work_solution']);
     Route::get('/get_last_activity', [TeacherProcessController::class, 'get_last_activity']);
     // Notifications Process 
     Route::get('/notifications', [TeacherProcessController::class, 'notifications']);

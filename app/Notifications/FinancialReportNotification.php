@@ -2,6 +2,8 @@
 
 namespace App\Notifications;
 
+use Illuminate\Notifications\Messages\BroadcastMessage;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -19,20 +21,20 @@ class FinancialReportNotification extends Notification
     {
         return ['database', 'broadcast'];
     }
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => ' New financial  Notification',
+            'title' => ' New financial  Notification',
             'message' => ' monthly financial  Report',
-            'reporturl' =>  $this->reporturl
+            'reporturl' => url($this->reporturl)
         ];
     }
     public function toBroadcast()
     {
-        return [
-            'type' => ' New financial  Notification',
-            'message' => ' monthly financial  Report',
-            'reporturl' =>  $this->reporturl
-        ];
+        return new BroadcastMessage([
+            'title' => 'New financial Notification',
+            'message' => 'Monthly financial Report',
+            'reporturl' => url($this->reporturl),
+        ]);
     }
 }

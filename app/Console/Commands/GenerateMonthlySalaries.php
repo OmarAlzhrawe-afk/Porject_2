@@ -9,6 +9,7 @@ use App\Models\Staff_salary_deductions;
 use App\Models\StaffSalaryDeduction;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\SalaryReadyNotification;
+use App\Notifications\SupervisorSalaryNotification;
 use Carbon\Carbon;
 
 class GenerateMonthlySalaries extends Command
@@ -45,8 +46,13 @@ class GenerateMonthlySalaries extends Command
                 'notes'      => null,
             ]);
 
+            if ($employee->role == 'supervisor') {
+                $employee->notify(new SupervisorSalaryNotification($salary));
+            } else {
+                $employee->notify(new SalaryReadyNotification($salary));
+            }
             // Sending Notification 
-            Notification::send($employee, new SalaryReadyNotification($salary));
+            // Notification::send($employee, new SalaryReadyNotification($salary));
         }
 
         $this->info('creating salaries and make Notifications done');

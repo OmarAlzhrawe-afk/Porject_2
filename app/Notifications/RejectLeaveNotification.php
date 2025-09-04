@@ -20,18 +20,18 @@ class RejectLeaveNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Leave Accepted Notification',
+            'title' => 'Leave Rejected Notification',
             'data' =>  $this->leave
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Session Notification',
-            'leave' => $this->leave,
+            'title' => 'Leave Rejected Notification',
+            'data' =>  $this->leave
         ];
     }
 }

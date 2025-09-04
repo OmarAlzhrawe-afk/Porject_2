@@ -59,7 +59,8 @@ class VisitorProcessController extends Controller
         $pre_regesteration->documents = $docs;
         $pre_regesteration->status = 'pending';
         $pre_regesteration->save();
-
+        $admin = User::where('role', 'admin')->first();
+        $admin->notify(new New_Pre_Regesteration($pre_regesteration));
         // // Stripe Intialization
         // \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
         // // Create New Payment Intent By Stripe

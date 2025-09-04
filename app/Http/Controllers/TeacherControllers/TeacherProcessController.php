@@ -167,8 +167,7 @@ class TeacherProcessController extends Controller
                 DB::commit();
                 $user = auth('sanctum')->user();
                 activity()->causedBy($user)->withProperties([
-                    'Process_type' => "making Scan For My Attendance",
-                    'date' => now()->format('Y-m-h'),
+                    'Process_type' => "making Scan For  Attendance",
                 ])->log("making Scan For My Attendance");
                 return HelpersFunctions::success($emloyee_attendance, "Regester Attendance Done", 200);
             } else {
@@ -286,6 +285,9 @@ class TeacherProcessController extends Controller
                 ->get()
                 ->pluck('user')
                 ->filter();
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Enter Education Level",
+            ])->log("Teacher "  . $user->name  . "Enter Education Level");
             Notification::send($users, new EducationContentNotification($education_content));
             DB::commit();
             return HelpersFunctions::success($education_content, "Adding  Education Content Done", 200);
@@ -343,6 +345,10 @@ class TeacherProcessController extends Controller
                 ->with('user')
                 ->first()
                 ->user;
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Enter Marks",
+            ])->log("Teacher "  . $user->name  . "Enter Marks");
+
             $user->notify(new MarkNotification($mark));
             DB::commit();
             return HelpersFunctions::success($mark, "Enterring Mark Done", 200);
@@ -376,6 +382,10 @@ class TeacherProcessController extends Controller
             $student_profile->save();
             // Broadcast Event
             event(new StudentProfileUpdatedEvent($student_profile));
+            // save activity
+            activity()->causedBy($user)->withProperties([
+                'Process_type' => "Enter Marks",
+            ])->log("Teacher "  . $user->name  . "Enter Marks");
             return HelpersFunctions::success("", "adding Note Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
@@ -402,8 +412,8 @@ class TeacherProcessController extends Controller
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $filename = time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('uploads/Homeworks'), $filename);
-                $homwork->homework_url = 'uploads/Homeworks' . $filename . ".pdf";
+                $file->move(public_path('uploads/Homeworks/'), $filename);
+                $homwork->homework_url = 'uploads/Homeworks/' . $filename;
             }
             $homwork->save();
             $users = Student::where('class_id', $homwork->class_id)
@@ -414,7 +424,32 @@ class TeacherProcessController extends Controller
             // $homwork->homework_url = $request->homework_url;
             Notification::send($users, new HomeworkAddedNotification($homwork));
             DB::commit();
+            // save activity
+            activity()->causedBy(auth('sanctum')->user())->withProperties([
+                'Process_type' => "Enter Marks",
+            ])->log("Teacher "  . auth('sanctum')->user()->name  . "Enter Marks");
+
             return HelpersFunctions::success("", "adding Home work Done", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function get_my_homeworks()
+    {
+        try {
+            $user =  auth('sanctum')->user();
+            $homeworks = Home_work::where('teacher_id', $user->teacher->id)
+                ->where('last_date', '<=', Carbon::today())
+                ->get()
+                ->map(function ($homwork) {
+                    return [
+                        'class_name' => Class_room::where('id', $homwork->class_id)->first()->value('name'),
+                        'description' => $homwork->description,
+                        'homework_url' => url($homwork->homework_url),
+                        'last_date' => $homwork->last_date,
+                    ];
+                });
+            return HelpersFunctions::success($homeworks, "Getting Homeworks Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
@@ -459,6 +494,11 @@ class TeacherProcessController extends Controller
             $homework_solving->nots = $request->nots ?? null;
             $homework_solving->solved = true;
             $homework_solving->save();
+            // save activity
+            activity()->causedBy(auth('sanctum')->user())->withProperties([
+                'Process_type' => "Solve HomeWork",
+            ])->log("Teacher "  . auth('sanctum')->user()->name  . "Solve HomeWork");
+
             return HelpersFunctions::success("", "Solving Homework Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());

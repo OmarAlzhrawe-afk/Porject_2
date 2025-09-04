@@ -57,7 +57,10 @@ class Student extends Model
 	{
 		return $this->hasMany(Class_session::class, 'student_id');
 	}
-
+	public function solvings()
+	{
+		return $this->hasMany(Homeworksolving::class, 'student_id');
+	}
 	public function profile()
 	{
 		return $this->hasOne(Student_profile::class);

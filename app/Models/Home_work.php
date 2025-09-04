@@ -32,4 +32,8 @@ class Home_work extends Model
     {
         return $this->belongsTo(Class_room::class, 'class_id');
     }
+    public function solvings()
+    {
+        return $this->hasMany(Homeworksolving::class, 'homework_id');
+    }
 }

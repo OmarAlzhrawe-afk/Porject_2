@@ -347,6 +347,10 @@ class AdminProcessController extends Controller
             $qr_code->Code_type = 'employee';
             $qr_code->user_id = auth()->user()->id;
             $qr_code->save();
+            // $code = [
+            //     "Class_id" => $qr_code
+            //     "" => "" , 
+            // ] ;
             // $svg = QrCode::format('svg')->size(300)->generate($code);
             // Add Qr type name to  SVG
             // $svgObject = new SimpleXMLElement($svg);
@@ -435,7 +439,7 @@ class AdminProcessController extends Controller
     }
     public function notifications()
     {
-        $notifications = auth('sanctum')->user()->notifications;
+        $notifications = auth('sanctum')->user()->unreadNotifications;
         return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
     }
     public function markAsRead($id)
@@ -460,7 +464,7 @@ class AdminProcessController extends Controller
                 ->map(function ($report) {
                     return [
                         'report_type' => $report->report_type,
-                        'report_url' => $report->report_url = url($report->report_url),
+                        'report_url' => url($report->report_url),
                         'report_description' => $report->report_description,
                         'report_date' => $report->report_date
                     ];
@@ -493,9 +497,9 @@ class AdminProcessController extends Controller
                     'Class_Name' => $class->name,
                     'Class_ID' => $class->id,
                     'qr_data' => [
-                        'QR_code' => $qr_code->Unique_code,
-                        'Expird_at' => $qr_code->expires_at,
-                        'Code_type' => $qr_code->Code_type,
+                        'QR_code' => $qr_code->Unique_code ?? null,
+                        'Expird_at' => $qr_code->expires_at ?? null,
+                        'Code_type' => $qr_code->Code_type ?? null,
                     ],
                 ];
             }
@@ -503,8 +507,8 @@ class AdminProcessController extends Controller
                 ->where('Code_type', 'employee')
                 ->first();
             $response_data = [
-                'QR_for_classes' => $qrList,
-                'QR_for_employee' => $qr_code_for_employee,
+                'QR_for_classes' => $qrList ?? null,
+                'QR_for_employee' => $qr_code_for_employee ?? null,
             ];
             return HelpersFunctions::success($response_data, "getting Qr_codes Done", 200);
         } catch (Exception $e) {

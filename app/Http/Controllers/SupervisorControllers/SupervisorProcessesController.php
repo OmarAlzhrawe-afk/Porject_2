@@ -359,10 +359,10 @@ class SupervisorProcessesController extends Controller
                         $student_profile->unexcused_absences = !$Attendance->excused ? $student_profile->unexcused_absences = $student_profile->unexcused_absences + 1 : $student_profile->unexcused_absences;
                         $student_profile->save();
                         // dd($student);
-                        $studentuser = $student->user;
-                        $studentuser->notify(new StudentAbsencesNotification($Attendance));
-                        // $parentuser = $student->parent;
-                        // $parentuser->notify(new StudentAbsencesNotification($Attendance));
+                        // $studentuser = $student->user;
+                        // $studentuser->notify(new StudentAbsencesNotification($Attendance));
+                        $parentuser = $student->parent;
+                        $parentuser->notify(new StudentAbsencesNotification($Attendance->excused, $student->user->name));
                     }
                 }
                 DB::commit();
@@ -467,7 +467,7 @@ class SupervisorProcessesController extends Controller
             foreach ($classes as $class) {
                 $class_sessions = Class_session::where('class_room_id', $class->id)->get();
                 foreach ($class_sessions as $session) {
-                    $teacher = Teacher::find($session->teacher_id);
+                    $teacher = Teacher::with('user')->where('id', $session->teacher_id)->first();
                     if ($teacher && !$teachers->contains('id', $teacher->id)) {
                         $teachers->push($teacher);
                     }

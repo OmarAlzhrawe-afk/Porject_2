@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 
 class LeaveOrderNotification extends Notification
 {
@@ -21,7 +22,7 @@ class LeaveOrderNotification extends Notification
     {
         return ['database', 'broadcast'];
     }
-    public function todatabase()
+    public function toDatabase()
     {
         return [
             'title' => 'Leave Order Notification',
@@ -31,10 +32,10 @@ class LeaveOrderNotification extends Notification
     }
     public function toBroadcast()
     {
-        return [
+        return new BroadcastMessage([
             'title' => 'Leave Order Notification',
             'leave' =>  $this->leave,
             'user' =>  $this->user
-        ];
+        ]);
     }
 }

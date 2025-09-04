@@ -76,6 +76,14 @@
 <table>
     <thead>
         <tr>
+            {{-- 'payment_method',
+		'amount',
+		'type',
+		'transaction_source',
+		'status',
+		'installment_number',
+		'payment_reference',
+		'is_installment' --}}
             <th>التاريخ</th>
             <th>الموظف / الطالب</th>
             <th>المبلغ</th>

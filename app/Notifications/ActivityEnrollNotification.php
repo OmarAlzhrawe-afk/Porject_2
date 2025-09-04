@@ -22,10 +22,10 @@ class ActivityEnrollNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Enrolling Activity Notification',
+            'title' => 'Enrolling Activity Notification',
             'activity' => $this->activity,
             'transaction' => $this->transaction
         ];
@@ -33,7 +33,7 @@ class ActivityEnrollNotification extends Notification
     public function toBroadcast()
     {
         return [
-            'type' => 'Enrolling Activity Notification',
+            'title' => 'Enrolling Activity Notification',
             'activity' => $this->activity,
             'transaction' => $this->transaction
         ];

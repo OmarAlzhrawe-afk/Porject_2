@@ -158,9 +158,9 @@ class ManageClassesAndEducationLevel extends Controller
     public function Get_dash_data()
     {
         try {
-            $students = Student::count();
-            $teachers = Teacher::count();
-            $supervisors = Supervisor::count();
+            // $students = Student::count();
+            // $teachers = Teacher::count();
+            // $supervisors = Supervisor::count();
 
             $user = auth('sanctum')->user(); // 
             if (!$user) {
@@ -174,9 +174,9 @@ class ManageClassesAndEducationLevel extends Controller
                 ->get();
 
             $data = [
-                'students' => $students,
-                'teachers' => $teachers,
-                'supervisors' => $supervisors,
+                // 'students' => $students,
+                // 'teachers' => $teachers,
+                // 'supervisors' => $supervisors,
                 'recent_activity' => $recent_activity
             ];
             //Enrolling Admin Log
@@ -201,12 +201,8 @@ class ManageClassesAndEducationLevel extends Controller
     }
     public function get_education_level_data($id)
     {
-
         $el = Education_level::find($id);
         // dd($el);
-        if (isEmpty($el)) {
-            return HelpersFunctions::success(null, "The Selected Education Level Not Found", 200);
-        }
         $subjects = $el->subjects;
         $Regesterations = $el->Regesterations;
         $classes = Class_room::where('education_level_id', $id)->get();
@@ -496,9 +492,6 @@ class ManageClassesAndEducationLevel extends Controller
                     $studentUsers = $students->map(function ($student) {
                         return $student->user;
                     })->filter();
-
-                    $teacher->user->notify(new SessionNotification($class_session));
-                    Notification::send($studentUsers, new SessionNotification($class_session));
                     $class_session_data = [
                         'session_day' => $class_session->session_day,
                         'start_time' =>    $class_session->start_time,
@@ -506,6 +499,9 @@ class ManageClassesAndEducationLevel extends Controller
                         'teacher' =>    $teacher,
                         'subject' =>  $subject
                     ];
+                    $teacher->user->notify(new SessionNotification($class_session_data));
+                    Notification::send($studentUsers, new SessionNotification($class_session_data));
+
                     DB::commit();
                     return HelpersFunctions::success($class_session_data, "Add Session Successfully", 200);
                 }

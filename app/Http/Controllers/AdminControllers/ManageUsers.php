@@ -50,7 +50,7 @@ class ManageUsers extends Controller
                 'role' =>  'required',
                 'birth_date' =>  'required|date',
                 'address' =>  'required|string',
-                'gender' =>  'required|in:male,Female',
+                'gender' =>  'required|in:male,female',
                 'salary' =>  'nullable|integer',
                 'ID_documents' =>  'required|array',
                 'ID_documents.*' =>  'file|mimes:jpg,jpeg,png,pdf',

@@ -76,5 +76,6 @@ class GenerateFinancialReport extends Command
         $report->report_description = "Financial Report For Year : " . now()->year() . " Month :  " . now()->month();
         $report->report_date = now()->format('Y-m');
         $report->save();
+        $this->info("Generating Report For Financial Operations ");
     }
 }

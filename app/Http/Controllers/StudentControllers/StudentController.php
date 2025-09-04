@@ -6,6 +6,8 @@ use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
 use App\Models\Class_room;
+use App\Models\Class_session;
+use App\Models\Cultural_book;
 use App\Models\Education_content;
 use App\Models\Education_level;
 use App\Models\Home_work;
@@ -42,17 +44,17 @@ class StudentController extends Controller
                 'birth_date'       => $profile_data->user->birth_date,
                 'gender'           => $profile_data->user->gender,
                 'address'          => $profile_data->user->address,
-                'score'                => $profile_data->profile->score,
-                'behavior_notes'       => $profile_data->profile->behavior_notes,
-                'health_notes'         => $profile_data->profile->health_notes,
-                'interests'            => $profile_data->profile->interests,
-                'activities_participated' => $profile_data->profile->activities_participated,
-                'achievements'         => $profile_data->profile->achievements,
+                'score'                => $profile_data->profile->score ?? null,
+                'behavior_notes'       => $profile_data->profile->behavior_notes ?? null,
+                'health_notes'         => $profile_data->profile->health_notes ?? null,
+                'interests'            => $profile_data->profile->interests ?? null,
+                'activities_participated' => $profile_data->profile->activities_participated ?? null,
+                'achievements'         => $profile_data->profile->achievements ?? null,
                 //'guardian_feedback'    => $profile_data->profile->guardian_feedback,
-                'teacher_feedback'     => $profile_data->profile->teacher_feedback,
-                'skills'               => $profile_data->profile->skills,
-                'total_absences'       => $profile_data->profile->total_absences,
-                'unexcused_absences'   => $profile_data->profile->unexcused_absences,
+                'teacher_feedback'     => $profile_data->profile->teacher_feedback ?? null,
+                'skills'               => $profile_data->profile->skills ?? null,
+                'total_absences'       => $profile_data->profile->total_absences ?? null,
+                'unexcused_absences'   => $profile_data->profile->unexcused_absences ?? null,
             ];
             return HelpersFunctions::success($profile_data, "Getting profile_data Done");
         } catch (Exception $e) {
@@ -62,8 +64,21 @@ class StudentController extends Controller
     public function getSchedule()
     {
         try {
-            $user = auth('sanctum')->user();
-            $sessions = $user->student->sessions();
+            $user =  User::find(auth('sanctum')->user()->id);
+            $sessions = Class_session::where('class_room_id', $user->student->class->id)
+                ->orderBy('session_day')
+                ->get()->map(function ($session) {
+                    return [
+                        'class_Name' => $session->class->name,
+                        'subject' => $session->teacher->subject->name,
+                        'Teacher_name' => $session->teacher->user->name,
+                        'start_time' => $session->start_time,
+                        'end_time' => $session->end_time,
+                    ];
+                })
+                ->groupBy('day');
+            // $user = auth('sanctum')->user();
+            // $sessions = $user->student->sessions;
             return HelpersFunctions::success($sessions, "Getting schedule Done");
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
@@ -109,6 +124,36 @@ class StudentController extends Controller
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
+    public function getCulturalBooks()
+    {
+        try {
+            $books = Cultural_book::all()->groupBy('type')->map(function ($items, $type) {
+                return $items->map(function ($book) use ($type) {
+                    $data = [
+                        'id'          => $book->id,
+                        'title'       => $book->title,
+                        'author'      => $book->author,
+                        'publisher'   => $book->publisher,
+                        'year'        => $book->publication_year,
+                        // 'copies'      => $book->copies_available,
+                        'description' => $book->description,
+                    ];
+                    if ($type === 'paper') {
+                        $data['copies'] = $book->copies_available;
+                    }
+                    if (in_array($type, ['pdf', 'audio'])) {
+                        $data['format_url'] = $book->format_url ? url($book->format_url) : null;
+                    }
+
+                    return $data;
+                });
+            });
+
+            return HelpersFunctions::success($books, "Getting Cultural books successfully.");
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error at line " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
     public function get_activities()
     {
         try {
@@ -116,13 +161,14 @@ class StudentController extends Controller
             $classRoomId = $user->student->class->id;
             $educationLevelId = $user->student->class->education_level->id;
             $activities = Activity::where('term_id', HelpersFunctions::getCurrentTermId())
-                ->where('is_open', true)
+                ->where('registration_deadline', '>=', now())
                 ->where(function ($query) use ($classRoomId, $educationLevelId) {
                     $query->where('class_room_id', $classRoomId)
                         ->orWhere('education_level_id', $educationLevelId);
                 })
                 ->get()->map(function ($activity) {
                     return [
+                        'id' => $activity->id,
                         'Title' => $activity->Title,
                         'Description' => $activity->Description,
                         'activity_type' => $activity->activity_type,
@@ -144,6 +190,8 @@ class StudentController extends Controller
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
     }
+
+
     public function register_in_activity(Request $request)
     {
         return  $this->register_in_activity_for_all($request);
@@ -152,20 +200,24 @@ class StudentController extends Controller
     {
         try {
             $user = auth('sanctum')->user();
+            $studentId = $user->student->id;
             $classRoomId = $user->student->class->id;
-
-            $homeworks = Home_work::where('class_id', $classRoomId)
-                ->where('created_at', Carbon::today())
-                ->get()->map(function ($homework) {
+            $homeworks = Home_work::with(['teacher.user', 'class', 'solvings'])
+                ->where('class_id', $classRoomId)
+                ->where('last_date', '>=', now())
+                ->get()
+                ->map(function ($homework) use ($studentId) {
                     return [
-                        'teacher_id' => User::find(Teacher::find($homework->teacher_id)->user_id)->name,
-                        'class_id' => Class_room::find($homework->class_room)->name,
+                        'teacher'     => $homework->teacher->user->name ?? 'null',
+                        'class'       => $homework->class->name ?? 'null',
                         'description' => $homework->description,
-                        'homework_url' => url($homework->description),
-                        'last_date' => $homework->last_date,
+                        'homework_url' => $homework->file ? url('uploads/homeworks/' . $homework->file) : null,
+                        'last_date'   => $homework->last_date,
+                        'solved'      => $homework->solvings->where('student_id', $studentId)->isNotEmpty(),
                     ];
                 });
-            return HelpersFunctions::success($homeworks, "Getting schedule Done");
+
+            return HelpersFunctions::success($homeworks, "Getting Home_Work Done");
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
@@ -181,24 +233,47 @@ class StudentController extends Controller
         }
         try {
             $user = auth('sanctum')->user();
-
+            $studentId = $user->student->id;
+            $alreadySolved = Homeworksolving::where('homework_id', $request->homework_id)
+                ->where('student_id', $studentId)
+                ->exists();
+            if ($alreadySolved) {
+                return HelpersFunctions::error("Logical Error", 400, "You have already solved this homework.");
+            }
             $homeworks_solve = new Homeworksolving();
             $homeworks_solve->homework_id = $request->homework_id;
             $homeworks_solve->student_id = $user->student->id;
             $homeworks_solve->solved = true;
-            $homeworks_solve->save();
             if ($request->hasFile('solve_url')) {
-                $file = $request->file('file_url');
+                $file = $request->file('solve_url');
                 $file_Name = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/Homwork/solving'), $file_Name);
-                $homeworks_solve->file_url = 'uploads/Posts/' . $file_Name;
+                $homeworks_solve->solve_url = 'uploads/Homwork/solving' . $file_Name;
             }
             $homeworks_solve->save();
-
+            // save activity
+            activity()->causedBy(auth('sanctum')->user())->withProperties([
+                'Process_type' => "Solve HomeWork",
+            ])->log("Student "  . auth('sanctum')->user()->name  . "Solve HomeWork");
             return HelpersFunctions::success(null, "adding solve Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
+    }
+    public function notifications()
+    {
+        $notifications = auth('sanctum')->user()->notifications;
+        return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
+    }
+    public function markAsRead($id)
+    {
+        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+
+        if (!$notification) {
+            return HelpersFunctions::error("bad Request", 400, "Notification not found");
+        }
+        $notification->markAsRead();
+        return HelpersFunctions::success("", "Admin Notification mark As Read Done");
     }
 
 

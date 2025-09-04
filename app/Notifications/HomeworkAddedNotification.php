@@ -10,10 +10,10 @@ use Illuminate\Notifications\Notification;
 class HomeworkAddedNotification extends Notification
 {
     use Queueable;
-    protected $education_content;
-    public function __construct($education_content)
+    protected $home_work;
+    public function __construct($home_work)
     {
-        $this->education_content = $education_content;
+        $this->home_work = $home_work;
     }
     public function via()
     {
@@ -23,15 +23,15 @@ class HomeworkAddedNotification extends Notification
     public function todatabase()
     {
         return [
-            'type' => 'Enrolling education_content Notification',
-            'education_content' => $this->education_content,
+            'title' => 'Adding Homework',
+            'home_work' => $this->home_work,
         ];
     }
     public function toBroadcast()
     {
         return [
-            'type' => 'Enrolling education_content Notification',
-            'education_content' => $this->education_content,
+            'title' => 'Adding Homework',
+            'home_work' => $this->home_work,
         ];
     }
 }
