@@ -27,7 +27,7 @@ class Class_room extends Model
 	}
 	public function sessions()
 	{
-		return $this->hasMany(Class_session::class);
+		return $this->hasMany(Class_session::class, 'class_room_id');
 	}
 	public function education_level()
 	{

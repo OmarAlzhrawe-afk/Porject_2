@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('teacher_id')->unsigned();
             $table->bigInteger('class_room_id')->unsigned();
             // $table->bigInteger('subject_id')->unsigned();
-            $table->enum('session_day', array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'));
+            $table->enum('session_day', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']);
             $table->time('start_time');
             $table->time('end_time');
             $table->foreign('teacher_id')->references('id')->on('teachers')->onDelete('cascade')->onUpdate('cascade');

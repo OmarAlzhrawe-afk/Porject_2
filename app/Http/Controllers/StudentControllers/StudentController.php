@@ -208,11 +208,12 @@ class StudentController extends Controller
                 ->get()
                 ->map(function ($homework) use ($studentId) {
                     return [
+                        'home_work_id'     => $homework?->id,
                         'teacher'     => $homework->teacher->user->name ?? 'null',
                         'class'       => $homework->class->name ?? 'null',
                         'description' => $homework->description,
-                        'homework_url' => $homework->file ? url('uploads/homeworks/' . $homework->file) : null,
-                        'last_date'   => $homework->last_date,
+                        'homework_url' => $homework->homework_url ? url($homework->homework_url) : null,
+                        'last_date'   => $homework?->last_date,
                         'solved'      => $homework->solvings->where('student_id', $studentId)->isNotEmpty(),
                     ];
                 });

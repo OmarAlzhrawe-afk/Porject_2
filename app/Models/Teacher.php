@@ -29,7 +29,7 @@ class Teacher extends Model
 
 	public function sessions()
 	{
-		return $this->hasMany(Class_session::class);
+		return $this->hasMany(Class_session::class, 'teacher_id');
 	}
 
 	public function marks()

@@ -28,14 +28,14 @@ class StudentAbsencesNotification extends Notification
     {
         return [
             'title' => 'Attendance',
-            'message' => 'Your Children :' . $this->user_name . 'Attendance IS : ' . $this->attendance,
+            'message' => 'Your Children :' . $this->user_name . "\nAttendance IS : " . $this->attendance,
         ];
     }
     public function toBroadcast()
     {
         return new BroadcastMessage([
             'title' => 'Attendance',
-            'message' => 'Your Children :' . $this->user_name . 'Attendance IS : ' . $this->attendance,
+            'message' => 'Your Children :' . $this->user_name . "\nAttendance IS : " . $this->attendance,
         ]);
     }
     public function broadcastOn()

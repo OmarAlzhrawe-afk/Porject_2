@@ -23,22 +23,24 @@ class SessionNotification extends Notification
         return ['database', 'broadcast'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
             'title' => 'New Session For You',
-            'message' => 'Admin Add New Session For You At  day: ' . $this->session_data->session_day
-                . '\n start_time:' . $this->session_data->start_time
-                . '\n teacher_name:' . $this->session_data->teacher->user->name,
+            'message' => "Admin Add New Session For You At \n  day:  "  . $this->session_data['session_day']
+                . "\n start_time:" . $this->session_data['start_time']
+                . "\n teacher_name:" . $this->session_data['teacher_name']
+                . "\n subject_name:" . $this->session_data['subject_name']
         ];
     }
     public function toBroadcast()
     {
         return new BroadcastMessage([
             'title' => 'New Session For You',
-            'message' => 'Admin Add New Session For You At  day: ' . $this->session_data->session_day
-                . '\n start_time:' . $this->session_data->start_time
-                . '\n teacher_name:' . $this->session_data->teacher->user->name,
+            'message' => "Admin Add New Session For You At \n  day:  "  . $this->session_data['session_day']
+                . "\n start_time:" . $this->session_data['start_time']
+                . "\n teacher_name:" . $this->session_data['teacher_name']
+                . "\n subject_name:" . $this->session_data['subject_name']
         ]);
     }
     public function broadcastOn()

@@ -144,9 +144,9 @@ trait SharedFunctionTrait
             DB::beginTransaction();
             $user = User::find(auth('sanctum')->user()->id);
             // $user = auth('sanctum')->user();
-            if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
-                return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
-            }
+            // if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
+            //     return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
+            // }
             $activity = Activity::find($request->activity_id);
 
             $register_in_activity = new Activity_participants();

@@ -21,7 +21,6 @@ class UpdatedActivityNotification extends Notification
     {
         return ['database', 'broadcast'];
     }
-
     public function todatabase()
     {
         return [

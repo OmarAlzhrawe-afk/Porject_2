@@ -36,9 +36,9 @@ class SalaryReadyNotification extends Notification
     {
         return new BroadcastMessage([
             'title' => 'Your Salary Ready',
-            'message' => 'Your Salary Ready and This with BaseSalary : ' . $this->salary->Base_salary .
-                '\n bonus : ' . $this->salary->bonus .
-                '\n deducations : ' . $this->salary->deductions
+            'message' => "Your Salary Ready and This with\n BaseSalary : " . $this->salary->Base_salary .
+                "\n bonus : " . $this->salary->bonus .
+                "\n deducations : " . $this->salary->deductions
             // 'data' =>  $this->salary
         ]);
     }

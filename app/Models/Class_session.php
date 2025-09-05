@@ -31,7 +31,6 @@ class Class_session extends Model
 	{
 		return $this->belongsTo(Class_room::class, 'class_room_id');
 	}
-
 	public function teacher()
 	{
 		return $this->belongsTo(Teacher::class, 'teacher_id');

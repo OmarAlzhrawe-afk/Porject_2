@@ -496,8 +496,8 @@ class ManageClassesAndEducationLevel extends Controller
                         'session_day' => $class_session->session_day,
                         'start_time' =>    $class_session->start_time,
                         'end_time' =>   $class_session->end_time,
-                        'teacher' =>    $teacher,
-                        'subject' =>  $subject
+                        'teacher_name' =>    $teacher->user->name,
+                        'subject_name' =>  $subject->name
                     ];
                     $teacher->user->notify(new SessionNotification($class_session_data));
                     Notification::send($studentUsers, new SessionNotification($class_session_data));
@@ -507,7 +507,7 @@ class ManageClassesAndEducationLevel extends Controller
                 }
             }
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error  ", 500, $e->getMessage());
+            return HelpersFunctions::error("Internal Server Error IN  " . $e->getLine(), 500, $e->getMessage());
         }
     }
     public function get_all_sessions()
