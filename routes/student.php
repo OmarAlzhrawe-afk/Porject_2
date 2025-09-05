@@ -36,9 +36,18 @@ Route::prefix('/student')->name('student.')->group(function () {
     Route::get('/get_daily_homwork', [StudentController::class, 'get_daily_homwork']); // 
     Route::post('/solve_homwork', [StudentController::class, 'solve_homwork']); // 
     // Notifications Process 
-    Route::get('/notifications', [StudentController::class, 'notifications']);
-    Route::get('/notifications/read/{id}', [StudentController::class, 'markAsRead']);
-    // Route::get('/student/books-by-subject', [StudentController::class, 'studentBooksBySubject']);
+    Route::get('/notifications', [StudentController::class, 'notificationss']);
+    Route::get('/notifications/read/{id}', [StudentController::class, 'markAsReads']);
+  });
+});
+// 11
+
+
+
+
+
+
+ // Route::get('/student/books-by-subject', [StudentController::class, 'studentBooksBySubject']);
     // Route::post('/search/books', [StudentController::class, 'studentBooksByTitle']);
     // Route::get('/student/type', [StudentController::class, 'indexEduction']);
     // Route::get('/student/subject', [StudentController::class, 'getStudentSubjects']);
@@ -55,5 +64,3 @@ Route::prefix('/student')->name('student.')->group(function () {
     // Route::get('/student/achievements', [StudentController::class, 'getAchievements']);
 
     // Route::get('/student/submissions-activities', [StudentController::class, 'submittedHomeworksAndActivities']);
-  });
-});

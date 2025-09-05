@@ -14,3 +14,4 @@ Route::prefix('/visitor/process')->name('visitor.process.')->group(function () {
     Route::post('/send_passcode', [VisitorController::class, 'send_passcode']);
     Route::post('/verify_passcode', [VisitorController::class, 'verify_passcode']);
 });
+// 8

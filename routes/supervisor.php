@@ -27,10 +27,6 @@ Route::prefix('/supervisor')->name('supervisor.')->group(function () {
         Route::get('/Show_Reports_For_Students', [SupervisorProcessesController::class, 'Show_Reports_For_Students']);
         Route::post('/Verify_Qr_Code', [SupervisorProcessesController::class, 'Verify_Qr_Code']);
 
-        // Notifications Process 
-        Route::get('/notifications', [SupervisorProcessesController::class, 'notifications']);
-        Route::get('/notifications/read/{id}', [SupervisorProcessesController::class, 'markAsRead']);
-        Route::post('/SendSpecificNotificationForUser', [SupervisorProcessesController::class, 'SendSpecificNotificationForUser']);
 
         // Api For get my Education Level Data Make Method In helper it exist same method with admin apis *****
         // here Add student in Education Level
@@ -45,5 +41,10 @@ Route::prefix('/supervisor')->name('supervisor.')->group(function () {
         Route::get('/get_last_activity', [SupervisorProcessesController::class, 'get_last_activity']);
         // Extra Api 
         Route::get('/Check_if_attendance_student_done', [SupervisorProcessesController::class, 'Check_if_attendance_student_done']);
+        // Notifications Process 
+        Route::get('/notifications', [SupervisorProcessesController::class, 'notificationss']);
+        Route::get('/notifications/read/{id}', [SupervisorProcessesController::class, 'markAsReads']);
+        Route::post('/SendSpecificNotificationForUser', [SupervisorProcessesController::class, 'SendSpecificNotificationForUser']);
     });
 });
+// 22

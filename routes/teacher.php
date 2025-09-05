@@ -28,6 +28,7 @@ Route::prefix('/teacher/process')->name('teacher.process')->middleware(['auth:sa
     // Route::get('/view_home_work_solution', [TeacherProcessController::class, 'view_home_work_solution']);
     Route::get('/get_last_activity', [TeacherProcessController::class, 'get_last_activity']);
     // Notifications Process 
-    Route::get('/notifications', [TeacherProcessController::class, 'notifications']);
-    Route::get('/notifications/read/{id}', [TeacherProcessController::class, 'markAsRead']);
+    Route::get('/notifications', [TeacherProcessController::class, 'notificationss']);
+    Route::get('/notifications/read/{id}', [TeacherProcessController::class, 'markAsReads']);
 });
+// 19

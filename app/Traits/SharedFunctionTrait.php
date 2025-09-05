@@ -198,4 +198,33 @@ trait SharedFunctionTrait
             return HelpersFunctions::error("Internal Server Error In : " . $e->getLine(), 500, $e->getMessage());
         }
     }
+    public function notifications()
+    {
+        try {
+            $notifications = auth('sanctum')->user()->notifications->map(function ($notification) { /// unreadNotifications
+                return [
+                    'id'   => $notification->id,
+                    'data' => $notification->data,
+                    'read_at' => $notification->read_at
+                ];
+            });
+            return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
+    public function markAsRead($id)
+    {
+        try {
+            $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
+
+            if (!$notification) {
+                return HelpersFunctions::error("bad Request", 400, "Notification not found");
+            }
+            $notification->markAsRead();
+            return HelpersFunctions::success("", "Admin Notification mark As Read Done");
+        } catch (Exception $e) {
+            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+        }
+    }
 }

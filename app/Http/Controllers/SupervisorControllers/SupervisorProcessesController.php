@@ -413,20 +413,6 @@ class SupervisorProcessesController extends Controller
     {
         return $this->verifyQrCodeRequest($request, 'employee');
     }
-    public function notifications()
-    {
-        $notifications = auth('sanctum')->user()->notifications;
-        return HelpersFunctions::success($notifications, "Getting Notifications Done ", 200);
-    }
-    public function markAsRead($id)
-    {
-        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
-        if (!$notification) {
-            return HelpersFunctions::error("bad Request", 400, "Notification not found");
-        }
-        $notification->markAsRead();
-        return HelpersFunctions::success("", "Notification mark As Read Done");
-    }
     public function SendSpecificNotificationForUser(Request $request)
     {
         try {
@@ -551,5 +537,14 @@ class SupervisorProcessesController extends Controller
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
         }
+    }
+    //  Notifications
+    public function notificationss()
+    {
+        return $this->notifications();
+    }
+    public function markAsReads($id)
+    {
+        return $this->markAsRead($id);
     }
 }

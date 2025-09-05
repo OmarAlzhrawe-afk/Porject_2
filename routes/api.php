@@ -114,3 +114,4 @@ Route::prefix('admin/')->name('admin.')->middleware('api')->group(function () {
         Route::get('/get_Qr_codes', [AdminProcessController::class, 'get_Qr_codes']);
     });
 });
+ // 56

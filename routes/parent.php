@@ -12,7 +12,8 @@ Route::prefix('/parent/process')->name('parent.process')->middleware(['auth:sanc
     Route::get('/log_out', [ParentProcessController::class, 'logout']);
 
     // Notifications Process 
-    Route::get('/notifications', [TeacherProcessController::class, 'notifications']);
-    Route::get('/notifications/read/{id}', [TeacherProcessController::class, 'markAsRead']);
+    Route::get('/notifications', [ParentProcessController::class, 'notificationss']);
+    Route::get('/notifications/read/{id}', [ParentProcessController::class, 'markAsReads']);
     // });
 });
+// 6

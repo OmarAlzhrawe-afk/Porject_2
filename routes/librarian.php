@@ -42,11 +42,12 @@ Route::prefix('/librarian')->name('librarian.')->group(function () {
 
 
         // Notifications Process 
-        Route::get('/notifications', [LibrarianProcessController::class, 'notifications']);
-        Route::get('/notifications/read/{id}', [LibrarianProcessController::class, 'markAsRead']);
+        Route::get('/notifications', [LibrarianProcessController::class, 'notificationss']);
+        Route::get('/notifications/read/{id}', [LibrarianProcessController::class, 'markAsReads']);
 
         // Extra Apis 
         Route::get('/get_subjects_and_education_level', [LibrarianProcessController::class, 'get_subjects_and_education_level']);
         Route::get('/get_users', [LibrarianProcessController::class, 'get_users']);
     });
 });
+// 26

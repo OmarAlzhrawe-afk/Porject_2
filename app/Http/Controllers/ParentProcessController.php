@@ -85,23 +85,17 @@ class ParentProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error IN Line : " . $e->getLine(), 500, $e->getMessage());
         }
     }
-    public function notifications()
-    {
-        $notifications = auth('sanctum')->user()->notifications;
-        return HelpersFunctions::success($notifications, "Getting Admin Notifications Done ", 200);
-    }
-    public function markAsRead($id)
-    {
-        $notification = auth('sanctum')->user()->notifications->where('id', $id)->first();
-
-        if (!$notification) {
-            return HelpersFunctions::error("bad Request", 400, "Notification not found");
-        }
-        $notification->markAsRead();
-        return HelpersFunctions::success("", "Admin Notification mark As Read Done");
-    }
     public function logout()
     {
         return HelpersFunctions::logout();
+    }
+    //  Notifications
+    public function notificationss()
+    {
+        return $this->notifications();
+    }
+    public function markAsReads($id)
+    {
+        return $this->markAsRead($id);
     }
 }
