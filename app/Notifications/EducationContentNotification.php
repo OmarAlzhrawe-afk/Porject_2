@@ -9,29 +9,25 @@ use Illuminate\Notifications\Notification;
 
 class EducationContentNotification extends Notification
 {
+
     use Queueable;
-    protected $homwork;
-    public function __construct($homwork)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->homwork = $homwork;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toDatabase()
     {
         return [
-            'title' => 'Enrolling homwork Notification',
-            'homwork' => $this->homwork,
-        ];
-    }
-    public function toBroadcast()
-    {
-        return [
-            'title' => 'Enrolling homwork Notification',
-            'homwork' => $this->homwork,
+            'title' => $this->title,
+            'message' => $this->message,
         ];
     }
 }

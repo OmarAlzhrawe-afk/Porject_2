@@ -10,32 +10,31 @@ use Illuminate\Notifications\Notification;
 class ActivityEnrollNotification extends Notification
 {
     use Queueable;
-    protected $transaction;
-    protected $activity;
-    public function __construct($transaction, $activity)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->transaction = $transaction;
-        $this->activity = $activity;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toDatabase()
     {
         return [
-            'title' => 'Enrolling Activity Notification',
-            'activity' => $this->activity,
-            'transaction' => $this->transaction
+            'title' => $this->title,
+            'message' => $this->message,
         ];
     }
-    public function toBroadcast()
-    {
-        return [
-            'title' => 'Enrolling Activity Notification',
-            'activity' => $this->activity,
-            'transaction' => $this->transaction
-        ];
-    }
+    // public function toBroadcast()
+    // {
+    //     return [
+    //         'title' => 'Enrolling Activity Notification',
+    //         'activity' => $this->activity,
+    //         'transactio n' => $this->user
+    //     ];
+    // }
 }

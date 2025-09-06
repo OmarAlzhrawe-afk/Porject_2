@@ -17,7 +17,7 @@ class HelpersFunctions
         ], $status);
     }
 
-    public static function error($message = 'حدث خطأ ما', $status = 400, $errors = null)
+    public static function error($message = '', $status = 400, $errors = [])
     {
         return response()->json([
             'status' => false,

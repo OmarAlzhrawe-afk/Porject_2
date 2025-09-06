@@ -14,44 +14,26 @@ use Illuminate\Notifications\Notification;
 class MarkNotification extends Notification
 {
     use Queueable;
-    protected $mark;
-    public function __construct($mark)
+
+    protected $message;
+    protected $title;
+
+    public function __construct($title, $message)
     {
-        $this->mark = $mark;
-    }
-    public function getTeacherName($mark)
-    {
-        $TeacherRecord = Teacher::find($mark->teacher_id);
-        $TeacherName = User::find($TeacherRecord->user_id)->value('name');
-        return $TeacherName;
-    }
-    public function via()
-    {
-        return ['database', 'broadcast'];
+        $this->title = $title;
+        $this->message = $message;
     }
 
-    public function todatabase()
+    public function via($notifiable)
+    {
+        return ['database'];
+    }
+
+    public function toDatabase($notifiable)
     {
         return [
-            'title' => 'Marks Notfication',
-            'Message' => 'Adding mark for you By ' . $this->getTeacherName($this->mark),
-            // 'mark' => $this->mark,
+            'title' => $this->title,
+            'message' => $this->message
         ];
-    }
-    public function toBroadcast()
-    {
-        return new BroadcastMessage([
-            'title' => 'Marks Notfication',
-            'Message' => 'Adding mark for you By ' . $this->getTeacherName($this->mark),
-            // 'mark' => $this->mark,
-        ]);
-    }
-    public function broadcastOn()
-    {
-        return new Channel('school-channel');
-    }
-    public function broadcastAs()
-    {
-        return 'new-notification';
     }
 }

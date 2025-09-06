@@ -6,19 +6,16 @@ use App\Events\BookAdded;
 use App\Events\BookDelete;
 use App\Events\BookSaleEvent;
 use App\Events\BookUpdate;
+use App\Events\NotificationsEvent\NewBookLoanEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Book_loan;
 use App\Models\Cultural_book;
-use App\Models\Qr_Code;
-use App\Models\Staff_attendance;
-use App\Models\Staff_leaves;
 use App\Models\Student;
 use App\Models\Student_textbook_sale;
 use App\Models\Text_book;
 use App\Models\Transaction;
 use App\Models\User;
-use App\Notifications\LeaveOrderNotification;
 use App\Notifications\NewBookLoan;
 use App\Notifications\NewBookSale;
 use Carbon\Carbon;
@@ -27,18 +24,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 // use Barryvdh\DomPDF\Facade\Pdf;
-use PDF as NewPDF;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Response;
-use App\Exports\LibraryExport;
-use App\Exports\LibrarySalesLoansExport;
 use App\Models\Education_level;
 use App\Models\Report;
 use App\Models\Subject;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Traits\SharedFunctionTrait;
-use Dompdf\Helpers;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -334,7 +323,14 @@ class LibrarianProcessController extends Controller
 
                 $returnDate = now()->addWeek();
             }
-            $user->notify(new NewBookLoan($returnDate));
+            // Handling Notification 
+            // preparing Message 
+            $message = $user->name  . " make book loan and retrive date will be :   " . $returnDate;
+            // Save Notification In dataBase
+            $user->notify(new NewBookLoan("New book Loan", $message));
+            // Broadcast Realtime Notification
+            event(new NewBookLoanEvent("New book Loan", $message));
+
             // Update Cultural Book 
             $book = Cultural_book::find($request->book_id);
             $book->copies_available = $book->copies_available--;
@@ -381,7 +377,7 @@ class LibrarianProcessController extends Controller
             $book_sale->quantity = $request->input('quantity');
             $book_sale->total_price = $text_book->price *  $request->input('quantity');
             $book_sale->save();
-            event(new BookSaleEvent($book_sale));
+            // event(new BookSaleEvent($book_sale));
             $text_book->available_quantity = $text_book->available_quantity - $book_sale->quantity;
             $text_book->sold_quantity = $text_book->sold_quantity + $book_sale->quantity;
             $text_book->save();
@@ -398,6 +394,8 @@ class LibrarianProcessController extends Controller
                 'is_installment' => false,
             ]);
             $parent_student = User::find($book_sale->student->parent_id);
+            // dd($parent_student);
+            // dd($book_sale->student->parent_id);
             $message = "your son puy new book from shcoole with price : " . $book_sale->total_price;
             $parent_student->notify(new NewBookSale($message));
             DB::commit();
@@ -569,34 +567,34 @@ class LibrarianProcessController extends Controller
             return HelpersFunctions::error("Internal Server Error In " . $e->getLine(), 500, $e->getMessage());
         }
     }
-    public function make_leave_demand(Request $request)
-    {
+    // public function make_leave_demand(Request $request)
+    // {
 
-        try {
-            $validator = Validator::make($request->all(), [
-                'leave_date' => 'required|date',
-                'period' => 'required|in:day,3day,week,2week,month,year',
-                'leave_type' => 'required|in:sick,ersonal,unpaid,emergency',
-                'notes' => 'nullable|string|max:1024',
-            ]);
-            if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
-            }
-            $user = auth('sanctum')->user();
-            $staff_leaves = new Staff_leaves();
-            $staff_leaves->user_id = $user->id;
-            $staff_leaves->leave_date = $request->leave_date;
-            $staff_leaves->period = $request->period;
-            $staff_leaves->leave_type = $request->leave_type;
-            $staff_leaves->notes = $request->notes;
-            $staff_leaves->save();
-            $admin = User::where('role', 'admin')->first();
-            $admin->notify(new LeaveOrderNotification($user, $staff_leaves));
-            return HelpersFunctions::success("", 'Getting Loans Done', 200);
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
-        }
-    }
+    //     try {
+    //         $validator = Validator::make($request->all(), [
+    //             'leave_date' => 'required|date',
+    //             'period' => 'required|in:day,3day,week,2week,month,year',
+    //             'leave_type' => 'required|in:sick,ersonal,unpaid,emergency',
+    //             'notes' => 'nullable|string|max:1024',
+    //         ]);
+    //         if ($validator->fails()) {
+    //             return HelpersFunctions::error("Bad Request", 400, $validator->errors());
+    //         }
+    //         $user = auth('sanctum')->user();
+    //         $staff_leaves = new Staff_leaves();
+    //         $staff_leaves->user_id = $user->id;
+    //         $staff_leaves->leave_date = $request->leave_date;
+    //         $staff_leaves->period = $request->period;
+    //         $staff_leaves->leave_type = $request->leave_type;
+    //         $staff_leaves->notes = $request->notes;
+    //         $staff_leaves->save();
+    //         $admin = User::where('role', 'admin')->first();
+    //         $admin->notify(new LeaveOrderNotification($user, $staff_leaves));
+    //         return HelpersFunctions::success("", 'Getting Loans Done', 200);
+    //     } catch (Exception $e) {
+    //         return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+    //     }
+    // }
     public function get_monthly_report()
     {
         try {

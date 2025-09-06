@@ -10,28 +10,23 @@ use Illuminate\Notifications\Notification;
 class HomeworkAddedNotification extends Notification
 {
     use Queueable;
-    protected $home_work;
-    public function __construct($home_work)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->home_work = $home_work;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'title' => 'Adding Homework',
-            'home_work' => $this->home_work,
-        ];
-    }
-    public function toBroadcast()
-    {
-        return [
-            'title' => 'Adding Homework',
-            'home_work' => $this->home_work,
+            'title' => $this->title,
+            'message' => $this->message,
         ];
     }
 }

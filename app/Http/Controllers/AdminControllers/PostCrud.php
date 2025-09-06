@@ -30,7 +30,7 @@ class PostCrud extends Controller
             ])->log("Admin get_Posts");
             return HelpersFunctions::success($posts, "Getting posts Successfully", 200);
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error ", $e->getMessage(), 500);
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
     public function add_Post(Request $request)
@@ -88,7 +88,7 @@ class PostCrud extends Controller
                 'is_public' =>  'nullable|in:true,false',
             ]);
             if ($validator->fails()) {
-                return HelpersFunctions::error("Bad Request", $validator->errors(), 400);
+                return HelpersFunctions::error("Bad Request", 400, $validator->errors());
             } else {
 
                 $post = School_post::find($request->post_id)->first();
@@ -126,7 +126,7 @@ class PostCrud extends Controller
                 return HelpersFunctions::success(null, "Update Post Successfully", 200);
             }
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error ", $e->getMessage(), 500);
+            return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());
         }
     }
     public function delete_Post($post_id)

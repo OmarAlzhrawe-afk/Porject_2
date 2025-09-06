@@ -185,7 +185,8 @@ class SupervisorProcessesController extends Controller
             'gallery.*' => 'file|mimes:mp4,jpeg,jpg,png,pdf|max:20480|max:20480',
         ]);
         if ($validator->fails()) {
-            return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+            // return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
+            return HelpersFunctions::error("Bad Request", 400, $validator->errors());
         }
         try {
             DB::beginTransaction();
@@ -212,10 +213,11 @@ class SupervisorProcessesController extends Controller
             $gallery_urls = [];
             if ($request->hasFile('gallery')) {
                 $counter = 0;
-                foreach ($request->file('gallery') as $key =>  $file) {
+                foreach ($request->file('gallery') as  $file) {
                     $file_name = time() . $counter++ . '_' . $file->getClientOriginalName();
                     $file->move(public_path('uploads/Activity/gallery_urls/'), $file_name);
-                    $gallery_urls[$key] = 'uploads/Activity/gallery_urls/' .  $file_name;
+                    $gallery_urls[] = 'uploads/Activity/gallery_urls/' .  $file_name;
+                    // $gallery_urls = 'uploads/Activity/gallery_urls/' .  $file_name;
                 }
                 $activity->gallery_urls = $gallery_urls;
             }
@@ -391,9 +393,7 @@ class SupervisorProcessesController extends Controller
                     return [
                         'Student_ID' => $report->student_id,
                         'education_level_ID' => $report->education_level_id,
-                        [
-                            "Student_data" => $studentData
-                        ]
+                        "Student_data" => $studentData
                     ];
                 });
             $user = auth('sanctum')->user();

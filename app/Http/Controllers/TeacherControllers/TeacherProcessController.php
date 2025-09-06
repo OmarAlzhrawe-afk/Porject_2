@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers\TeacherControllers;
 
+use App\Events\NotificationsEvent\ActivityEnrollNotificationEvent;
+use App\Events\NotificationsEvent\EducationContentNotificationEvent;
+use App\Events\NotificationsEvent\HomeworkAddedNotificationEvent;
+use App\Events\NotificationsEvent\MarkNotificationEvent;
 use App\Events\StudentProfileUpdatedEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
@@ -192,38 +196,37 @@ class TeacherProcessController extends Controller
     {
         return  $this->register_in_activity_for_all($request);
     }
-    public function confirm_payment_register_in_avtivity(Request $request)
-    {
-        $request->validate([
-            'payment_intent_id' => 'required|string',
-        ]);
-        try {
-            DB::beginTransaction();
-            $user = User::find(auth('sanctum')->user()->id);
-            Stripe::setApiKey(config('services.stripe.secret'));
-            $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
-            $activity_registeration = Activity_participants::where('payment_reference', $request->payment_intent_id)->first();
-            if ($activity_registeration) {
-                $activity_registeration->update(['payment_status' => true]);
-            }
-            // Make transaction 
-            $transaction =   Transaction::create([
-                'user_id' => $user->id,
-                'payment_method' => 'visa',
-                'amount' => $activity_registeration->activity->cost,
-                'type' => 'in',
-                'transaction_source' => 'Enroll_activity',
-                'status' => 'paid',
-                'is_installment' => false,
-                'payment_reference' => $paymentIntent->id,
-            ]);
-            $user->notify(new ActivityEnrollNotification($transaction, $activity_registeration->activity));
-            DB::commit();
-            return HelpersFunctions::success("", "Confirming paying Done", 200);
-        } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
-        }
-    }
+    // public function confirm_payment_register_in_avtivity(Request $request)
+    // {
+    //     $request->validate([
+    //         'payment_intent_id' => 'required|string',
+    //     ]);
+    //     try {
+    //         DB::beginTransaction();
+    //         $user = User::find(auth('sanctum')->user()->id);
+    //         Stripe::setApiKey(config('services.stripe.secret'));
+    //         $paymentIntent = PaymentIntent::retrieve($request->payment_intent_id);
+    //         $activity_registeration = Activity_participants::where('payment_reference', $request->payment_intent_id)->first();
+    //         if ($activity_registeration) {
+    //             $activity_registeration->update(['payment_status' => true]);
+    //         }
+    //         // Make transaction 
+    //         $transaction =   Transaction::create([
+    //             'user_id' => $user->id,
+    //             'payment_method' => 'visa',
+    //             'amount' => $activity_registeration->activity->cost,
+    //             'type' => 'in',
+    //             'transaction_source' => 'Enroll_activity',
+    //             'status' => 'paid',
+    //             'is_installment' => false,
+    //             'payment_reference' => $paymentIntent->id,
+    //         ]);
+    //         DB::commit();
+    //         return HelpersFunctions::success("", "Confirming paying Done", 200);
+    //     } catch (Exception $e) {
+    //         return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
+    //     }
+    // }
     public function surfing_salary()
     {
         return $this->surfing_salary_for_all();
@@ -288,7 +291,12 @@ class TeacherProcessController extends Controller
             activity()->causedBy($user)->withProperties([
                 'Process_type' => "Enter Education Level",
             ])->log("Teacher "  . $user->name  . "Enter Education Level");
-            Notification::send($users, new EducationContentNotification($education_content));
+            // Handling Notification 
+            $message = $user->name  . " have been  Adding New Education content " . $education_content->title;
+            // Save Notification In dataBase 
+            Notification::send($users, new EducationContentNotification("Adding New Education content", $message));
+            // Broadcast Realtime Notification
+            event(new EducationContentNotificationEvent("Adding New Education content", $message));
             DB::commit();
             return HelpersFunctions::success($education_content, "Adding  Education Content Done", 200);
         } catch (Exception $e) {
@@ -329,10 +337,10 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error(" Bad Request ", 400, $validator->errors());
         }
         try {
-            $user =  User::find(auth('sanctum')->user()->id);
+            $teacher =  User::find(auth('sanctum')->user()->id);
             DB::beginTransaction();
             $mark = new Mark();
-            $mark->teacher_id = $user->teacher->id;
+            $mark->teacher_id = $teacher->teacher->id;
             $mark->student_id = $request->student_id;
             $mark->exam_type = $request->exam_type;
             $mark->score = $request->score;
@@ -341,15 +349,24 @@ class TeacherProcessController extends Controller
             $mark->teacher_note = $request->teacher_note;
             $mark->term_id = HelpersFunctions::getCurrentTermId();
             $mark->save();
-            $user = Student::where('id', $request->student_id)
+            $student = Student::where('id', $request->student_id)
                 ->with('user')
                 ->first()
                 ->user;
-            activity()->causedBy($user)->withProperties([
+            activity()->causedBy($teacher)->withProperties([
                 'Process_type' => "Enter Marks",
-            ])->log("Teacher "  . $user->name  . "Enter Marks");
-
-            $user->notify(new MarkNotification($mark));
+            ])->log("Teacher "  . $teacher->name  . "Enter Marks");
+            // Handling Notification 
+            // preparing Message 
+            $message = $teacher->name  . " Add new mark for student :  "
+                . $student->name
+                . "For subject" . $teacher->teacher->subject->name
+                . " Of type " . $mark->exam_type
+                . "  with score " . $mark->score;
+            // Save Notification In dataBase
+            $student->notify(new MarkNotification("New Mark Adding", $message));
+            // Broadcast Realtime Notification
+            event(new MarkNotificationEvent("New Mark Adding", $message));
             DB::commit();
             return HelpersFunctions::success($mark, "Enterring Mark Done", 200);
         } catch (Exception $e) {
@@ -403,6 +420,7 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
         }
         try {
+            $user = auth('sanctum')->user();
             DB::beginTransaction();
             $homwork = new Home_work();
             $homwork->teacher_id = auth('sanctum')->user()->teacher->id;
@@ -421,8 +439,12 @@ class TeacherProcessController extends Controller
                 ->get()
                 ->pluck('user')
                 ->filter();
-            // $homwork->homework_url = $request->homework_url;
-            Notification::send($users, new HomeworkAddedNotification($homwork));
+            // Handling Notification 
+            $message = $user->name  . " have been  Adding New Home Work";
+            // Save Notification In dataBase
+            Notification::send($users, new HomeworkAddedNotification("Adding New Home Work", $message));
+            // Broadcast Realtime Notification
+            event(new HomeworkAddedNotificationEvent("Adding New Home Work", $message));
             DB::commit();
             // save activity
             activity()->causedBy(auth('sanctum')->user())->withProperties([

@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Events\NotificationsEvent\ActivityEnrollNotificationEvent;
+use App\Events\NotificationsEvent\LeaveOrderNotificationEvent;
 use App\Helpers\HelpersFunctions;
 use App\Models\Activity;
 use App\Models\Activity_participants;
@@ -10,10 +12,12 @@ use App\Models\Salary;
 use App\Models\Staff_attendance;
 use App\Models\Staff_leaves;
 use App\Models\User;
+use App\Notifications\ActivityEnrollNotification;
 use App\Notifications\LeaveOrderNotification;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -123,7 +127,16 @@ trait SharedFunctionTrait
                 'Process_type' => "Leave Demand",
                 'date' => now()->format('Y-m-h'),
             ])->log("Leave Demand");
-            $admin->notify(new LeaveOrderNotification($user, $leave));
+
+            // Handling Notification
+            // preparing message 
+            $message = $user->name .  " want a leave in :" . $leave->leave_date .
+                " with period : " . $leave->period .
+                " with leave type : " . $leave->leave_type;
+            // save data base notification 
+            $admin->notify(new LeaveOrderNotification("leave order", $message));
+            // broad cast Event notification
+            event(new LeaveOrderNotificationEvent("leave order", $message));
 
             DB::commit();
             return HelpersFunctions::success("", "Leave Demand Done", 200);
@@ -142,56 +155,33 @@ trait SharedFunctionTrait
         }
         try {
             DB::beginTransaction();
-            $user = User::find(auth('sanctum')->user()->id);
-            // $user = auth('sanctum')->user();
-            // if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
-            //     return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
-            // }
+            // $user = User::find(auth('sanctum')->user()->id);
+            $user = auth('sanctum')->user();
+            if ($user->activities()->where('activities.id', $request->activity_id)->exists()) {
+                return HelpersFunctions::error("logical Error", 400, "you Are already registered in this activity");
+            }
             $activity = Activity::find($request->activity_id);
-
+            if ($activity->seats_limit <= $activity->participants->count()) {
+                return HelpersFunctions::error("logical Error", 400, "sorry the Activity is fully");
+            }
             $register_in_activity = new Activity_participants();
             $register_in_activity->user_id = auth('sanctum')->user()->id;
             $register_in_activity->activity_id = $request->activity_id;
-            if ($activity->is_paid) {
-                $register_in_activity->payment_status = 'pending';
-                $register_in_activity->payment_method = 'OnLine';
-            } else {
-                $register_in_activity->payment_status = 'free_activity'; // cash
-                $register_in_activity->payment_method = 'cash';
-            }
+            $register_in_activity->payment_status = 'free_activity'; // cash
+            $register_in_activity->payment_method = 'cash';
             $register_in_activity->attendance = false;
             if ($request->notes) {
                 $register_in_activity->notes = $request->notes  ?? null;
             }
             $register_in_activity->save();
-            // Code For Stripe paying
-            if ($activity->is_paid) {
-                Stripe::setApiKey(config('services.stripe.secret'));
-                $paymentIntent = PaymentIntent::create([
-                    'amount' => $activity->cost * 100,
-                    'currency' => 'usd',
-                    'metadata' => [
-                        'teacher_id' => $user->teacher->id,
-                        'activity_id' => $request->activity_id,
-                    ],
-                ]);
-                $register_in_activity->update([
-                    'payment_reference' => $paymentIntent->id
-                ]);
-                $register_in_activity->save();
-                $data = [
-                    'client_secret' => $paymentIntent->client_secret,
-                    'message' => 'Creating Registering in Activity Done Please Process Payment cost',
-                ];
-                DB::commit();
-                return HelpersFunctions::success($data, "please Continue Payment", 200);
-            }
-            // code if paying is cash 
-            else {
-
-                DB::commit();
-                return HelpersFunctions::success($register_in_activity, "register_in_activity done", 200);
-            }
+            // Handling Notification 
+            $message = $user->name  . " have been already register in activity " . $activity->Title;
+            // Save Notification In dataBase 
+            $user->notify(new ActivityEnrollNotification("Enrolling Activity Notification", $message));
+            // Broadcast Realtime Notification
+            event(new ActivityEnrollNotificationEvent("Enrolling Activity Notification", $message));
+            DB::commit();
+            return HelpersFunctions::success($register_in_activity, "register_in_activity done", 200);
             // Checing if Activity still Available
             Artisan::call('activities:check-seats');
         } catch (Exception $e) {
@@ -201,7 +191,7 @@ trait SharedFunctionTrait
     public function notifications()
     {
         try {
-            $notifications = auth('sanctum')->user()->notifications->map(function ($notification) { /// unreadNotifications
+            $notifications = auth('sanctum')->user()->unreadNotifications->map(function ($notification) { /// unreadNotifications
                 return [
                     'id'   => $notification->id,
                     'data' => $notification->data,

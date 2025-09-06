@@ -33,7 +33,7 @@ class AdminAuth extends Controller
 
         // Verify The Role Admin
         if ($user->role != $request->input('role')) {
-            return HelpersFunctions::error('Failed Login Invalid Data', 400, 'You Do Not Have Permission To Login As Admin Please Login As ' . $user->role);
+            return HelpersFunctions::error('Failed Login Forbbiden', 405, ['You Do Not Have Permission To Login As Admin Please Login As ' . $user->role]);
         }
         // Verify The Password Admin
         if (!Hash::check($request->input('password'), $user->password)) {
