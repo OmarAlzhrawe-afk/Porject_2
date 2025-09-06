@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\AdminControllers;
 
+use App\Events\NotificationsEvent\RejectLeaveNotificationEvent;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use SimpleXMLElement;
@@ -261,8 +262,15 @@ class AdminProcessController extends Controller
             if ($leave && $user) {
                 $leave->status = 'rejected';
                 $leave->save();
+                // Handling Notification 
+                // preparing Message 
+                $message = "Leave For : " . $user->name  . "Is Rejected";
+                // Save Notification In dataBase
+                $user->notify(new RejectLeaveNotification("reject leave", $leave));
+                // Broadcast Realtime Notification
+                event(new RejectLeaveNotificationEvent("reject leave", $message));
+
                 // Send Notification To employee
-                $user->notify(new RejectLeaveNotification($leave));
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([
                     'Process_type' => " Reject Leave",

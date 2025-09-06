@@ -12,26 +12,23 @@ use Illuminate\Notifications\Notification;
 class NewBookLoan extends Notification
 {
     use Queueable;
-
-    protected $message;
     protected $title;
-
+    protected $message;
     public function __construct($title, $message)
     {
         $this->title = $title;
         $this->message = $message;
     }
-
-    public function via($notifiable)
+    public function via()
     {
         return ['database'];
     }
 
-    public function toDatabase($notifiable)
+    public function toDatabase()
     {
         return [
             'title' => $this->title,
-            'message' => $this->message
+            'message' => $this->message,
         ];
     }
 }

@@ -7,6 +7,7 @@ use App\Events\BookDelete;
 use App\Events\BookSaleEvent;
 use App\Events\BookUpdate;
 use App\Events\NotificationsEvent\NewBookLoanEvent;
+use App\Events\NotificationsEvent\NewBookSaleEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
 use App\Models\Book_loan;
@@ -314,7 +315,7 @@ class LibrarianProcessController extends Controller
             $book_loan->status = "unreturned";
             $book_loan->save();
             // Send Notification For User 
-            $user = User::find($book_loan->user_id);
+
             $returnDate = now();
             if ($book_loan->type == 'monthly') {
                 $returnDate = now()->addMonth();
@@ -330,7 +331,6 @@ class LibrarianProcessController extends Controller
             $user->notify(new NewBookLoan("New book Loan", $message));
             // Broadcast Realtime Notification
             event(new NewBookLoanEvent("New book Loan", $message));
-
             // Update Cultural Book 
             $book = Cultural_book::find($request->book_id);
             $book->copies_available = $book->copies_available--;
@@ -394,10 +394,15 @@ class LibrarianProcessController extends Controller
                 'is_installment' => false,
             ]);
             $parent_student = User::find($book_sale->student->parent_id);
-            // dd($parent_student);
-            // dd($book_sale->student->parent_id);
-            $message = "your son puy new book from shcoole with price : " . $book_sale->total_price;
-            $parent_student->notify(new NewBookSale($message));
+            // Handling Notification 
+            // preparing Message 
+            $message = $student->user->name  . "puy new books from shcoole with price : " . $book_sale->total_price;
+            // Save Notification In dataBase
+            $parent_student->notify(new NewBookSale("new Book Sale", $message));
+            // Broadcast Realtime Notification
+            event(new NewBookSaleEvent("new Book Sale", $message));
+            // Update Cultural Book 
+
             DB::commit();
             $user = auth('sanctum')->user();
             activity()->causedBy($user)->withProperties([

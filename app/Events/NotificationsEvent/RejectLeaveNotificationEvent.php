@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Queue\SerializesModels;
 
-class NewBookLoanEvent implements ShouldBroadcast
+class RejectLeaveNotificationEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -37,6 +37,6 @@ class NewBookLoanEvent implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'book-loan';
+        return 'reject-leave';
     }
 }

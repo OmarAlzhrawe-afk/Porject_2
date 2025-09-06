@@ -9,43 +9,23 @@ use Illuminate\Notifications\Notification;
 class NewBookSale extends Notification
 {
     use Queueable;
-
+    protected $title;
     protected $message;
-
-    public function __construct($message)
+    public function __construct($title, $message)
     {
+        $this->title = $title;
         $this->message = $message;
     }
-
-    public function via($notifiable)
+    public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
-    public function toDatabase($notifiable)
+    public function toDatabase()
     {
         return [
-            'type' => 'Book Sale',
-            'title' => 'Book Sale',
+            'title' => $this->title,
             'message' => $this->message,
         ];
-    }
-
-    public function toBroadcast($notifiable)
-    {
-        return new BroadcastMessage([
-            'title' => 'Book Sale',
-            'message' => $this->message,
-        ]);
-    }
-
-    public function broadcastOn()
-    {
-        return ['school-channel'];
-    }
-
-    public function broadcastAs()
-    {
-        return 'book-sale';
     }
 }

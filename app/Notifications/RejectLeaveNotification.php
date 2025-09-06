@@ -10,28 +10,23 @@ use Illuminate\Notifications\Notification;
 class RejectLeaveNotification extends Notification
 {
     use Queueable;
-    protected $leave;
-    public function __construct($leave)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->leave = $leave;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toDatabase()
     {
         return [
-            'title' => 'Leave Rejected Notification',
-            'data' =>  $this->leave
-        ];
-    }
-    public function toBroadcast()
-    {
-        return [
-            'title' => 'Leave Rejected Notification',
-            'data' =>  $this->leave
+            'title' => $this->title,
+            'message' => $this->message,
         ];
     }
 }
