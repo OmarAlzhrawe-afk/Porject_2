@@ -72,8 +72,6 @@ class SupervisorProcessesController extends Controller
     }
     public function Add_Activity(StoreActivityRequest $request)
     {
-
-
         try {
             $data = $request->validated();
             DB::beginTransaction();

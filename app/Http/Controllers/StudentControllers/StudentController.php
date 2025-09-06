@@ -244,7 +244,7 @@ class StudentController extends Controller
             $homeworks_solve = new Homeworksolving();
             $homeworks_solve->homework_id = $request->homework_id;
             $homeworks_solve->student_id = $user->student->id;
-            $homeworks_solve->solved = true;
+            $homeworks_solve->solved = false;
             if ($request->hasFile('solve_url')) {
                 $file = $request->file('solve_url');
                 $file_Name = time() . '_' . $file->getClientOriginalName();

@@ -427,7 +427,6 @@ class ManageClassesAndEducationLevel extends Controller
                 'end_time' =>  'required|date_format:H:i|after:start_time ',
                 'day' =>  'required|in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday',
             ]);
-
             if ($validator->fails()) {
                 return HelpersFunctions::error('Bad Request', 400, $validator->errors());
             } else {

@@ -47,7 +47,7 @@ class GenerateStudentsReport extends Command
                     'name' => $student->user->name,
                     'attendance_days' => $student_attendance,
                     'absence_days' => $student_abcence,
-                    'teacher_notes' => json_decode($student->profile?->teacher_feedback)  ?? '',
+                    'teacher_notes' => $student->profile?->teacher_feedback ?? '',
                     'activities' => $activities,
                     'unpaid_installments' => $unpaid_installments
                 ]);
@@ -91,5 +91,6 @@ class GenerateStudentsReport extends Command
         $report->report_description = "students Report For Year : " . now()->year() . " Month :  " . now()->month();
         $report->report_date = now()->format('Y-m'); // 'F Y'
         $report->save();
+        $this->info("Generating Student Report Done");
     }
 }

@@ -58,7 +58,14 @@
                 <td>{{ $student['name'] }}</td>
                 <td>{{ $student['attendance_days'] }}</td>
                 <td>{{ $student['absence_days'] }}</td>
-                <td>{{ $student['teacher_notes'] }}</td>
+              <td>
+    @if(is_array($student['teacher_notes']))
+        {{ json_encode($student['teacher_notes'], JSON_UNESCAPED_UNICODE) }}
+    @else
+        {{ $student['teacher_notes'] }}
+    @endif
+</td>
+
                 <td>
                     @if($student['activities']->count() > 0)
                         {{ $student['activities']->implode(', ') }}

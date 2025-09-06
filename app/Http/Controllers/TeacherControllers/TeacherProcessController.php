@@ -463,15 +463,16 @@ class TeacherProcessController extends Controller
             return HelpersFunctions::error("Bad Request ", 400, $validator->errors());
         }
         try {
-
+            // $user = User::find();
+            // $student = $user->student;
             $homeworks = Homeworksolving::where([
                 'homework_id' => $request->homework_id,
                 'solved' => false
-            ])
-                ->get()
+            ])->get()
                 ->map(function ($homwork) {
                     return [
-                        'student_id' => Student::find($homwork->student_id),
+                        'student_id' => Student::where('id', $homwork->student_id)->first()->id,
+                        'student_name' => Student::where('id', $homwork->student_id)->first()->user->name,
                         'solve_url' => url($homwork->solve_url),
                     ];
                 });

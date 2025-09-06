@@ -27,8 +27,8 @@ class TermsTableSeeder extends Seeder
                 'start_date' => '2024-01-01',
                 'end_date' => '2025-01-01',
                 'is_current' => 1,
-                'created_at' => '2025-08-30 19:29:36',
-                'updated_at' => '2025-08-30 19:29:36',
+                'created_at' => '2025-09-05 23:29:21',
+                'updated_at' => '2025-09-05 23:29:21',
             ),
         ));
         

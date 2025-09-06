@@ -29,7 +29,6 @@ class CheckEducationLevelFullness extends Command
             }
         }
         Log::info("Education level ID {$level->id} updated to is_fully: " . ($all_classes_is_fully ? 'true' : 'false'));
-
-        return 0;
+        $this->info('Education checked and Update If Nessesary');
     }
 }

@@ -32,6 +32,21 @@ class SubjectsTableSeeder extends Seeder
             2 => 
             array (
                 'id' => 3,
+                'name' => 'sport',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'name' => 'drawing',
+            ),
+            4 => 
+            array (
+                'id' => 5,
+                'name' => 'music',
+            ),
+            5 => 
+            array (
+                'id' => 6,
                 'name' => 'physics',
             ),
         ));
