@@ -248,7 +248,7 @@ class TeacherProcessController extends Controller
                     ];
                 })
                 ->groupBy('day');
-            return HelpersFunctions::success($sessions, "Getting Salary Done", 200);
+            return HelpersFunctions::success($sessions, "Getting schedul_table Done", 200);
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error", 500, $e->getMessage());
         }

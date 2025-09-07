@@ -77,11 +77,10 @@ class StudentController extends Controller
                         'Teacher_name' => $session->teacher->user->name,
                         'start_time'   => $session->start_time,
                         'end_time'     => $session->end_time,
-                        'session_day'  => $session->session_day, // تأكد من وجود هذا الحقل
+                        'session_day'  => $session->session_day,
                     ];
                 })
-                ->groupBy('session_day'); // التجميع حسب اسم اليوم بالإنجليزي
-
+                ->groupBy('session_day');
             return HelpersFunctions::success($sessions, "Getting schedule Done");
         } catch (Exception $e) {
             return HelpersFunctions::error(
