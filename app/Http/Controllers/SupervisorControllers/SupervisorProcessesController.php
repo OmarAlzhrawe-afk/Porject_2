@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\SupervisorControllers;
 
 use App\Events\AddedActivityEvent;
+use App\Events\NotificationsEvent\StudentAbsencesNotificationEvent;
+use App\Events\NotificationsEvent\SupervisorNotificationEvent;
 use App\Events\updatedActivityEvent;
 use App\Helpers\HelpersFunctions;
 use App\Http\Controllers\Controller;
@@ -358,11 +360,14 @@ class SupervisorProcessesController extends Controller
                         $student_profile->total_absences++;
                         $student_profile->unexcused_absences = !$Attendance->excused ? $student_profile->unexcused_absences = $student_profile->unexcused_absences + 1 : $student_profile->unexcused_absences;
                         $student_profile->save();
-                        // dd($student);
-                        // $studentuser = $student->user;
-                        // $studentuser->notify(new StudentAbsencesNotification($Attendance));
                         $parentuser = $student->parent;
-                        $parentuser->notify(new StudentAbsencesNotification($Attendance->excused, $student->user->name));
+                        // Handling Notification 
+                        // preparing Message 
+                        $message = $student->user->name . " is today " . ($Attendance->excused ? "exist" : "not exist");
+                        // Save Notification In dataBase
+                        $parentuser->notify(new StudentAbsencesNotification("Excused_student", $message));
+                        // Broadcast Realtime Notification
+                        event(new StudentAbsencesNotificationEvent("Excused_student", $message));
                     }
                 }
                 DB::commit();
@@ -420,7 +425,13 @@ class SupervisorProcessesController extends Controller
             ]);
             $supervisor = auth('sanctum')->user();
             $user = User::find($request->user_id);
-            $user->notify(new SupervisorNotification($request->message, $supervisor->naem));
+            // Handling Notification 
+            // preparing Message 
+            $message = $request->message;
+            // Save Notification In dataBase
+            $user->notify(new SupervisorNotification("supervisor notification", $message));
+            // Broadcast Realtime Notification
+            event(new SupervisorNotificationEvent("supervisor notification", $message));
             return HelpersFunctions::success("", "Notification mark As Read Done");
         } catch (Exception $e) {
             return HelpersFunctions::error("Internal Server Error ", 500, $e->getMessage());

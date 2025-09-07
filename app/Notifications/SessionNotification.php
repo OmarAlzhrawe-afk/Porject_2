@@ -12,43 +12,23 @@ use Illuminate\Notifications\Notification;
 class SessionNotification extends Notification
 {
     use Queueable;
-
-    protected $session_data;
-    public function __construct($session_data)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->session_data = $session_data;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toDatabase()
     {
         return [
-            'title' => 'New Session For You',
-            'message' => "Admin Add New Session For You At \n  day:  "  . $this->session_data['session_day']
-                . "\n start_time:" . $this->session_data['start_time']
-                . "\n teacher_name:" . $this->session_data['teacher_name']
-                . "\n subject_name:" . $this->session_data['subject_name']
+            'title' => $this->title,
+            'message' => $this->message,
         ];
-    }
-    public function toBroadcast()
-    {
-        return new BroadcastMessage([
-            'title' => 'New Session For You',
-            'message' => "Admin Add New Session For You At \n  day:  "  . $this->session_data['session_day']
-                . "\n start_time:" . $this->session_data['start_time']
-                . "\n teacher_name:" . $this->session_data['teacher_name']
-                . "\n subject_name:" . $this->session_data['subject_name']
-        ]);
-    }
-    public function broadcastOn()
-    {
-        return new Channel('school-channel');
-    }
-    public function broadcastAs()
-    {
-        return 'new-notification';
     }
 }

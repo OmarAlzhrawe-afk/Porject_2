@@ -461,7 +461,7 @@ class TeacherProcessController extends Controller
         try {
             $user =  auth('sanctum')->user();
             $homeworks = Home_work::where('teacher_id', $user->teacher->id)
-                ->where('last_date', '<=', Carbon::today())
+                ->where('last_date', '>=', Carbon::today())
                 ->get()
                 ->map(function ($homwork) {
                     return [

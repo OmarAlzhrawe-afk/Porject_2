@@ -12,38 +12,23 @@ use Illuminate\Notifications\Notification;
 class StudentAbsencesNotification extends Notification
 {
     use Queueable;
-
-    protected $attendance;
-    protected $user_name;
-    public function __construct($attendance, $user_name)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->attendance = $attendance;
-        $this->user_name = $user_name;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
-    public function todatabase()
+
+    public function toDatabase()
     {
         return [
-            'title' => 'Attendance',
-            'message' => 'Your Children :' . $this->user_name . "\nAttendance IS : " . $this->attendance,
+            'title' => $this->title,
+            'message' => $this->message,
         ];
-    }
-    public function toBroadcast()
-    {
-        return new BroadcastMessage([
-            'title' => 'Attendance',
-            'message' => 'Your Children :' . $this->user_name . "\nAttendance IS : " . $this->attendance,
-        ]);
-    }
-    public function broadcastOn()
-    {
-        return new Channel('school-channel');
-    }
-    public function broadcastAs()
-    {
-        return 'new-notification';
     }
 }

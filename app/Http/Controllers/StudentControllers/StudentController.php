@@ -64,24 +64,31 @@ class StudentController extends Controller
     public function getSchedule()
     {
         try {
-            $user =  User::find(auth('sanctum')->user()->id);
+            $user = User::find(auth('sanctum')->user()->id);
+
+            // جلب الجلسات للصف الخاص بالطالب
             $sessions = Class_session::where('class_room_id', $user->student->class->id)
                 ->orderBy('session_day')
-                ->get()->map(function ($session) {
+                ->get()
+                ->map(function ($session) {
                     return [
-                        'class_Name' => $session->class->name,
-                        'subject' => $session->teacher->subject->name,
+                        'class_Name'   => $session->class->name,
+                        'subject'      => $session->teacher->subject->name,
                         'Teacher_name' => $session->teacher->user->name,
-                        'start_time' => $session->start_time,
-                        'end_time' => $session->end_time,
+                        'start_time'   => $session->start_time,
+                        'end_time'     => $session->end_time,
+                        'session_day'  => $session->session_day, // تأكد من وجود هذا الحقل
                     ];
                 })
-                ->groupBy('day');
-            // $user = auth('sanctum')->user();
-            // $sessions = $user->student->sessions;
+                ->groupBy('session_day'); // التجميع حسب اسم اليوم بالإنجليزي
+
             return HelpersFunctions::success($sessions, "Getting schedule Done");
         } catch (Exception $e) {
-            return HelpersFunctions::error("Internal Server Error IN : " . $e->getLine(), 500, $e->getMessage());
+            return HelpersFunctions::error(
+                "Internal Server Error IN : " . $e->getLine(),
+                500,
+                $e->getMessage()
+            );
         }
     }
     public function contents()

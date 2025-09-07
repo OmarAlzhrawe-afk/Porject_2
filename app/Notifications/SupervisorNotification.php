@@ -10,32 +10,23 @@ use Illuminate\Notifications\Notification;
 class SupervisorNotification extends Notification
 {
     use Queueable;
+    protected $title;
     protected $message;
-    protected $SenderName;
-    public function __construct($message, $SenderName)
+    public function __construct($title, $message)
     {
+        $this->title = $title;
         $this->message = $message;
-        $this->SenderName = $SenderName;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
-    public function todatabase()
+    public function toDatabase()
     {
         return [
-            'type' => 'Specefic Notification',
+            'title' => $this->title,
             'message' => $this->message,
-            'SenderName' => $this->SenderName
-        ];
-    }
-    public function toBroadcast()
-    {
-        return [
-            'type' => 'Specefic Notification',
-            'message' => $this->message,
-            'SenderName' => $this->SenderName
         ];
     }
 }

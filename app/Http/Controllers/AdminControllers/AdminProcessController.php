@@ -270,7 +270,6 @@ class AdminProcessController extends Controller
                 // Broadcast Realtime Notification
                 event(new RejectLeaveNotificationEvent("reject leave", $message));
 
-                // Send Notification To employee
                 $admin = auth('sanctum')->user();
                 activity()->causedBy($admin)->withProperties([
                     'Process_type' => " Reject Leave",

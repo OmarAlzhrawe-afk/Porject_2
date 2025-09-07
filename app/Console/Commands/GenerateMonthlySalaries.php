@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Events\NotificationsEvent\SalaryReadyNotificationEvent;
 use Illuminate\Console\Command;
 use App\Models\User;
 use App\Models\Salary;
@@ -49,7 +50,13 @@ class GenerateMonthlySalaries extends Command
             if ($employee->role == 'supervisor') {
                 $employee->notify(new SupervisorSalaryNotification($salary));
             } else {
-                $employee->notify(new SalaryReadyNotification($salary));
+                // Handling Notification 
+                // preparing Message 
+                $message = "Salary For : " . $employee->name  . " Is Ready";
+                // Save Notification In dataBase
+                $employee->notify(new SalaryReadyNotification("salary is ready", $message));
+                // Broadcast Realtime Notification
+                event(new SalaryReadyNotificationEvent("salary is ready", $message));
             }
             // Sending Notification 
             // Notification::send($employee, new SalaryReadyNotification($salary));

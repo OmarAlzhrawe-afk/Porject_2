@@ -6,6 +6,7 @@ use App\Events\ClassRoomCreated;
 use App\Events\ClassRoomDeleted;
 use App\Events\EducationLevelCreated;
 use App\Events\EducationLevelDeleted;
+use App\Events\NotificationsEvent\SessionNotificationEvent;
 use App\Events\SubjectCreated;
 use App\Events\SubjectDeletedFromEducationLevel;
 use App\Http\Controllers\Controller;
@@ -498,8 +499,20 @@ class ManageClassesAndEducationLevel extends Controller
                         'teacher_name' =>    $teacher->user->name,
                         'subject_name' =>  $subject->name
                     ];
-                    $teacher->user->notify(new SessionNotification($class_session_data));
-                    Notification::send($studentUsers, new SessionNotification($class_session_data));
+                    // Handling Notification 
+                    // preparing Message 
+                    $message = " Add new session at day :  "
+                        . $class_session_data['session_day']
+                        . "  For subject :" . $class_session_data['subject_name']
+                        . " for teacher :" .  $class_session_data['teacher_name']
+                        . " at start time :" .  $class_session_data['start_time']
+                        . " at end time :" .  $class_session_data['end_time'];
+                    // Save Notification In dataBase
+                    $teacher->user->notify(new SessionNotification("adding session", $message));
+                    Notification::send($studentUsers, new SessionNotification("adding session", $message));
+                    // Broadcast Realtime Notification
+                    event(new SessionNotificationEvent("adding session", $message));
+
 
                     DB::commit();
                     return HelpersFunctions::success($class_session_data, "Add Session Successfully", 200);

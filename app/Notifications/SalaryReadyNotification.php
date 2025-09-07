@@ -12,43 +12,24 @@ use Illuminate\Notifications\Notification;
 class SalaryReadyNotification extends Notification
 {
     use Queueable;
-    protected $salary;
-    public function __construct($salary)
+    protected $title;
+    protected $message;
+    public function __construct($title, $message)
     {
-        $this->salary = $salary;
+        $this->title = $title;
+        $this->message = $message;
     }
     public function via()
     {
-        return ['database', 'broadcast'];
+        return ['database'];
     }
 
     public function toDatabase()
     {
         return [
-            'title' => 'Your Salary Ready',
-            'message' => 'Your Salary Ready and This with BaseSalary : ' . $this->salary->Base_salary .
-                '\n bonus : ' . $this->salary->bonus .
-                '\n deducations : ' . $this->salary->deductions
-            // 'data' =>  $this->salary
+            'title' => $this->title,
+            'message' => $this->message,
         ];
-    }
-    public function toBroadcast()
-    {
-        return new BroadcastMessage([
-            'title' => 'Your Salary Ready',
-            'message' => "Your Salary Ready and This with\n BaseSalary : " . $this->salary->Base_salary .
-                "\n bonus : " . $this->salary->bonus .
-                "\n deducations : " . $this->salary->deductions
-            // 'data' =>  $this->salary
-        ]);
-    }
-    public function broadcastOn()
-    {
-        return new Channel('school-channel');
-    }
-    public function broadcastAs()
-    {
-        return 'new-notification';
     }
 }
 
