@@ -465,6 +465,7 @@ class TeacherProcessController extends Controller
                 ->get()
                 ->map(function ($homwork) {
                     return [
+                        'homework_id' => $homwork->id,
                         'class_name' => Class_room::where('id', $homwork->class_id)->first()->value('name'),
                         'description' => $homwork->description,
                         'homework_url' => url($homwork->homework_url),
